@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Car, User, LogOut, Shield, Search, LayoutDashboard } from "lucide-react";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard"];
@@ -72,6 +73,9 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
+              {!isLoading && user && (
+                <NotificationBell userEmail={user.email} />
+              )}
               {!isLoading && (
                 user ? (
                   <DropdownMenu>

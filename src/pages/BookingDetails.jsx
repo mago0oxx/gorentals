@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import StarRating from "@/components/ui/StarRating";
+import { NotificationService } from "@/components/notifications/notificationService";
 import { motion } from "framer-motion";
 
 const statusConfig = {
@@ -119,6 +120,11 @@ export default function BookingDetails() {
           blocked_dates: [...currentBlocked, ...newBlockedDates]
         });
       }
+      await NotificationService.notifyBookingApproved(booking);
+    } else if (newStatus === "rejected") {
+      await NotificationService.notifyBookingRejected(booking);
+    } else if (newStatus === "paid") {
+      await NotificationService.notifyBookingPaid(booking);
     }
 
     await loadData();
@@ -147,6 +153,9 @@ export default function BookingDetails() {
         total_bookings: (vehicles[0].total_bookings || 0) + 1
       });
     }
+
+    // Send notifications
+    await NotificationService.notifyBookingCompleted(booking);
 
     await loadData();
     setIsUpdating(false);

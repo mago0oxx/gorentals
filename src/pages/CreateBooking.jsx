@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { NotificationService } from "@/components/notifications/notificationService";
 import { motion } from "framer-motion";
 
 export default function CreateBooking() {
@@ -133,6 +134,9 @@ export default function CreateBooking() {
         pickup_location: vehicle.location,
         notes: notes
       });
+
+      // Send notification to owner
+      await NotificationService.notifyNewBookingRequest(newBooking);
 
       navigate(createPageUrl(`BookingDetails?id=${newBooking.id}&success=true`));
     } catch (err) {
