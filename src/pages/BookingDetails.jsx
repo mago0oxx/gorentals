@@ -28,6 +28,7 @@ import { es } from "date-fns/locale";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import StarRating from "@/components/ui/StarRating";
 import { NotificationService } from "@/components/notifications/notificationService";
+import PaymentButton from "@/components/payments/PaymentButton";
 import { motion } from "framer-motion";
 
 const statusConfig = {
@@ -151,6 +152,36 @@ export default function BookingDetails() {
     if (vehicles.length > 0) {
       await base44.entities.Vehicle.update(booking.vehicle_id, {
         total_bookings: (vehicles[0].total_bookings || 0) + 1
+      });
+    }
+
+    // Mark owner payout as completed
+    const ownerPayouts = await base44.entities.Transaction.filter({
+      booking_id: booking.id,
+      user_email: booking.owner_email,
+      type: "payout"
+    });
+    if (ownerPayouts.length > 0) {
+      await base44.entities.Transaction.update(ownerPayouts[0].id, { status: "completed" });
+    }
+
+    // Release security deposit
+    const depositHolds = await base44.entities.Transaction.filter({
+      booking_id: booking.id,
+      type: "deposit_hold"
+    });
+    if (depositHolds.length > 0) {
+      await base44.entities.Transaction.update(depositHolds[0].id, { status: "completed" });
+      // Create deposit release transaction
+      await base44.entities.Transaction.create({
+        booking_id: booking.id,
+        user_email: booking.renter_email,
+        user_role: "renter",
+        type: "deposit_release",
+        amount: booking.security_deposit,
+        status: "completed",
+        description: `Devolución de depósito - ${booking.vehicle_title}`,
+        vehicle_title: booking.vehicle_title
       });
     }
 
@@ -413,21 +444,31 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Mark as Paid (Owner) */}
+        {/* Pay Button (Renter) */}
+        {isRenter && booking.status === "approved" && (
+          <Card className="border-0 shadow-sm rounded-2xl">
+            <CardContent className="p-5">
+              <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-4">
+                <p className="text-green-800 font-medium">¡Tu reserva fue aprobada!</p>
+                <p className="text-green-700 text-sm mt-1">
+                  Completa el pago para confirmar tu reserva.
+                </p>
+              </div>
+              <PaymentButton booking={booking} onPaymentComplete={loadData} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Waiting for Payment (Owner) */}
         {isOwner && booking.status === "approved" && (
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardContent className="p-5">
-              <p className="text-gray-600 mb-4">
-                Una vez que recibas el pago del arrendatario, marca esta reserva como pagada.
-              </p>
-              <Button
-                onClick={() => handleStatusUpdate("paid")}
-                disabled={isUpdating}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-                Confirmar pago recibido
-              </Button>
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                <p className="text-blue-800 font-medium">Esperando pago</p>
+                <p className="text-blue-700 text-sm mt-1">
+                  El arrendatario debe completar el pago para confirmar la reserva.
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Car, Calendar, DollarSign, Star, Plus, Settings, ChevronRight,
-  TrendingUp, Clock, CheckCircle, MapPin, Bell
+  TrendingUp, Clock, CheckCircle, MapPin, Bell, Receipt
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -128,6 +128,12 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-3">
               <NotificationBell userEmail={user.email} />
+              <Link to={createPageUrl("Transactions")}>
+                <Button variant="outline" className="rounded-xl">
+                  <Receipt className="w-4 h-4 mr-2" />
+                  Transacciones
+                </Button>
+              </Link>
               <Link to={createPageUrl("Profile")}>
                 <Button variant="outline" className="rounded-xl">
                   <Settings className="w-4 h-4 mr-2" />
