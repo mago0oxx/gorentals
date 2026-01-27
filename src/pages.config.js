@@ -10,6 +10,7 @@ import MyVehicles from './pages/MyVehicles';
 import VehicleCalendar from './pages/VehicleCalendar';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "VehicleCalendar": VehicleCalendar,
     "Profile": Profile,
     "AdminDashboard": AdminDashboard,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {
