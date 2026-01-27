@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Car, Calendar, DollarSign, Star, Plus, Settings, ChevronRight,
-  TrendingUp, Clock, CheckCircle, MapPin
+  TrendingUp, Clock, CheckCircle, MapPin, Bell
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import EmptyState from "@/components/common/EmptyState";
 import BookingCard from "@/components/booking/BookingCard";
 import VehicleCard from "@/components/vehicles/VehicleCard";
@@ -125,7 +126,8 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
+              <NotificationBell userEmail={user.email} />
               <Link to={createPageUrl("Profile")}>
                 <Button variant="outline" className="rounded-xl">
                   <Settings className="w-4 h-4 mr-2" />
