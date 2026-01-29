@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   Star, MapPin, Settings, Fuel, Users, Calendar as CalendarIcon,
-  Shield, ChevronLeft, ChevronRight, User, MessageCircle, Check, X
+  Shield, ChevronLeft, ChevronRight, User, MessageCircle, Check, X, Briefcase
 } from "lucide-react";
 import { format, differenceInDays, addDays, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
@@ -271,6 +271,20 @@ export default function VehicleDetails() {
                             {feature}
                           </Badge>
                         ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Commercial Use */}
+                {vehicle.allow_commercial_use && (
+                  <>
+                    <Separator className="my-4" />
+                    <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
+                      <Briefcase className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-green-900">Uso comercial permitido</p>
+                        <p className="text-sm text-green-700">Puedes usar este vehículo para Uber, DiDi u otras apps</p>
                       </div>
                     </div>
                   </>

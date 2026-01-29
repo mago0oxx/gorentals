@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { 
-  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info
+  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info, Briefcase
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
@@ -69,7 +70,8 @@ export default function AddVehicle() {
     price_per_day: "",
     security_deposit: "",
     location: "",
-    features: []
+    features: [],
+    allow_commercial_use: false
   });
 
   const params = new URLSearchParams(window.location.search);
@@ -112,7 +114,8 @@ export default function AddVehicle() {
           price_per_day: v.price_per_day || "",
           security_deposit: v.security_deposit || "",
           location: v.location || "",
-          features: v.features || []
+          features: v.features || [],
+          allow_commercial_use: v.allow_commercial_use || false
         });
         setPhotos(v.photos || []);
       }
@@ -488,12 +491,28 @@ export default function AddVehicle() {
                   </div>
                 </div>
 
+                <div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <Briefcase className="w-5 h-5 text-gray-600" />
+                      <div>
+                        <p className="font-medium">Permitir uso comercial</p>
+                        <p className="text-sm text-gray-500">Uber, DiDi u otras apps de transporte</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={formData.allow_commercial_use}
+                      onCheckedChange={(checked) => setFormData({ ...formData, allow_commercial_use: checked })}
+                    />
+                  </div>
+                </div>
+
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                   <div className="flex gap-3">
                     <Info className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="text-sm text-blue-800">
                       <p className="font-medium mb-1">Comisión de la plataforma</p>
-                      <p>RentaMargarita cobra una comisión del 15% sobre cada reserva. El resto es tu ganancia.</p>
+                      <p>GoRentals cobra una comisión del 15% sobre cada reserva. El resto es tu ganancia.</p>
                     </div>
                   </div>
                 </div>
