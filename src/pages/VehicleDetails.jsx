@@ -44,37 +44,48 @@ export default function VehicleDetails() {
   }, [vehicleId]);
 
   const loadData = async () => {
-    if (!vehicleId) return;
+    if (!vehicleId) {
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
 
-    const [vehicleData, reviewsData, auth] = await Promise.all([
-      base44.entities.Vehicle.filter({ id: vehicleId }),
-      base44.entities.Review.filter({ vehicle_id: vehicleId }, "-created_date"),
-      base44.auth.isAuthenticated()
-    ]);
+    try {
+      const [vehicleData, reviewsData, auth] = await Promise.all([
+        base44.entities.Vehicle.filter({ id: vehicleId }),
+        base44.entities.Review.filter({ vehicle_id: vehicleId }, "-created_date"),
+        base44.auth.isAuthenticated()
+      ]);
 
-    if (vehicleData.length > 0) {
-      setVehicle(vehicleData[0]);
-      
-      // Load owner info if available
-      try {
-        const owners = await base44.entities.User.filter({ email: vehicleData[0].owner_email });
-        if (owners.length > 0) setOwner(owners[0]);
-      } catch (err) {
-        // Owner user not found, use vehicle owner data instead
-        console.log("Owner user not found, using vehicle data");
+      if (vehicleData.length > 0) {
+        setVehicle(vehicleData[0]);
+        
+        // Load owner info if available
+        try {
+          const owners = await base44.entities.User.filter({ email: vehicleData[0].owner_email });
+          if (owners.length > 0) setOwner(owners[0]);
+        } catch (err) {
+          console.log("Owner user not found, using vehicle data");
+        }
       }
-    }
 
-    setReviews(reviewsData);
-    setIsAuthenticated(auth);
-    
-    if (auth) {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
+      setReviews(reviewsData);
+      setIsAuthenticated(auth);
+      
+      if (auth) {
+        try {
+          const user = await base44.auth.me();
+          setCurrentUser(user);
+        } catch (err) {
+          console.log("Error loading user");
+        }
+      }
+    } catch (error) {
+      console.error("Error loading vehicle data:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const photos = vehicle?.photos?.length > 0 
