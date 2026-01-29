@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Car, Plus, ChevronLeft, MoreVertical, Edit, Trash2, Calendar,
-  Star, Eye, MapPin, User
+  Star, Eye, MapPin, User, History
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import EmptyState from "@/components/common/EmptyState";
@@ -180,6 +180,10 @@ export default function MyVehicles() {
                               <DropdownMenuItem onClick={() => navigate(createPageUrl(`VehicleCalendar?id=${vehicle.id}`))}>
                                 <Calendar className="w-4 h-4 mr-2" />
                                 Disponibilidad
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => navigate(createPageUrl(`VehicleHistory?id=${vehicle.id}`))}>
+                                <History className="w-4 h-4 mr-2" />
+                                Historial
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteId(vehicle.id)}
