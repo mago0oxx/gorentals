@@ -51,19 +51,19 @@ import AddVehicle from './pages/AddVehicle';
 import AdminDashboard from './pages/AdminDashboard';
 import BookingDetails from './pages/BookingDetails';
 import Browse from './pages/Browse';
+import Chat from './pages/Chat';
 import CreateBooking from './pages/CreateBooking';
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import MyBookings from './pages/MyBookings';
 import MyVehicles from './pages/MyVehicles';
+import NotificationSettings from './pages/NotificationSettings';
 import OwnerDashboard from './pages/OwnerDashboard';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
-import Chat from './pages/Chat';
-import NotificationSettings from './pages/NotificationSettings';
 import VehicleHistory from './pages/VehicleHistory';
 import __Layout from './Layout.jsx';
 
@@ -73,19 +73,19 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "BookingDetails": BookingDetails,
     "Browse": Browse,
+    "Chat": Chat,
     "CreateBooking": CreateBooking,
     "Dashboard": Dashboard,
     "Landing": Landing,
     "MyBookings": MyBookings,
     "MyVehicles": MyVehicles,
+    "NotificationSettings": NotificationSettings,
     "OwnerDashboard": OwnerDashboard,
     "Profile": Profile,
     "Register": Register,
     "Transactions": Transactions,
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
-    "Chat": Chat,
-    "NotificationSettings": NotificationSettings,
     "VehicleHistory": VehicleHistory,
 }
 

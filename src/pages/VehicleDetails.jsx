@@ -56,9 +56,14 @@ export default function VehicleDetails() {
     if (vehicleData.length > 0) {
       setVehicle(vehicleData[0]);
       
-      // Load owner
-      const owners = await base44.entities.User.filter({ email: vehicleData[0].owner_email });
-      if (owners.length > 0) setOwner(owners[0]);
+      // Load owner info if available
+      try {
+        const owners = await base44.entities.User.filter({ email: vehicleData[0].owner_email });
+        if (owners.length > 0) setOwner(owners[0]);
+      } catch (err) {
+        // Owner user not found, use vehicle owner data instead
+        console.log("Owner user not found, using vehicle data");
+      }
     }
 
     setReviews(reviewsData);
@@ -334,37 +339,35 @@ export default function VehicleDetails() {
             </Card>
 
             {/* Owner Info */}
-            {owner && (
-              <Card className="border-0 shadow-sm rounded-2xl">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-4">Propietario</h3>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16">
-                      <AvatarImage src={owner.profile_image} />
-                      <AvatarFallback className="bg-teal-100 text-teal-700 text-lg">
-                        {owner.full_name?.[0] || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-lg">{owner.full_name}</p>
-                      {owner.location && (
-                        <p className="text-gray-500 flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          {owner.location}
-                        </p>
-                      )}
-                      {owner.average_rating > 0 && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                          <span className="font-medium">{owner.average_rating.toFixed(1)}</span>
-                          <span className="text-gray-400">({owner.total_reviews} reseñas)</span>
-                        </div>
-                      )}
-                    </div>
+            <Card className="border-0 shadow-sm rounded-2xl">
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">Propietario</h3>
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-16 h-16">
+                    <AvatarImage src={owner?.profile_image} />
+                    <AvatarFallback className="bg-teal-100 text-teal-700 text-lg">
+                      {(owner?.full_name || vehicle.owner_name)?.[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-lg">{owner?.full_name || vehicle.owner_name}</p>
+                    {(owner?.location || vehicle.location) && (
+                      <p className="text-gray-500 flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {owner?.location || vehicle.location}
+                      </p>
+                    )}
+                    {owner?.average_rating > 0 && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <span className="font-medium">{owner.average_rating.toFixed(1)}</span>
+                        <span className="text-gray-400">({owner.total_reviews} reseñas)</span>
+                      </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Reviews */}
             {reviews.length > 0 && (
