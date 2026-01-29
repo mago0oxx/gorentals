@@ -148,14 +148,6 @@ export default function Landing() {
                   Buscar Vehículos
                 </Button>
               </Link>
-              {isAuthenticated && (
-                <Link to={createPageUrl("Dashboard")}>
-                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
-                    Ir al Dashboard
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-              )}
             </div>
           </motion.div>
         </div>
