@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Car, Shield, Calendar, Star, MapPin, ChevronRight, 
-  CheckCircle, Users, Banknote, Search, ArrowRight
+  CheckCircle, Users, Banknote, Search, ArrowRight, User
 } from "lucide-react";
 import { motion } from "framer-motion";
 import VehicleCard from "@/components/vehicles/VehicleCard";
@@ -15,6 +15,7 @@ import VehicleCard from "@/components/vehicles/VehicleCard";
 export default function Landing() {
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -23,6 +24,11 @@ export default function Landing() {
   const loadData = async () => {
     const auth = await base44.auth.isAuthenticated();
     setIsAuthenticated(auth);
+    
+    if (auth) {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    }
     
     const vehicles = await base44.entities.Vehicle.filter(
       { is_active: true, is_available: true },
@@ -104,11 +110,28 @@ export default function Landing() {
                   Buscar Vehículos
                 </Button>
               </Link>
-              {!isAuthenticated && (
-                <Link to={createPageUrl("Register")}>
+              {!isAuthenticated ? (
+                <>
+                  <Link to={createPageUrl("Register")}>
+                    <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
+                      Registrarse
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                  <Button 
+                    size="lg" 
+                    variant="ghost"
+                    onClick={() => base44.auth.redirectToLogin(createPageUrl("Landing"))}
+                    className="text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg"
+                  >
+                    Iniciar Sesión
+                  </Button>
+                </>
+              ) : (
+                <Link to={createPageUrl("Profile")}>
                   <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
-                    Registrarse
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <User className="w-5 h-5 mr-2" />
+                    Mi Perfil
                   </Button>
                 </Link>
               )}
