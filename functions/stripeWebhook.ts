@@ -116,11 +116,20 @@ Deno.serve(async (req) => {
 
       console.log('Transactions created');
 
-      // Send notifications
-      await base44.asServiceRole.integrations.Core.SendEmail({
-        to: renter_email,
-        subject: '¡Pago confirmado! Tu reserva está lista',
-        body: `
+      // Generate invoice PDF
+      let invoicePdf = null;
+      try {
+        const invoiceResponse = await base44.asServiceRole.functions.invoke('generateInvoice', {
+          booking_id: booking_id
+        });
+        invoicePdf = invoiceResponse.data.pdf;
+        console.log('Invoice generated successfully');
+      } catch (err) {
+        console.error('Error generating invoice:', err);
+      }
+
+      // Send notifications with invoice
+      const renterEmailBody = `
 Hola ${booking.renter_name},
 
 ¡Tu pago ha sido procesado exitosamente!
@@ -132,16 +141,20 @@ Detalles de tu reserva:
 
 El propietario te contactará pronto para coordinar los detalles de entrega.
 
+Adjunto encontrarás la factura completa de tu reserva.
+
 ¡Disfruta tu viaje!
 
 Equipo GoRentals
-        `
-      });
+`;
 
       await base44.asServiceRole.integrations.Core.SendEmail({
-        to: owner_email,
-        subject: 'Pago recibido - Nueva reserva confirmada',
-        body: `
+        to: renter_email,
+        subject: '¡Pago confirmado! Tu reserva está lista',
+        body: renterEmailBody
+      });
+
+      const ownerEmailBody = `
 Hola ${booking.owner_name},
 
 Has recibido un nuevo pago por tu vehículo ${booking.vehicle_title}.
@@ -154,8 +167,15 @@ Detalles de la reserva:
 
 Por favor contacta al cliente para coordinar la entrega del vehículo.
 
+Adjunto encontrarás la factura de esta transacción.
+
 Equipo GoRentals
-        `
+`;
+
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: owner_email,
+        subject: 'Pago recibido - Nueva reserva confirmada',
+        body: ownerEmailBody
       });
 
       // Create in-app notifications
