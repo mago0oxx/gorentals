@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { 
-  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info, Briefcase
+  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info, Briefcase, User
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
@@ -195,7 +195,7 @@ export default function AddVehicle() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
@@ -203,6 +203,14 @@ export default function AddVehicle() {
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             Volver
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate(createPageUrl("Profile"))}
+            className="rounded-xl"
+          >
+            <User className="w-4 h-4 mr-2" />
+            Mi Perfil
           </Button>
         </div>
       </div>
