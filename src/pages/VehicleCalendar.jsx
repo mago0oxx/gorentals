@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Loader2, Save, Info, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, Loader2, Save, Info, Calendar as CalendarIcon, User } from "lucide-react";
 import { format, isSameDay, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -139,20 +139,30 @@ export default function VehicleCalendar() {
               <p className="text-sm text-gray-500">{vehicle?.title}</p>
             </div>
           </div>
-          {hasChanges && (
+          <div className="flex items-center gap-2">
             <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="bg-teal-600 hover:bg-teal-700 rounded-xl"
+              variant="outline"
+              onClick={() => navigate(createPageUrl("Profile"))}
+              className="rounded-xl"
             >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              Guardar
+              <User className="w-4 h-4 mr-2" />
+              Mi Perfil
             </Button>
-          )}
+            {hasChanges && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="bg-teal-600 hover:bg-teal-700 rounded-xl"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                Guardar
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

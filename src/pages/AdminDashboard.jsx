@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Users, Car, Calendar, DollarSign, TrendingUp, MoreVertical,
-  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle
+  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle, User
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { format } from "date-fns";
@@ -147,14 +147,24 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-teal-600" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
+                <Shield className="w-6 h-6 text-teal-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
+                <p className="text-gray-500">GoRentals</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
-              <p className="text-gray-500">RentaMargarita</p>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate(createPageUrl("Profile"))}
+              className="rounded-xl"
+            >
+              <User className="w-4 h-4 mr-2" />
+              Mi Perfil
+            </Button>
           </div>
         </div>
       </div>

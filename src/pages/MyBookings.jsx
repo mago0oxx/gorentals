@@ -19,8 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Calendar, Car, MapPin, Clock, User, Phone, Mail,
-  CheckCircle, XCircle, DollarSign, Eye, ArrowLeft
+  Calendar, Car, MapPin, Clock, User as UserIcon, Phone, Mail,
+  CheckCircle, XCircle, DollarSign, Eye, ArrowLeft, User
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import EmptyState from "@/components/common/EmptyState";
@@ -269,14 +269,24 @@ export default function MyBookings() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="mb-4 -ml-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al dashboard
-          </Button>
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(createPageUrl("Dashboard"))}
+              className="-ml-2"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver al dashboard
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(createPageUrl("Profile"))}
+              className="rounded-xl"
+            >
+              <User className="w-4 h-4 mr-2" />
+              Mi Perfil
+            </Button>
+          </div>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {isOwner ? "Gestionar Reservas" : "Mis Reservas"}

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChevronLeft, DollarSign, TrendingUp, TrendingDown, Clock,
-  CheckCircle, XCircle, ArrowUpRight, ArrowDownLeft, Shield, RefreshCw
+  CheckCircle, XCircle, ArrowUpRight, ArrowDownLeft, Shield, RefreshCw, User
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -106,7 +106,7 @@ export default function Transactions() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
@@ -114,6 +114,14 @@ export default function Transactions() {
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             Volver
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate(createPageUrl("Profile"))}
+            className="rounded-xl"
+          >
+            <User className="w-4 h-4 mr-2" />
+            Mi Perfil
           </Button>
         </div>
       </div>

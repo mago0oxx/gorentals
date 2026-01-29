@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Car, Plus, ChevronLeft, MoreVertical, Edit, Trash2, Calendar,
-  Star, Eye, MapPin
+  Star, Eye, MapPin, User
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import EmptyState from "@/components/common/EmptyState";
@@ -98,12 +98,22 @@ export default function MyVehicles() {
             </Button>
             <h1 className="text-xl font-bold">Mis vehículos</h1>
           </div>
-          <Link to={createPageUrl("AddVehicle")}>
-            <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
-              Agregar
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate(createPageUrl("Profile"))}
+              className="rounded-xl"
+            >
+              <User className="w-4 h-4 mr-2" />
+              Mi Perfil
             </Button>
-          </Link>
+            <Link to={createPageUrl("AddVehicle")}>
+              <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
+                <Plus className="w-4 h-4 mr-2" />
+                Agregar
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
