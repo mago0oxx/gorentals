@@ -26,7 +26,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import EmptyState from "@/components/common/EmptyState";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { sendNotification } from "@/components/notifications/notificationService";
+import { NotificationService } from "@/components/notifications/notificationService";
 
 export default function MyBookings() {
   const navigate = useNavigate();
@@ -82,25 +82,13 @@ export default function MyBookings() {
           status: "approved"
         });
 
-        await sendNotification({
-          user_email: selectedBooking.renter_email,
-          title: "Reserva aprobada",
-          message: `Tu reserva para ${selectedBooking.vehicle_title} ha sido aprobada. Ahora puedes proceder con el pago.`,
-          type: "booking_approved",
-          booking_id: selectedBooking.id
-        });
+        await NotificationService.notifyBookingApproved(selectedBooking);
       } else if (actionType === "reject") {
         await base44.entities.Booking.update(selectedBooking.id, {
           status: "rejected"
         });
 
-        await sendNotification({
-          user_email: selectedBooking.renter_email,
-          title: "Reserva rechazada",
-          message: `Tu reserva para ${selectedBooking.vehicle_title} ha sido rechazada por el propietario.`,
-          type: "booking_rejected",
-          booking_id: selectedBooking.id
-        });
+        await NotificationService.notifyBookingRejected(selectedBooking);
       }
 
       await loadData();
