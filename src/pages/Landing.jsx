@@ -70,8 +70,46 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <Link to={createPageUrl("Landing")} className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+              <Car className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent">GoRentals</span>
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            {!isAuthenticated ? (
+              <>
+                <Button 
+                  variant="ghost"
+                  onClick={() => base44.auth.redirectToLogin(createPageUrl("Landing"))}
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Iniciar Sesión
+                </Button>
+                <Link to={createPageUrl("Register")}>
+                  <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
+                    Registrarse
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link to={createPageUrl("Profile")} className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors">
+                <User className="w-4 h-4" />
+                <span className="font-medium">
+                  Hola, {user?.full_name?.split(' ')[0] || 'Usuario'}
+                </span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
+      <section className="relative min-h-[90vh] flex items-center pt-20">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600"
@@ -110,32 +148,12 @@ export default function Landing() {
                   Buscar Vehículos
                 </Button>
               </Link>
-              {!isAuthenticated ? (
-                <>
-                  <Link to={createPageUrl("Register")}>
-                    <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
-                      Registrarse
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
-                  <Button 
-                    size="lg" 
-                    variant="ghost"
-                    onClick={() => base44.auth.redirectToLogin(createPageUrl("Landing"))}
-                    className="text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg"
-                  >
-                    Iniciar Sesión
+              {isAuthenticated && (
+                <Link to={createPageUrl("Dashboard")}>
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
+                    Ir al Dashboard
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                </>
-              ) : (
-                <Link to={createPageUrl("Profile")}>
-                  <div className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 transition-all border border-white/20">
-                    <User className="w-5 h-5 text-white" />
-                    <span className="text-white font-medium">
-                      Hola, {user?.full_name?.split(' ')[0] || 'Usuario'}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-white/70" />
-                  </div>
                 </Link>
               )}
             </div>
