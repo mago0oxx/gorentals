@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, Bell, MessageCircle, CreditCard, Tag, Clock, Volume2, Loader2 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 import { motion } from "framer-motion";
 
 export default function NotificationSettings() {
@@ -223,30 +224,8 @@ export default function NotificationSettings() {
             </CardContent>
           </Card>
 
-          {/* Permission Status */}
-          {"Notification" in window && (
-            <Card className="border-0 shadow-sm rounded-2xl bg-gradient-to-br from-blue-50 to-teal-50">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <Bell className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">
-                      Estado de permisos del navegador
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {Notification.permission === "granted" ? (
-                        <span className="text-green-600">✓ Permisos otorgados - Recibirás notificaciones push</span>
-                      ) : Notification.permission === "denied" ? (
-                        <span className="text-red-600">✗ Permisos denegados - Activa las notificaciones en la configuración de tu navegador</span>
-                      ) : (
-                        <span className="text-amber-600">⚠ Permisos pendientes - Se solicitarán al guardar si activas las notificaciones push</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Push Notification Manager */}
+          <PushNotificationManager />
 
           {/* Save Button */}
           <Button
