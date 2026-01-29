@@ -128,6 +128,12 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-3">
               <NotificationBell userEmail={user.email} />
+              <Link to={createPageUrl("MyBookings")}>
+                <Button variant="outline" className="rounded-xl">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  {isOwner ? "Gestionar" : "Reservas"}
+                </Button>
+              </Link>
               <Link to={createPageUrl("Transactions")}>
                 <Button variant="outline" className="rounded-xl">
                   <Receipt className="w-4 h-4 mr-2" />
