@@ -54,7 +54,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center">
                 <Car className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">RentaMargarita</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">GoRentals</span>
             </Link>
 
             {/* Nav Links */}

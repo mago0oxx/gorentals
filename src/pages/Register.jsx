@@ -88,7 +88,7 @@ export default function Register() {
               <Car className="w-8 h-8 text-teal-600" />
             </div>
             <CardTitle className="text-2xl">
-              {step === 1 ? "Bienvenido a RentaMargarita" : "Completa tu perfil"}
+              {step === 1 ? "Bienvenido a GoRentals" : "Completa tu perfil"}
             </CardTitle>
             <CardDescription>
               {step === 1 
@@ -114,7 +114,7 @@ export default function Register() {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <Label className="text-base font-medium mb-4 block">¿Qué deseas hacer en RentaMargarita?</Label>
+                  <Label className="text-base font-medium mb-4 block">¿Qué deseas hacer en GoRentals?</Label>
                   <RadioGroup value={userType} onValueChange={setUserType} className="grid grid-cols-2 gap-4">
                     <Label
                       htmlFor="renter"
