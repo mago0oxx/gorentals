@@ -501,7 +501,7 @@ export default function AddVehicle() {
                       <Briefcase className="w-5 h-5 text-gray-600" />
                       <div>
                         <p className="font-medium">Permitir uso comercial</p>
-                        <p className="text-sm text-gray-500">Uber, DiDi u otras apps de transporte</p>
+                        <p className="text-sm text-gray-500">Uber, Yummy, InDriver u otras apps de transporte</p>
                       </div>
                     </div>
                     <Switch

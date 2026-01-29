@@ -284,7 +284,7 @@ export default function VehicleDetails() {
                       <Briefcase className="w-5 h-5 text-green-600" />
                       <div>
                         <p className="font-semibold text-green-900">Uso comercial permitido</p>
-                        <p className="text-sm text-green-700">Puedes usar este vehículo para Uber, DiDi u otras apps</p>
+                        <p className="text-sm text-green-700">Puedes usar este vehículo para Uber, Yummy, InDriver u otras apps</p>
                       </div>
                     </div>
                   </>

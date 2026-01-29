@@ -46,7 +46,7 @@ export default function VehicleCard({ vehicle }) {
             {vehicle.allow_commercial_use && (
               <Badge className="bg-green-500/95 text-white backdrop-blur-sm border-0 shadow-sm flex items-center gap-1">
                 <Briefcase className="w-3 h-3" />
-                Uber/DiDi
+                Uso comercial
               </Badge>
             )}
           </div>
