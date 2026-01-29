@@ -157,26 +157,30 @@ export default function AddVehicle() {
 
     const vehicleData = {
       ...formData,
-      owner_id: user.id,
-      owner_name: user.full_name,
-      owner_email: user.email,
       photos,
       price_per_day: parseFloat(formData.price_per_day),
       security_deposit: parseFloat(formData.security_deposit),
       year: parseInt(formData.year),
-      seats: parseInt(formData.seats),
-      is_available: true,
-      is_active: true,
-      average_rating: 0,
-      total_reviews: 0,
-      total_bookings: 0,
-      blocked_dates: []
+      seats: parseInt(formData.seats)
     };
 
     if (editId) {
+      // When editing, only update the form fields
       await base44.entities.Vehicle.update(editId, vehicleData);
     } else {
-      await base44.entities.Vehicle.create(vehicleData);
+      // When creating, add all required fields
+      await base44.entities.Vehicle.create({
+        ...vehicleData,
+        owner_id: user.id,
+        owner_name: user.full_name,
+        owner_email: user.email,
+        is_available: true,
+        is_active: true,
+        average_rating: 0,
+        total_reviews: 0,
+        total_bookings: 0,
+        blocked_dates: []
+      });
     }
 
     navigate(createPageUrl("MyVehicles"));
