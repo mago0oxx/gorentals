@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 
 export default function Profile() {
   const navigate = useNavigate();
