@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Car, Calendar, DollarSign, Star, Plus, Settings, ChevronRight,
-  TrendingUp, Clock, CheckCircle, MapPin, Bell, Receipt
+  TrendingUp, Clock, CheckCircle, MapPin, Bell, Receipt, MessageCircle
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -138,6 +138,12 @@ export default function Dashboard() {
                 <Button variant="outline" className="rounded-xl">
                   <Receipt className="w-4 h-4 mr-2" />
                   Transacciones
+                </Button>
+              </Link>
+              <Link to={createPageUrl("Chat")}>
+                <Button variant="outline" className="rounded-xl">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Mensajes
                 </Button>
               </Link>
               <Link to={createPageUrl("Profile")}>

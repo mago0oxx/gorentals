@@ -109,6 +109,41 @@ export default function BookingDetails() {
     setIsLoading(false);
   };
 
+  const getOrCreateConversation = async () => {
+    if (!booking || !user) return null;
+
+    // Check if conversation exists
+    const existingConvs = await base44.entities.Conversation.filter({
+      booking_id: booking.id
+    });
+
+    if (existingConvs.length > 0) {
+      return existingConvs[0];
+    }
+
+    // Create new conversation
+    const newConv = await base44.entities.Conversation.create({
+      booking_id: booking.id,
+      vehicle_id: booking.vehicle_id,
+      vehicle_title: booking.vehicle_title,
+      owner_id: booking.owner_id,
+      owner_email: booking.owner_email,
+      owner_name: booking.owner_name,
+      renter_id: booking.renter_id,
+      renter_email: booking.renter_email,
+      renter_name: booking.renter_name
+    });
+
+    return newConv;
+  };
+
+  const handleOpenChat = async () => {
+    const conversation = await getOrCreateConversation();
+    if (conversation) {
+      navigate(createPageUrl(`Chat?id=${conversation.id}`));
+    }
+  };
+
   const handleStatusUpdate = async (newStatus) => {
     setIsUpdating(true);
     
@@ -472,28 +507,43 @@ export default function BookingDetails() {
           </CardContent>
         </Card>
 
-        {/* Contact Info */}
+        {/* Contact Info & Chat */}
         <Card className="border-0 shadow-sm rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">
               {isOwner ? "Información del arrendatario" : "Información del propietario"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-3">
-              <User className="w-5 h-5 text-gray-400" />
-              <span className="font-medium">{isOwner ? booking.renter_name : booking.owner_name}</span>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-gray-400" />
+                <span className="font-medium">{isOwner ? booking.renter_name : booking.owner_name}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <a href={`mailto:${isOwner ? booking.renter_email : booking.owner_email}`} className="text-teal-600 hover:underline">
+                  {isOwner ? booking.renter_email : booking.owner_email}
+                </a>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-gray-400" />
-              <a href={`mailto:${isOwner ? booking.renter_email : booking.owner_email}`} className="text-teal-600 hover:underline">
-                {isOwner ? booking.renter_email : booking.owner_email}
-              </a>
-            </div>
+
+            <Separator />
+
+            {/* Chat Button */}
+            <Button
+              onClick={handleOpenChat}
+              variant="outline"
+              className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 rounded-xl h-12"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Enviar mensaje
+            </Button>
+
             {!isOwner && (
-              <div className="mt-4 p-3 bg-teal-50 rounded-xl border border-teal-100">
+              <div className="p-3 bg-teal-50 rounded-xl border border-teal-100">
                 <p className="text-sm text-teal-800">
-                  <strong>Coordina con el propietario:</strong> Contacta para confirmar la ubicación exacta y horario de recogida del vehículo.
+                  <strong>Coordina con el propietario:</strong> Usa el chat para confirmar la ubicación exacta y horario de recogida del vehículo.
                 </p>
               </div>
             )}
