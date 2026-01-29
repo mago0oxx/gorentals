@@ -5,6 +5,7 @@ import { es } from "date-fns/locale";
 export const NotificationService = {
   // Notificar al propietario de nueva solicitud de reserva
   async notifyNewBookingRequest(booking) {
+    // Crear notificación en la app
     await base44.entities.Notification.create({
       user_email: booking.owner_email,
       title: "Nueva solicitud de reserva",
@@ -13,10 +14,59 @@ export const NotificationService = {
       booking_id: booking.id,
       is_read: false
     });
+
+    // Enviar email al propietario
+    const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+    const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+    const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+
+    await base44.integrations.Core.SendEmail({
+      to: booking.owner_email,
+      subject: `Nueva solicitud de reserva - ${booking.vehicle_title}`,
+      body: `
+        <h2>¡Nueva Solicitud de Reserva!</h2>
+        
+        <p>Hola,</p>
+        
+        <p><strong>${booking.renter_name}</strong> ha solicitado alquilar tu vehículo:</p>
+        
+        <div style="background: #f3f4f6; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">${booking.vehicle_title}</h3>
+          <p><strong>📅 Fechas:</strong><br/>
+          Desde: ${startDate}<br/>
+          Hasta: ${endDate}<br/>
+          Total: ${booking.total_days} días</p>
+          
+          <p><strong>💰 Ganancia estimada:</strong> $${booking.owner_payout?.toFixed(2)}</p>
+          
+          ${booking.notes ? `<p><strong>📝 Mensaje del arrendatario:</strong><br/>"${booking.notes}"</p>` : ''}
+        </div>
+        
+        <p><strong>Información del arrendatario:</strong><br/>
+        Email: ${booking.renter_email}</p>
+        
+        <div style="margin: 30px 0;">
+          <a href="${bookingUrl}" style="background: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Ver detalles y aprobar reserva
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; font-size: 14px;">
+          Recuerda revisar los detalles de la reserva antes de aprobarla. Una vez aprobada, el arrendatario recibirá una notificación para proceder con el pago.
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;"/>
+        
+        <p style="color: #9ca3af; font-size: 12px;">
+          Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
+        </p>
+      `
+    });
   },
 
   // Notificar al arrendatario que su reserva fue aprobada
   async notifyBookingApproved(booking) {
+    // Crear notificación en la app
     await base44.entities.Notification.create({
       user_email: booking.renter_email,
       title: "¡Reserva aprobada!",
@@ -25,10 +75,56 @@ export const NotificationService = {
       booking_id: booking.id,
       is_read: false
     });
+
+    // Enviar email al arrendatario
+    const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+    const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+    const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+
+    await base44.integrations.Core.SendEmail({
+      to: booking.renter_email,
+      subject: `¡Reserva aprobada! - ${booking.vehicle_title}`,
+      body: `
+        <h2>¡Tu Reserva ha sido Aprobada! 🎉</h2>
+        
+        <p>Hola ${booking.renter_name},</p>
+        
+        <p>El propietario ha aprobado tu solicitud de reserva para:</p>
+        
+        <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
+          <h3 style="margin-top: 0; color: #059669;">${booking.vehicle_title}</h3>
+          <p><strong>📅 Fechas:</strong><br/>
+          Desde: ${startDate}<br/>
+          Hasta: ${endDate}<br/>
+          Total: ${booking.total_days} días</p>
+          
+          <p><strong>💰 Total a pagar:</strong> $${booking.total_amount?.toFixed(2)}</p>
+        </div>
+        
+        <p><strong>⚡ Siguiente paso:</strong> Completa el pago para confirmar tu reserva.</p>
+        
+        <div style="margin: 30px 0;">
+          <a href="${bookingUrl}" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Proceder al pago
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; font-size: 14px;">
+          Una vez completado el pago, podrás coordinar con el propietario para la entrega del vehículo.
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;"/>
+        
+        <p style="color: #9ca3af; font-size: 12px;">
+          Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
+        </p>
+      `
+    });
   },
 
   // Notificar al arrendatario que su reserva fue rechazada
   async notifyBookingRejected(booking) {
+    // Crear notificación en la app
     await base44.entities.Notification.create({
       user_email: booking.renter_email,
       title: "Reserva rechazada",
@@ -36,6 +132,39 @@ export const NotificationService = {
       type: "booking_rejected",
       booking_id: booking.id,
       is_read: false
+    });
+
+    // Enviar email al arrendatario
+    await base44.integrations.Core.SendEmail({
+      to: booking.renter_email,
+      subject: `Solicitud de reserva no aprobada - ${booking.vehicle_title}`,
+      body: `
+        <h2>Solicitud de Reserva No Aprobada</h2>
+        
+        <p>Hola ${booking.renter_name},</p>
+        
+        <p>Lamentablemente, el propietario no pudo aprobar tu solicitud de reserva para <strong>${booking.vehicle_title}</strong>.</p>
+        
+        <div style="background: #fef2f2; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ef4444;">
+          <p style="margin: 0;">No te preocupes, hay muchas otras opciones disponibles en GoRentals.</p>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <a href="${window.location.origin}/Browse" style="background: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Explorar otros vehículos
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; font-size: 14px;">
+          Encuentra el vehículo perfecto para tus necesidades en nuestra plataforma.
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;"/>
+        
+        <p style="color: #9ca3af; font-size: 12px;">
+          Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
+        </p>
+      `
     });
   },
 
