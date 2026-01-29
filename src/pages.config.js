@@ -56,12 +56,13 @@ import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import MyBookings from './pages/MyBookings';
 import MyVehicles from './pages/MyVehicles';
+import OwnerDashboard from './pages/OwnerDashboard';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
-import OwnerDashboard from './pages/OwnerDashboard';
+import Chat from './pages/Chat';
 import __Layout from './Layout.jsx';
 
 
@@ -75,12 +76,13 @@ export const PAGES = {
     "Landing": Landing,
     "MyBookings": MyBookings,
     "MyVehicles": MyVehicles,
+    "OwnerDashboard": OwnerDashboard,
     "Profile": Profile,
     "Register": Register,
     "Transactions": Transactions,
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
-    "OwnerDashboard": OwnerDashboard,
+    "Chat": Chat,
 }
 
 export const pagesConfig = {
