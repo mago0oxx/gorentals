@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Calendar, MapPin, ChevronLeft, CheckCircle, XCircle, Clock,
-  Phone, Mail, User, Car, Shield, Loader2, Star, MessageCircle, AlertTriangle
+  Phone, Mail, User, Car, Shield, Loader2, Star, MessageCircle, AlertTriangle, DollarSign
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
