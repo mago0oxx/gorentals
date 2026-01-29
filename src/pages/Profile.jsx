@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   ChevronLeft, Loader2, Upload, User, MapPin, Phone, Mail, 
-  Star, LogOut, Shield
+  Star, LogOut, Shield, Bell
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
 
@@ -226,6 +227,26 @@ export default function Profile() {
             </CardContent>
           </Card>
 
+          {/* Notifications Settings */}
+          <Card className="border-0 shadow-sm rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Notificaciones
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Configura qué notificaciones quieres recibir y cómo
+              </p>
+              <Link to={createPageUrl("NotificationSettings")}>
+                <Button variant="outline" className="w-full rounded-xl h-12">
+                  Configurar notificaciones
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
           {/* Stats for Owners */}
           {user?.user_type === "owner" && (
             <Card className="border-0 shadow-sm rounded-2xl">
@@ -249,7 +270,6 @@ export default function Profile() {
                 </div>
                 <Link to={createPageUrl("OwnerDashboard")}>
                   <Button className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl h-12">
-                    <Car className="w-4 h-4 mr-2" />
                     Ir al Panel de Gestión Completo
                   </Button>
                 </Link>

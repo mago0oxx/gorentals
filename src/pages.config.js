@@ -63,6 +63,7 @@ import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
 import Chat from './pages/Chat';
+import NotificationSettings from './pages/NotificationSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +84,7 @@ export const PAGES = {
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
     "Chat": Chat,
+    "NotificationSettings": NotificationSettings,
 }
 
 export const pagesConfig = {

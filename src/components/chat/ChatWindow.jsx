@@ -103,6 +103,16 @@ export default function ChatWindow({ conversation, onClose, currentUser }) {
       [otherUserField]: (conversation[otherUserField] || 0) + 1
     });
 
+    // Send notification to other user
+    const otherUserEmail = isOwner ? conversation.renter_email : conversation.owner_email;
+    await base44.entities.Notification.create({
+      user_email: otherUserEmail,
+      title: `Nuevo mensaje de ${currentUser.full_name}`,
+      message: newMessage.trim().substring(0, 100) + (newMessage.trim().length > 100 ? "..." : ""),
+      type: "new_message",
+      booking_id: conversation.booking_id
+    });
+
     setNewMessage("");
     setIsSending(false);
   };

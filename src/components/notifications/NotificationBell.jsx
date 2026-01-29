@@ -9,47 +9,76 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bell, Calendar, CheckCircle, XCircle, Clock, Car, DollarSign } from "lucide-react";
+import { Bell, Calendar, CheckCircle, XCircle, Clock, Car, DollarSign, MessageCircle, Tag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
 const typeConfig = {
-  booking_request: { icon: Calendar, color: "text-blue-600 bg-blue-100" },
-  booking_approved: { icon: CheckCircle, color: "text-green-600 bg-green-100" },
-  booking_rejected: { icon: XCircle, color: "text-red-600 bg-red-100" },
-  booking_paid: { icon: DollarSign, color: "text-green-600 bg-green-100" },
-  booking_completed: { icon: CheckCircle, color: "text-teal-600 bg-teal-100" },
-  pickup_reminder: { icon: Car, color: "text-amber-600 bg-amber-100" },
-  return_reminder: { icon: Clock, color: "text-purple-600 bg-purple-100" }
+  booking_request: { icon: Calendar, color: "text-blue-600 bg-blue-100", category: "booking_updates" },
+  booking_approved: { icon: CheckCircle, color: "text-green-600 bg-green-100", category: "booking_updates" },
+  booking_rejected: { icon: XCircle, color: "text-red-600 bg-red-100", category: "booking_updates" },
+  booking_paid: { icon: DollarSign, color: "text-green-600 bg-green-100", category: "payment_updates" },
+  booking_completed: { icon: CheckCircle, color: "text-teal-600 bg-teal-100", category: "booking_updates" },
+  booking_cancelled: { icon: XCircle, color: "text-orange-600 bg-orange-100", category: "booking_updates" },
+  pickup_reminder: { icon: Car, color: "text-amber-600 bg-amber-100", category: "reminders" },
+  return_reminder: { icon: Clock, color: "text-purple-600 bg-purple-100", category: "reminders" },
+  new_message: { icon: MessageCircle, color: "text-blue-600 bg-blue-100", category: "chat_messages" },
+  promotional: { icon: Tag, color: "text-pink-600 bg-pink-100", category: "promotional" }
 };
 
 export default function NotificationBell({ userEmail }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [userPreferences, setUserPreferences] = useState(null);
 
   useEffect(() => {
     if (userEmail) {
       loadNotifications();
-      requestNotificationPermission();
+      loadUserPreferences();
       
       // Subscribe to real-time updates
       const unsubscribe = base44.entities.Notification.subscribe((event) => {
         if (event.type === "create" && event.data?.user_email === userEmail) {
           loadNotifications();
-          // Show browser push notification
-          showPushNotification(event.data);
-          // Play notification sound
-          playNotificationSound();
+          // Check user preferences before showing notifications
+          checkAndShowNotification(event.data);
         }
       });
       return () => unsubscribe();
     }
   }, [userEmail]);
 
-  const requestNotificationPermission = async () => {
-    if ("Notification" in window && Notification.permission === "default") {
-      await Notification.requestPermission();
+  const loadUserPreferences = async () => {
+    const user = await base44.auth.me();
+    setUserPreferences(user.notification_preferences || {
+      booking_updates: true,
+      chat_messages: true,
+      payment_updates: true,
+      promotional: false,
+      reminders: true,
+      push_enabled: true,
+      sound_enabled: true
+    });
+  };
+
+  const checkAndShowNotification = (notification) => {
+    if (!userPreferences) return;
+
+    const config = typeConfig[notification.type] || typeConfig.booking_request;
+    const category = config.category;
+
+    // Check if user wants this category of notifications
+    if (!userPreferences[category]) return;
+
+    // Show push notification if enabled
+    if (userPreferences.push_enabled) {
+      showPushNotification(notification);
+    }
+
+    // Play sound if enabled
+    if (userPreferences.sound_enabled) {
+      playNotificationSound();
     }
   };
 
@@ -67,22 +96,25 @@ export default function NotificationBell({ userEmail }) {
   };
 
   const playNotificationSound = () => {
-    // Simple notification sound using Web Audio API
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.warn("Could not play notification sound:", error);
+    }
   };
 
   const loadNotifications = async () => {
