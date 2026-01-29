@@ -14,6 +14,7 @@ import {
   Star, LogOut, Shield, Bell, Car
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 import { motion } from "framer-motion";
 
 export default function Profile() {
@@ -226,21 +227,24 @@ export default function Profile() {
             </CardContent>
           </Card>
 
+          {/* Push Notifications */}
+          <PushNotificationManager />
+
           {/* Notifications Settings */}
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Bell className="w-5 h-5" />
-                Notificaciones
+                Configuración avanzada
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 mb-4">
-                Configura qué notificaciones quieres recibir y cómo
+                Personaliza qué tipos de notificaciones quieres recibir
               </p>
               <Link to={createPageUrl("NotificationSettings")}>
                 <Button variant="outline" className="w-full rounded-xl h-12">
-                  Configurar notificaciones
+                  Gestionar preferencias
                 </Button>
               </Link>
             </CardContent>
