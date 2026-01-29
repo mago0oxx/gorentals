@@ -7,6 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SlidersHorizontal, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -30,16 +32,50 @@ export default function VehicleFilters({ filters, onFiltersChange, onClearFilter
     { value: "manual", label: "Manual" }
   ];
 
+  const fuelTypes = [
+    { value: "all", label: "Todos" },
+    { value: "gasoline", label: "Gasolina" },
+    { value: "diesel", label: "Diésel" },
+    { value: "electric", label: "Eléctrico" },
+    { value: "hybrid", label: "Híbrido" }
+  ];
+
+  const allFeatures = [
+    "Aire acondicionado",
+    "GPS",
+    "Bluetooth",
+    "Cámara de reversa",
+    "Sensores de parqueo",
+    "Asientos de cuero",
+    "Techo corredizo",
+    "Sistema de sonido premium",
+    "USB/AUX",
+    "Portaequipajes"
+  ];
+
   const updateFilter = (key, value) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
+  const toggleFeature = (feature) => {
+    const currentFeatures = filters.features || [];
+    const newFeatures = currentFeatures.includes(feature)
+      ? currentFeatures.filter(f => f !== feature)
+      : [...currentFeatures, feature];
+    updateFilter("features", newFeatures);
+  };
+
   const hasActiveFilters = filters.vehicleType !== "all" || 
     filters.transmission !== "all" || 
+    filters.fuelType !== "all" ||
+    filters.seats !== "all" ||
     filters.priceRange[0] > 0 || 
     filters.priceRange[1] < 500 ||
     filters.startDate ||
-    filters.endDate;
+    filters.endDate ||
+    filters.location ||
+    (filters.features && filters.features.length > 0) ||
+    filters.commercialUse === true;
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -97,52 +133,132 @@ export default function VehicleFilters({ filters, onFiltersChange, onClearFilter
             )}
           </Button>
         </SheetTrigger>
-        <SheetContent className="w-[320px]">
+        <SheetContent className="w-[380px] sm:w-[420px]">
           <SheetHeader>
-            <SheetTitle>Filtros</SheetTitle>
+            <SheetTitle>Filtros avanzados</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 space-y-6">
-            <div>
-              <Label className="text-sm font-medium mb-3 block">Transmisión</Label>
-              <Select value={filters.transmission} onValueChange={(v) => updateFilter("transmission", v)}>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {transmissions.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
+          <ScrollArea className="h-[calc(100vh-120px)] mt-6">
+            <div className="space-y-6 pr-4">
+              {/* Transmission */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Transmisión</Label>
+                <Select value={filters.transmission} onValueChange={(v) => updateFilter("transmission", v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {transmissions.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Fuel Type */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Tipo de combustible</Label>
+                <Select value={filters.fuelType || "all"} onValueChange={(v) => updateFilter("fuelType", v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fuelTypes.map((f) => (
+                      <SelectItem key={f.value} value={f.value}>
+                        {f.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Seats */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Número de asientos</Label>
+                <Select value={filters.seats || "all"} onValueChange={(v) => updateFilter("seats", v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="2">2 asientos</SelectItem>
+                    <SelectItem value="4">4 asientos</SelectItem>
+                    <SelectItem value="5">5 asientos</SelectItem>
+                    <SelectItem value="7">7+ asientos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Precio por día: ${filters.priceRange[0]} - ${filters.priceRange[1]}
+                </Label>
+                <Slider
+                  value={filters.priceRange}
+                  onValueChange={(v) => updateFilter("priceRange", v)}
+                  min={0}
+                  max={500}
+                  step={10}
+                  className="mt-2"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Ubicación</Label>
+                <Input
+                  placeholder="Ej: Porlamar, Pampatar..."
+                  value={filters.location || ""}
+                  onChange={(e) => updateFilter("location", e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              {/* Commercial Use */}
+              <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-xl">
+                <Checkbox
+                  id="commercial"
+                  checked={filters.commercialUse || false}
+                  onCheckedChange={(checked) => updateFilter("commercialUse", checked)}
+                />
+                <label htmlFor="commercial" className="text-sm font-medium cursor-pointer">
+                  Solo vehículos para uso comercial (Uber, Yummy, InDriver)
+                </label>
+              </div>
+
+              {/* Features */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Características</Label>
+                <div className="space-y-2">
+                  {allFeatures.map((feature) => (
+                    <div key={feature} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={feature}
+                        checked={(filters.features || []).includes(feature)}
+                        onCheckedChange={() => toggleFeature(feature)}
+                      />
+                      <label htmlFor={feature} className="text-sm cursor-pointer">
+                        {feature}
+                      </label>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
+                </div>
+              </div>
 
-            <div>
-              <Label className="text-sm font-medium mb-3 block">
-                Precio por día: ${filters.priceRange[0]} - ${filters.priceRange[1]}
-              </Label>
-              <Slider
-                value={filters.priceRange}
-                onValueChange={(v) => updateFilter("priceRange", v)}
-                min={0}
-                max={500}
-                step={10}
-                className="mt-2"
-              />
+              <Button 
+                variant="outline" 
+                className="w-full rounded-xl"
+                onClick={() => {
+                  onClearFilters();
+                  setOpen(false);
+                }}
+              >
+                Limpiar todos los filtros
+              </Button>
             </div>
-
-            <Button 
-              variant="outline" 
-              className="w-full rounded-xl"
-              onClick={() => {
-                onClearFilters();
-                setOpen(false);
-              }}
-            >
-              Limpiar filtros
-            </Button>
-          </div>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
 
