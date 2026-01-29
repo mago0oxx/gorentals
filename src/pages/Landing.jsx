@@ -315,7 +315,7 @@ export default function Landing() {
                 <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center">
                   <Car className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">RentaMargarita</span>
+                <span className="text-xl font-bold text-white">GoRentals</span>
               </div>
               <p className="text-gray-400 max-w-md">
                 El marketplace de alquiler de vehículos líder en Isla de Margarita. 
@@ -333,12 +333,12 @@ export default function Landing() {
               <h4 className="text-white font-semibold mb-4">Contacto</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>Isla de Margarita, Venezuela</li>
-                <li>info@rentamargarita.com</li>
+                <li>info@gorentals.com</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
-            <p>&copy; {new Date().getFullYear()} RentaMargarita. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} GoRentals. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
