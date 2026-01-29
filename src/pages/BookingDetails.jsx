@@ -20,8 +20,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Calendar, MapPin, ChevronLeft, CheckCircle, XCircle, Clock,
-  Phone, Mail, User, Car, Shield, Loader2, Star, MessageCircle
+  Phone, Mail, User, Car, Shield, Loader2, Star, MessageCircle, AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -49,6 +57,10 @@ export default function BookingDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [refundAmount, setRefundAmount] = useState(0);
   
   // Review state
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -218,6 +230,134 @@ export default function BookingDetails() {
     setShowReviewForm(false);
     await loadData();
     setIsSubmittingReview(false);
+  };
+
+  const calculateRefund = (booking) => {
+    if (booking.status === "pending" || booking.status === "approved") {
+      // No payment made yet
+      return 0;
+    }
+
+    const startDate = new Date(booking.start_date);
+    const today = new Date();
+    const daysUntilStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+
+    // Cancellation policies
+    if (daysUntilStart >= 7) {
+      // 7+ days: full refund (minus platform fee)
+      return booking.subtotal + booking.security_deposit;
+    } else if (daysUntilStart >= 3) {
+      // 3-6 days: 50% refund + deposit
+      return (booking.subtotal * 0.5) + booking.security_deposit;
+    } else if (daysUntilStart >= 1) {
+      // 1-2 days: deposit only
+      return booking.security_deposit;
+    } else {
+      // Same day or past: no refund
+      return 0;
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    setIsCancelling(true);
+
+    const refund = calculateRefund(booking);
+    const canceller = isOwner ? "owner" : "renter";
+
+    // Update booking status
+    await base44.entities.Booking.update(booking.id, {
+      status: "cancelled",
+      cancelled_by: canceller,
+      cancellation_reason: cancelReason
+    });
+
+    // If paid, process refund
+    if (booking.status === "paid" || booking.status === "active") {
+      // Create refund transaction for renter
+      await base44.entities.Transaction.create({
+        booking_id: booking.id,
+        user_email: booking.renter_email,
+        user_role: "renter",
+        type: "refund",
+        amount: refund,
+        status: "completed",
+        description: `Reembolso por cancelación - ${booking.vehicle_title}`,
+        vehicle_title: booking.vehicle_title,
+        metadata: {
+          cancelled_by: canceller,
+          cancellation_reason: cancelReason,
+          original_amount: booking.total_amount
+        }
+      });
+
+      // Update payment transaction to refunded
+      const payments = await base44.entities.Transaction.filter({
+        booking_id: booking.id,
+        type: "payment",
+        user_email: booking.renter_email
+      });
+      if (payments.length > 0) {
+        await base44.entities.Transaction.update(payments[0].id, {
+          status: "refunded"
+        });
+      }
+
+      // Cancel pending owner payout if exists
+      const payouts = await base44.entities.Transaction.filter({
+        booking_id: booking.id,
+        type: "payout",
+        user_email: booking.owner_email
+      });
+      if (payouts.length > 0) {
+        await base44.entities.Transaction.update(payouts[0].id, {
+          status: "cancelled"
+        });
+      }
+    }
+
+    // Unblock dates on vehicle
+    if (booking.status === "approved" || booking.status === "paid" || booking.status === "active") {
+      const vehicles = await base44.entities.Vehicle.filter({ id: booking.vehicle_id });
+      if (vehicles.length > 0) {
+        const currentBlocked = vehicles[0].blocked_dates || [];
+        const datesToUnblock = [];
+        
+        const start = new Date(booking.start_date);
+        const end = new Date(booking.end_date);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          datesToUnblock.push(d.toISOString().split("T")[0]);
+        }
+        
+        const newBlockedDates = currentBlocked.filter(date => !datesToUnblock.includes(date));
+        
+        await base44.entities.Vehicle.update(booking.vehicle_id, {
+          blocked_dates: newBlockedDates
+        });
+      }
+    }
+
+    // Send notification
+    const notificationMessage = isOwner 
+      ? `Tu reserva de ${booking.vehicle_title} fue cancelada por el propietario.`
+      : `La reserva de ${booking.vehicle_title} fue cancelada por el arrendatario.`;
+    
+    await base44.entities.Notification.create({
+      user_email: isOwner ? booking.renter_email : booking.owner_email,
+      title: "Reserva cancelada",
+      message: notificationMessage + (refund > 0 ? ` Reembolso: $${refund.toFixed(2)}` : ""),
+      type: "booking_cancelled",
+      booking_id: booking.id
+    });
+
+    setShowCancelDialog(false);
+    setIsCancelling(false);
+    await loadData();
+  };
+
+  const openCancelDialog = () => {
+    const refund = calculateRefund(booking);
+    setRefundAmount(refund);
+    setShowCancelDialog(true);
   };
 
   if (isLoading) {
@@ -578,7 +718,102 @@ export default function BookingDetails() {
             </CardContent>
           </Card>
         )}
+
+        {/* Cancel Booking Button */}
+        {(isRenter || isOwner) && !["completed", "cancelled", "rejected"].includes(booking.status) && (
+          <Card className="border-0 shadow-sm rounded-2xl border-red-200">
+            <CardContent className="p-5">
+              <Button
+                onClick={openCancelDialog}
+                variant="outline"
+                className="w-full border-red-200 text-red-600 hover:bg-red-50 rounded-xl h-12"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                Cancelar reserva
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Cancel Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              Cancelar reserva
+            </DialogTitle>
+            <DialogDescription>
+              Esta acción cancelará la reserva permanentemente.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Refund Policy */}
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+              <h4 className="font-medium text-sm">Política de reembolso</h4>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p>• 7+ días antes: Reembolso completo del alquiler + depósito</p>
+                <p>• 3-6 días antes: 50% del alquiler + depósito</p>
+                <p>• 1-2 días antes: Solo depósito</p>
+                <p>• Mismo día: Sin reembolso</p>
+              </div>
+            </div>
+
+            {/* Calculated Refund */}
+            {(booking.status === "paid" || booking.status === "active") && (
+              <div className={`rounded-xl p-4 ${
+                refundAmount > 0 ? "bg-green-50 border border-green-100" : "bg-red-50 border border-red-100"
+              }`}>
+                <p className={`text-sm ${refundAmount > 0 ? "text-green-800" : "text-red-800"}`}>
+                  Monto a reembolsar:
+                </p>
+                <p className={`text-2xl font-bold ${refundAmount > 0 ? "text-green-900" : "text-red-900"}`}>
+                  ${refundAmount.toFixed(2)}
+                </p>
+              </div>
+            )}
+
+            {/* Cancellation Reason */}
+            <div>
+              <Label htmlFor="cancel-reason">Motivo de cancelación (opcional)</Label>
+              <Textarea
+                id="cancel-reason"
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Explica por qué cancelas esta reserva..."
+                className="mt-2 rounded-xl resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelDialog(false)}
+              disabled={isCancelling}
+            >
+              Volver
+            </Button>
+            <Button
+              onClick={handleCancelBooking}
+              disabled={isCancelling}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Cancelando...
+                </>
+              ) : (
+                "Confirmar cancelación"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
