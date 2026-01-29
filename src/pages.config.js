@@ -61,6 +61,7 @@ import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
+import OwnerDashboard from './pages/OwnerDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -79,6 +80,7 @@ export const PAGES = {
     "Transactions": Transactions,
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
+    "OwnerDashboard": OwnerDashboard,
 }
 
 export const pagesConfig = {

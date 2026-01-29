@@ -147,12 +147,20 @@ export default function Dashboard() {
                 </Button>
               </Link>
               {isOwner && (
-                <Link to={createPageUrl("AddVehicle")}>
-                  <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agregar vehículo
-                  </Button>
-                </Link>
+                <>
+                  <Link to={createPageUrl("OwnerDashboard")}>
+                    <Button variant="outline" className="rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50">
+                      <Car className="w-4 h-4 mr-2" />
+                      Gestión Completa
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl("AddVehicle")}>
+                    <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Agregar vehículo
+                    </Button>
+                  </Link>
+                </>
               )}
               {!isOwner && (
                 <Link to={createPageUrl("Browse")}>
