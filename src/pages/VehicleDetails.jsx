@@ -85,7 +85,7 @@ export default function VehicleDetails() {
   };
 
   const calculateTotal = () => {
-    if (!dateRange.from || !dateRange.to || !vehicle) return null;
+    if (!dateRange || !dateRange.from || !dateRange.to || !vehicle) return null;
     const days = differenceInDays(dateRange.to, dateRange.from) + 1;
     const subtotal = days * vehicle.price_per_day;
     const platformFee = subtotal * 0.15; // 15% platform fee
@@ -100,7 +100,7 @@ export default function VehicleDetails() {
     }
     
     const pricing = calculateTotal();
-    if (!pricing) return;
+    if (!pricing || !dateRange || !dateRange.from || !dateRange.to) return;
 
     const bookingData = {
       vehicleId: vehicle.id,
@@ -109,7 +109,7 @@ export default function VehicleDetails() {
       ...pricing
     };
     
-    navigate(createPageUrl(`CreateBooking?data=${encodeURIComponent(JSON.stringify(bookingData))}`));
+    navigate(createPageUrl(`CreateBooking?id=${vehicle.id}`));
   };
 
   if (isLoading) {
