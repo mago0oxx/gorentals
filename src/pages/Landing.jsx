@@ -129,10 +129,13 @@ export default function Landing() {
                 </>
               ) : (
                 <Link to={createPageUrl("Profile")}>
-                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-xl h-14 px-8 text-lg">
-                    <User className="w-5 h-5 mr-2" />
-                    Mi Perfil
-                  </Button>
+                  <div className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 transition-all border border-white/20">
+                    <User className="w-5 h-5 text-white" />
+                    <span className="text-white font-medium">
+                      Hola, {user?.full_name?.split(' ')[0] || 'Usuario'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-white/70" />
+                  </div>
                 </Link>
               )}
             </div>
