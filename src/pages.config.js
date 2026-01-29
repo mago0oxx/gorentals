@@ -60,6 +60,7 @@ import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
+import MyBookings from './pages/MyBookings';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +78,7 @@ export const PAGES = {
     "Transactions": Transactions,
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
+    "MyBookings": MyBookings,
 }
 
 export const pagesConfig = {
