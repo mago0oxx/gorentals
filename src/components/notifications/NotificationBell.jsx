@@ -31,15 +31,59 @@ export default function NotificationBell({ userEmail }) {
   useEffect(() => {
     if (userEmail) {
       loadNotifications();
+      requestNotificationPermission();
+      
       // Subscribe to real-time updates
       const unsubscribe = base44.entities.Notification.subscribe((event) => {
-        if (event.data?.user_email === userEmail) {
+        if (event.type === "create" && event.data?.user_email === userEmail) {
           loadNotifications();
+          // Show browser push notification
+          showPushNotification(event.data);
+          // Play notification sound
+          playNotificationSound();
         }
       });
       return () => unsubscribe();
     }
   }, [userEmail]);
+
+  const requestNotificationPermission = async () => {
+    if ("Notification" in window && Notification.permission === "default") {
+      await Notification.requestPermission();
+    }
+  };
+
+  const showPushNotification = (notification) => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      const config = typeConfig[notification.type] || typeConfig.booking_request;
+      new Notification(notification.title, {
+        body: notification.message,
+        icon: "/favicon.ico",
+        badge: "/favicon.ico",
+        tag: notification.id,
+        requireInteraction: false
+      });
+    }
+  };
+
+  const playNotificationSound = () => {
+    // Simple notification sound using Web Audio API
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  };
 
   const loadNotifications = async () => {
     const data = await base44.entities.Notification.filter(
