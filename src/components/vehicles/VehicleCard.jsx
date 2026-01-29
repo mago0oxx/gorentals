@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star, Users, Fuel, Settings } from "lucide-react";
+import { MapPin, Star, Users, Fuel, Settings, Briefcase } from "lucide-react";
 
 const vehicleTypeLabels = {
   sedan: "Sedán",
@@ -39,9 +39,17 @@ export default function VehicleCard({ vehicle }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           
-          <Badge className="absolute top-3 left-3 bg-white/95 text-gray-800 backdrop-blur-sm border-0 shadow-sm">
-            {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
-          </Badge>
+          <div className="absolute top-3 left-3 flex gap-2">
+            <Badge className="bg-white/95 text-gray-800 backdrop-blur-sm border-0 shadow-sm">
+              {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
+            </Badge>
+            {vehicle.allow_commercial_use && (
+              <Badge className="bg-green-500/95 text-white backdrop-blur-sm border-0 shadow-sm flex items-center gap-1">
+                <Briefcase className="w-3 h-3" />
+                Uber/DiDi
+              </Badge>
+            )}
+          </div>
           
           {vehicle.average_rating > 0 && (
             <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm">
