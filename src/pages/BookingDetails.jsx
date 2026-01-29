@@ -37,6 +37,9 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import StarRating from "@/components/ui/StarRating";
 import { NotificationService } from "@/components/notifications/notificationService";
 import PaymentButton from "@/components/payments/PaymentButton";
+import VehicleHistoryCard from "@/components/booking/VehicleHistoryCard";
+import DeliveryRulesCard from "@/components/booking/DeliveryRulesCard";
+import CancellationPolicyCard from "@/components/booking/CancellationPolicyCard";
 import { motion } from "framer-motion";
 
 const statusConfig = {
@@ -479,7 +482,7 @@ export default function BookingDetails() {
           <CardContent className="space-y-3">
             <div className="flex items-center gap-3">
               <User className="w-5 h-5 text-gray-400" />
-              <span>{isOwner ? booking.renter_name : booking.owner_name}</span>
+              <span className="font-medium">{isOwner ? booking.renter_name : booking.owner_name}</span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-gray-400" />
@@ -487,6 +490,13 @@ export default function BookingDetails() {
                 {isOwner ? booking.renter_email : booking.owner_email}
               </a>
             </div>
+            {!isOwner && (
+              <div className="mt-4 p-3 bg-teal-50 rounded-xl border border-teal-100">
+                <p className="text-sm text-teal-800">
+                  <strong>Coordina con el propietario:</strong> Contacta para confirmar la ubicación exacta y horario de recogida del vehículo.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -508,37 +518,87 @@ export default function BookingDetails() {
         {/* Payment Summary */}
         <Card className="border-0 shadow-sm rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Resumen de pago</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-green-600" />
+              Resumen de Costos
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">${booking.price_per_day} x {booking.total_days} días</span>
-              <span>${booking.subtotal?.toFixed(2)}</span>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Alquiler</span>
+                <span className="font-medium">${booking.price_per_day}/día × {booking.total_days} días</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-700">Subtotal de alquiler</span>
+                <span className="font-semibold">${booking.subtotal?.toFixed(2)}</span>
+              </div>
+              
+              <Separator />
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Tarifa de servicio (15%)</span>
+                <span>${booking.platform_fee?.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-blue-600" />
+                  <span className="text-gray-600">Depósito de seguridad</span>
+                </div>
+                <span className="font-medium text-blue-600">${booking.security_deposit?.toFixed(2)}</span>
+              </div>
+              
+              <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+                El depósito se devuelve automáticamente tras la inspección final del vehículo.
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Tarifa de servicio</span>
-              <span>${booking.platform_fee?.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 flex items-center gap-1">
-                <Shield className="w-4 h-4" />
-                Depósito de seguridad
-              </span>
-              <span>${booking.security_deposit?.toFixed(2)}</span>
-            </div>
+            
             <Separator />
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total</span>
-              <span>${booking.total_amount?.toFixed(2)}</span>
+            
+            <div className="flex justify-between items-center text-lg">
+              <span className="font-semibold">Total a pagar</span>
+              <span className="font-bold text-teal-600">${booking.total_amount?.toFixed(2)}</span>
             </div>
+            
             {isOwner && (
-              <div className="flex justify-between text-teal-600 font-medium pt-2 border-t">
-                <span>Tu ganancia</span>
-                <span>${booking.owner_payout?.toFixed(2)}</span>
+              <>
+                <Separator />
+                <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-green-800">Tu ganancia</span>
+                    <span className="text-2xl font-bold text-green-700">${booking.owner_payout?.toFixed(2)}</span>
+                  </div>
+                  <p className="text-xs text-green-700">
+                    Recibirás este monto después de completar la reserva exitosamente.
+                  </p>
+                </div>
+              </>
+            )}
+            
+            {!isOwner && booking.status === "pending" && (
+              <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                <p className="text-xs text-amber-800">
+                  <strong>Nota:</strong> El pago se realizará solo después de que el propietario apruebe tu solicitud.
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Vehicle History (Owner only) */}
+        {isOwner && (
+          <VehicleHistoryCard vehicleId={booking.vehicle_id} ownerId={booking.owner_id} />
+        )}
+
+        {/* Cancellation Policy */}
+        {!["completed", "cancelled", "rejected"].includes(booking.status) && (
+          <CancellationPolicyCard booking={booking} isOwner={isOwner} />
+        )}
+
+        {/* Delivery Rules */}
+        {(booking.status === "paid" || booking.status === "active") && (
+          <DeliveryRulesCard isOwner={isOwner} />
+        )}
 
         {/* Actions for Owner */}
         {isOwner && booking.status === "pending" && (
@@ -615,18 +675,28 @@ export default function BookingDetails() {
 
         {/* Mark as Active (Owner) */}
         {isOwner && booking.status === "paid" && (
-          <Card className="border-0 shadow-sm rounded-2xl">
-            <CardContent className="p-5">
-              <p className="text-gray-600 mb-4">
-                Cuando entregues el vehículo, marca la reserva como activa.
-              </p>
+          <Card className="border-0 shadow-sm rounded-2xl border-teal-200">
+            <CardContent className="p-5 space-y-4">
+              <div className="bg-teal-50 rounded-xl p-4 border border-teal-100">
+                <h4 className="font-semibold text-teal-900 mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Antes de entregar el vehículo
+                </h4>
+                <ul className="space-y-1 text-sm text-teal-800">
+                  <li>✓ Verifica la identidad del arrendatario (licencia + ID)</li>
+                  <li>✓ Revisa el vehículo junto con el arrendatario</li>
+                  <li>✓ Toma fotos del estado actual (interior/exterior)</li>
+                  <li>✓ Confirma que todos los documentos estén en orden</li>
+                  <li>✓ Explica el funcionamiento básico del vehículo</li>
+                </ul>
+              </div>
               <Button
                 onClick={() => handleStatusUpdate("active")}
                 disabled={isUpdating}
-                className="w-full bg-teal-600 hover:bg-teal-700"
+                className="w-full bg-teal-600 hover:bg-teal-700 h-12"
               >
                 {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4 mr-2" />}
-                Vehículo entregado
+                Confirmar entrega del vehículo
               </Button>
             </CardContent>
           </Card>
@@ -634,18 +704,33 @@ export default function BookingDetails() {
 
         {/* Complete Booking (Owner) */}
         {isOwner && booking.status === "active" && (
-          <Card className="border-0 shadow-sm rounded-2xl">
-            <CardContent className="p-5">
-              <p className="text-gray-600 mb-4">
-                Cuando el arrendatario devuelva el vehículo, completa la reserva.
-              </p>
+          <Card className="border-0 shadow-sm rounded-2xl border-green-200">
+            <CardContent className="p-5 space-y-4">
+              <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+                <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Antes de completar la reserva
+                </h4>
+                <ul className="space-y-1 text-sm text-green-800">
+                  <li>✓ Inspecciona el vehículo junto con el arrendatario</li>
+                  <li>✓ Verifica que no haya daños nuevos</li>
+                  <li>✓ Confirma el nivel de combustible acordado</li>
+                  <li>✓ Revisa que todos los accesorios estén completos</li>
+                  <li>✓ Toma fotos del estado de devolución</li>
+                </ul>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                <p className="text-sm text-blue-800">
+                  Al completar, recibirás <strong>${booking.owner_payout?.toFixed(2)}</strong> en tu cuenta y se liberará el depósito del arrendatario.
+                </p>
+              </div>
               <Button
                 onClick={handleCompleteBooking}
                 disabled={isUpdating}
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-green-600 hover:bg-green-700 h-12"
               >
                 {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-                Completar reserva
+                Confirmar devolución y completar
               </Button>
             </CardContent>
           </Card>
