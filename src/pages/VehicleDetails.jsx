@@ -16,6 +16,7 @@ import { format, differenceInDays, addDays, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import StarRating from "@/components/ui/StarRating";
+import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { motion, AnimatePresence } from "framer-motion";
 
 const vehicleTypeLabels = {
@@ -300,6 +301,35 @@ export default function VehicleDetails() {
                     </div>
                   </>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Location Map */}
+            <Card className="border-0 shadow-sm rounded-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-teal-600" />
+                  Ubicación de Recogida
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 pb-6">
+                <VehicleLocationMap 
+                  vehicle={vehicle} 
+                  height="400px"
+                  zoom={13}
+                  showPopup={false}
+                />
+                <div className="px-6 pt-4">
+                  <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">{vehicle.location}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Coordina con el propietario para confirmar el punto exacto de encuentro.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

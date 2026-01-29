@@ -12,8 +12,7 @@ import EmptyState from "@/components/common/EmptyState";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 
 export default function Browse() {
   const [vehicles, setVehicles] = useState([]);
@@ -173,29 +172,7 @@ export default function Browse() {
     setSearchTerm("");
   };
 
-  // Coordinates for Isla de Margarita
-  const mapCenter = [10.9971, -63.9137];
 
-  const getVehicleCoordinates = (vehicle) => {
-    // Generate approximate coordinates based on location string
-    const baseCoords = { lat: 10.9971, lng: -63.9137 };
-    const locations = {
-      "porlamar": { lat: 10.9576, lng: -63.8496 },
-      "pampatar": { lat: 10.9983, lng: -63.7983 },
-      "juan griego": { lat: 11.0819, lng: -63.9694 },
-      "la asuncion": { lat: 11.0331, lng: -63.8628 },
-      "el yaque": { lat: 10.8892, lng: -63.8947 }
-    };
-
-    const location = vehicle.location?.toLowerCase() || "";
-    for (const [key, coords] of Object.entries(locations)) {
-      if (location.includes(key)) {
-        return [coords.lat + (Math.random() - 0.5) * 0.01, coords.lng + (Math.random() - 0.5) * 0.01];
-      }
-    }
-
-    return [baseCoords.lat + (Math.random() - 0.5) * 0.1, baseCoords.lng + (Math.random() - 0.5) * 0.1];
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -304,44 +281,11 @@ export default function Browse() {
             {/* Map View */}
             {viewMode === "map" && (
               <div className="grid lg:grid-cols-2 gap-6">
-                <div className="h-[600px] rounded-2xl overflow-hidden border shadow-sm">
-                  <MapContainer
-                    center={mapCenter}
-                    zoom={11}
-                    style={{ height: "100%", width: "100%" }}
-                    scrollWheelZoom={false}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {filteredVehicles.map((vehicle) => {
-                      const coords = getVehicleCoordinates(vehicle);
-                      return (
-                        <Marker key={vehicle.id} position={coords}>
-                          <Popup>
-                            <div className="p-2">
-                              <img
-                                src={vehicle.photos?.[0] || "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200"}
-                                alt={vehicle.title}
-                                className="w-full h-32 object-cover rounded-lg mb-2"
-                              />
-                              <p className="font-semibold text-sm mb-1">{vehicle.title}</p>
-                              <p className="text-xs text-gray-500 mb-2">{vehicle.location}</p>
-                              <p className="font-bold text-teal-600">${vehicle.price_per_day}/día</p>
-                              <Link
-                                to={createPageUrl(`VehicleDetails?id=${vehicle.id}`)}
-                                className="text-xs text-teal-600 hover:underline mt-2 block"
-                              >
-                                Ver detalles →
-                              </Link>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      );
-                    })}
-                  </MapContainer>
-                </div>
+                <VehicleLocationMap 
+                  vehicles={filteredVehicles} 
+                  height="600px"
+                  zoom={11}
+                />
                 
                 <div className="h-[600px] overflow-y-auto space-y-4">
                   {filteredVehicles.map((vehicle) => (
