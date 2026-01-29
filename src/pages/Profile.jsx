@@ -11,11 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   ChevronLeft, Loader2, Upload, User, MapPin, Phone, Mail, 
-  Star, LogOut, Shield, Bell
+  Star, LogOut, Shield, Bell, Car
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const navigate = useNavigate();
