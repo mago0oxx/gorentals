@@ -204,10 +204,10 @@ export default function Browse() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-4">
             <Link to={createPageUrl("Landing")} className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
                 <Car className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">RentaMargarita</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
             
             <div className="flex items-center gap-2">
