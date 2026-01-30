@@ -39,6 +39,8 @@ export default function CreateBooking() {
 
   const params = new URLSearchParams(window.location.search);
   const vehicleId = params.get("id");
+  const startDateParam = params.get("startDate");
+  const endDateParam = params.get("endDate");
 
   useEffect(() => {
     loadData();
