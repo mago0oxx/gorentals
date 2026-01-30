@@ -275,21 +275,19 @@ export default function DocumentVerification() {
                             className="hidden"
                             accept="image/jpeg,image/png,image/jpg,application/pdf"
                             onChange={(e) => handleFileUpload(docType.value, e)}
-                            disabled={isUploading}
                           />
                           <label 
                             htmlFor={`reupload-${docType.value}`}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer disabled:pointer-events-none disabled:opacity-50"
-                            style={isUploading ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                            className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {isUploading ? (
                               <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" />
                                 Subiendo...
                               </>
                             ) : (
                               <>
-                                <Upload className="w-4 h-4 mr-2" />
+                                <Upload className="w-4 h-4" />
                                 Volver a subir
                               </>
                             )}
@@ -305,21 +303,19 @@ export default function DocumentVerification() {
                         className="hidden"
                         accept="image/jpeg,image/png,image/jpg,application/pdf"
                         onChange={(e) => handleFileUpload(docType.value, e)}
-                        disabled={isUploading}
                       />
                       <label 
                         htmlFor={`upload-${docType.value}`}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-teal-700 cursor-pointer disabled:pointer-events-none disabled:opacity-50"
-                        style={isUploading ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-teal-700 ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         {isUploading ? (
                           <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                             Subiendo...
                           </>
                         ) : (
                           <>
-                            <Upload className="w-4 h-4 mr-2" />
+                            <Upload className="w-4 h-4" />
                             Subir documento
                           </>
                         )}
