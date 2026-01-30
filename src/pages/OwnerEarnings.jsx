@@ -9,6 +9,7 @@ import {
   ChevronLeft, DollarSign, TrendingUp, Calendar, Download,
   Car, CheckCircle, Clock, Loader2
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, parseISO } from "date-fns";
@@ -233,6 +234,12 @@ export default function OwnerEarnings() {
               )}
               Exportar PDF
             </Button>
+            <Link to={createPageUrl("CalendarSync")}>
+              <Button variant="outline" className="rounded-xl">
+                <Calendar className="w-4 h-4 mr-2" />
+                Sincronizar calendario
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
