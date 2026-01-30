@@ -405,6 +405,7 @@ export default function AdminDashboard() {
                     <TableHead>Total</TableHead>
                     <TableHead>Comisión</TableHead>
                     <TableHead>Estado</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -424,6 +425,16 @@ export default function AdminDashboard() {
                         <Badge className={`${statusColors[booking.status]} border-0`}>
                           {booking.status}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(createPageUrl(`BookingDetails?id=${booking.id}`))}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          Ver Detalles
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
