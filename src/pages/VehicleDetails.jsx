@@ -118,14 +118,10 @@ export default function VehicleDetails() {
     const pricing = calculateTotal();
     if (!pricing || !dateRange || !dateRange.from || !dateRange.to) return;
 
-    const bookingData = {
-      vehicleId: vehicle.id,
-      startDate: dateRange.from.toISOString().split("T")[0],
-      endDate: dateRange.to.toISOString().split("T")[0],
-      ...pricing
-    };
+    const startDate = dateRange.from.toISOString().split("T")[0];
+    const endDate = dateRange.to.toISOString().split("T")[0];
     
-    navigate(createPageUrl(`CreateBooking?id=${vehicle.id}`));
+    navigate(createPageUrl(`CreateBooking?id=${vehicle.id}&startDate=${startDate}&endDate=${endDate}`));
   };
 
   if (isLoading) {
