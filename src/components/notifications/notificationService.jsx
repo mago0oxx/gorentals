@@ -28,7 +28,7 @@ export const NotificationService = {
       await base44.integrations.Core.SendEmail({
         to: booking.owner_email,
         subject: `Nueva solicitud de reserva - ${booking.vehicle_title}`,
-      body: `
+        body: `
         <h2>¡Nueva Solicitud de Reserva!</h2>
         
         <p>Hola,</p>
@@ -66,7 +66,10 @@ export const NotificationService = {
           Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
         </p>
       `
-    });
+      });
+    } catch (err) {
+      console.log('Could not send email to owner:', err.message);
+    }
   },
 
   // Notificar al arrendatario que su reserva fue aprobada
@@ -94,7 +97,7 @@ export const NotificationService = {
       await base44.integrations.Core.SendEmail({
         to: booking.renter_email,
         subject: `¡Reserva aprobada! - ${booking.vehicle_title}`,
-      body: `
+        body: `
         <h2>¡Tu Reserva ha sido Aprobada! 🎉</h2>
         
         <p>Hola ${booking.renter_name},</p>
@@ -156,7 +159,7 @@ export const NotificationService = {
       await base44.integrations.Core.SendEmail({
         to: booking.renter_email,
         subject: `Solicitud de reserva no aprobada - ${booking.vehicle_title}`,
-      body: `
+        body: `
         <h2>Solicitud de Reserva No Aprobada</h2>
         
         <p>Hola ${booking.renter_name},</p>
@@ -191,90 +194,122 @@ export const NotificationService = {
 
   // Notificar al propietario que el pago fue recibido
   async notifyBookingPaid(booking) {
-    await base44.entities.Notification.create({
-      user_email: booking.owner_email,
-      title: "Pago confirmado",
-      message: `${booking.renter_name} ha completado el pago para ${booking.vehicle_title}. Coordina la entrega del vehículo.`,
-      type: "booking_paid",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.owner_email,
+        title: "Pago confirmado",
+        message: `${booking.renter_name} ha completado el pago para ${booking.vehicle_title}. Coordina la entrega del vehículo.`,
+        type: "booking_paid",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification for owner:', err.message);
+    }
 
     // También notificar al arrendatario
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "Pago confirmado",
-      message: `Tu pago para ${booking.vehicle_title} ha sido confirmado. El propietario te contactará para coordinar la entrega.`,
-      type: "booking_paid",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "Pago confirmado",
+        message: `Tu pago para ${booking.vehicle_title} ha sido confirmado. El propietario te contactará para coordinar la entrega.`,
+        type: "booking_paid",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification for renter:', err.message);
+    }
   },
 
   // Notificar que la reserva fue completada
   async notifyBookingCompleted(booking) {
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "Alquiler completado",
-      message: `Tu alquiler de ${booking.vehicle_title} ha finalizado. ¡No olvides dejar una reseña!`,
-      type: "booking_completed",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "Alquiler completado",
+        message: `Tu alquiler de ${booking.vehicle_title} ha finalizado. ¡No olvides dejar una reseña!`,
+        type: "booking_completed",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
-    await base44.entities.Notification.create({
-      user_email: booking.owner_email,
-      title: "Alquiler completado",
-      message: `El alquiler de ${booking.vehicle_title} con ${booking.renter_name} ha finalizado exitosamente.`,
-      type: "booking_completed",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.owner_email,
+        title: "Alquiler completado",
+        message: `El alquiler de ${booking.vehicle_title} con ${booking.renter_name} ha finalizado exitosamente.`,
+        type: "booking_completed",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
   },
 
   // Recordatorio de recogida (para ambos)
   async notifyPickupReminder(booking) {
     const pickupDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM", { locale: es });
     
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "Recordatorio de recogida",
-      message: `Mañana ${pickupDate} recoges ${booking.vehicle_title}. Ubicación: ${booking.pickup_location || "Por confirmar"}`,
-      type: "pickup_reminder",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "Recordatorio de recogida",
+        message: `Mañana ${pickupDate} recoges ${booking.vehicle_title}. Ubicación: ${booking.pickup_location || "Por confirmar"}`,
+        type: "pickup_reminder",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
-    await base44.entities.Notification.create({
-      user_email: booking.owner_email,
-      title: "Recordatorio de entrega",
-      message: `Mañana ${pickupDate} entregas ${booking.vehicle_title} a ${booking.renter_name}.`,
-      type: "pickup_reminder",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.owner_email,
+        title: "Recordatorio de entrega",
+        message: `Mañana ${pickupDate} entregas ${booking.vehicle_title} a ${booking.renter_name}.`,
+        type: "pickup_reminder",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
   },
 
   // Recordatorio de devolución (para ambos)
   async notifyReturnReminder(booking) {
     const returnDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM", { locale: es });
     
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "Recordatorio de devolución",
-      message: `Mañana ${returnDate} termina tu alquiler de ${booking.vehicle_title}. Recuerda devolverlo a tiempo.`,
-      type: "return_reminder",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "Recordatorio de devolución",
+        message: `Mañana ${returnDate} termina tu alquiler de ${booking.vehicle_title}. Recuerda devolverlo a tiempo.`,
+        type: "return_reminder",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
-    await base44.entities.Notification.create({
-      user_email: booking.owner_email,
-      title: "Recordatorio de devolución",
-      message: `Mañana ${returnDate} ${booking.renter_name} devuelve ${booking.vehicle_title}.`,
-      type: "return_reminder",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.owner_email,
+        title: "Recordatorio de devolución",
+        message: `Mañana ${returnDate} ${booking.renter_name} devuelve ${booking.vehicle_title}.`,
+        type: "return_reminder",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
   }
 };
