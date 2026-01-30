@@ -48,21 +48,25 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
     setError(null);
 
     try {
-      const { data } = await base44.functions.invoke('createCheckoutSession', {
+      console.log('Calling createCheckoutSession with booking_id:', booking.id);
+      
+      const response = await base44.functions.invoke('createCheckoutSession', {
         booking_id: booking.id
       });
 
-      if (data.checkout_url) {
-        // Add small delay to ensure state is updated before redirect
-        setTimeout(() => {
-          window.location.href = data.checkout_url;
-        }, 100);
+      console.log('Response from createCheckoutSession:', response);
+
+      if (response?.data?.checkout_url) {
+        console.log('Redirecting to:', response.data.checkout_url);
+        window.location.href = response.data.checkout_url;
       } else {
-        setError('Error al crear la sesión de pago');
+        console.error('No checkout URL in response:', response);
+        setError('Error al crear la sesión de pago - no se recibió URL');
         setIsProcessing(false);
       }
     } catch (err) {
       console.error('Payment error:', err);
+      console.error('Error details:', err.response?.data);
       setError(err.response?.data?.error || err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
       setIsProcessing(false);
     }
