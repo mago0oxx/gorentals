@@ -159,19 +159,19 @@ export default function Dashboard() {
                   <Link to={createPageUrl("OwnerEarnings")}>
                     <Button variant="outline" className="rounded-xl">
                       <DollarSign className="w-4 h-4 mr-2" />
-                      Ganancias
+                      {t('messages.earnings')}
                     </Button>
                   </Link>
                   <Link to={createPageUrl("OwnerDashboard")}>
                     <Button variant="outline" className="rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50">
                       <Car className="w-4 h-4 mr-2" />
-                      Gestión Completa
+                      {t('messages.fullManagement')}
                     </Button>
                   </Link>
                   <Link to={createPageUrl("AddVehicle")}>
                     <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
                       <Plus className="w-4 h-4 mr-2" />
-                      Agregar vehículo
+                      {t('messages.addVehicle')}
                     </Button>
                   </Link>
                 </>
@@ -180,7 +180,7 @@ export default function Dashboard() {
                 <Link to={createPageUrl("Browse")}>
                   <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
                     <Car className="w-4 h-4 mr-2" />
-                    Buscar vehículos
+                    {t('messages.searchVehicles')}
                   </Button>
                 </Link>
               )}
@@ -199,7 +199,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Mis vehículos</p>
+                        <p className="text-sm text-gray-500">{t('messages.myVehicles')}</p>
                         <p className="text-3xl font-bold">{stats.totalVehicles}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
@@ -214,7 +214,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Reservas activas</p>
+                        <p className="text-sm text-gray-500">{t('messages.activeBookings')}</p>
                         <p className="text-3xl font-bold">{stats.activeBookings}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -229,7 +229,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Ganancias totales</p>
+                        <p className="text-sm text-gray-500">{t('messages.totalEarnings')}</p>
                         <p className="text-3xl font-bold">${stats.totalEarnings.toFixed(0)}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Calificación</p>
+                        <p className="text-sm text-gray-500">{t('messages.rating')}</p>
                         <p className="text-3xl font-bold">{stats.avgRating.toFixed(1)}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -262,7 +262,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Reservas activas</p>
+                        <p className="text-sm text-gray-500">{t('messages.activeBookings')}</p>
                         <p className="text-3xl font-bold">{stats.activeBookings}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
@@ -277,7 +277,7 @@ export default function Dashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Reservas completadas</p>
+                        <p className="text-sm text-gray-500">{t('messages.completedBookings')}</p>
                         <p className="text-3xl font-bold">{stats.completedBookings}</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
@@ -295,19 +295,19 @@ export default function Dashboard() {
         {isOwner && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Mis vehículos</h2>
+              <h2 className="text-xl font-bold">{t('messages.myVehicles')}</h2>
               <Link to={createPageUrl("MyVehicles")}>
                 <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                  Ver todos <ChevronRight className="w-4 h-4 ml-1" />
+                  {t('messages.viewAll')} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
             </div>
             {vehicles.length === 0 ? (
               <EmptyState
                 icon={Car}
-                title="No tienes vehículos publicados"
-                description="Publica tu primer vehículo y comienza a generar ingresos"
-                actionLabel="Agregar vehículo"
+                title={t('messages.noVehiclesPublished')}
+                description={t('messages.publishFirst')}
+                actionLabel={t('messages.addVehicle')}
                 actionLink="AddVehicle"
               />
             ) : (
@@ -322,29 +322,29 @@ export default function Dashboard() {
 
         {/* Bookings Section */}
         <div>
-          <h2 className="text-xl font-bold mb-4">Reservas</h2>
+          <h2 className="text-xl font-bold mb-4">{t('messages.bookings')}</h2>
           <Tabs defaultValue={pendingBookings.length > 0 ? "pending" : "active"}>
             <TabsList className="mb-4">
               <TabsTrigger value="pending" className="relative">
-                Pendientes
+                {t('messages.pending')}
                 {pendingBookings.length > 0 && (
                   <span className="ml-2 w-5 h-5 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">
                     {pendingBookings.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="active">Activas</TabsTrigger>
-              <TabsTrigger value="history">Historial</TabsTrigger>
+              <TabsTrigger value="active">{t('messages.active')}</TabsTrigger>
+              <TabsTrigger value="history">{t('messages.history')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pending">
               {pendingBookings.length === 0 ? (
                 <EmptyState
                   icon={Clock}
-                  title="No hay reservas pendientes"
+                  title={t('messages.noPending')}
                   description={isOwner 
-                    ? "Las solicitudes de reserva aparecerán aquí" 
-                    : "Busca un vehículo y solicita una reserva"}
+                    ? t('messages.pendingDesc')
+                    : t('messages.findVehicle')}
                 />
               ) : (
                 <div className="space-y-4">
@@ -363,8 +363,8 @@ export default function Dashboard() {
               {activeBookings.length === 0 ? (
                 <EmptyState
                   icon={Calendar}
-                  title="No hay reservas activas"
-                  description="Tus reservas aprobadas y en curso aparecerán aquí"
+                  title={t('messages.noActive')}
+                  description={t('messages.activeDesc')}
                 />
               ) : (
                 <div className="space-y-4">
@@ -383,8 +383,8 @@ export default function Dashboard() {
               {pastBookings.length === 0 ? (
                 <EmptyState
                   icon={CheckCircle}
-                  title="Sin historial"
-                  description="Tu historial de reservas completadas aparecerá aquí"
+                  title={t('messages.noHistory')}
+                  description={t('messages.historyDesc')}
                 />
               ) : (
                 <div className="space-y-4">

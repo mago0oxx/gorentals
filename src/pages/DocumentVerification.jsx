@@ -11,21 +11,23 @@ import {
   Clock, Shield, AlertCircle, Loader2
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
-const DOCUMENT_TYPES = {
+const getDocumentTypes = (t) => ({
   owner: [
-    { value: "driver_license", label: "Licencia de conducir", required: true },
+    { value: "driver_license", label: t('documents.driverLicense'), required: true },
     { value: "vehicle_registration", label: "Registro del vehículo", required: true },
     { value: "vehicle_insurance", label: "Seguro del vehículo", required: false }
   ],
   renter: [
-    { value: "driver_license", label: "Licencia de conducir", required: true },
-    { value: "passport", label: "Pasaporte", required: false },
-    { value: "dni", label: "DNI/Cédula", required: false }
+    { value: "driver_license", label: t('documents.driverLicense'), required: true },
+    { value: "passport", label: t('documents.passport'), required: false },
+    { value: "dni", label: t('documents.dni'), required: false }
   ]
-};
+});
 
 export default function DocumentVerification() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -133,9 +135,9 @@ export default function DocumentVerification() {
 
   const getStatusBadge = (status) => {
     const config = {
-      pending: { icon: Clock, label: "Pendiente", className: "bg-yellow-100 text-yellow-800" },
-      approved: { icon: CheckCircle, label: "Aprobado", className: "bg-green-100 text-green-800" },
-      rejected: { icon: XCircle, label: "Rechazado", className: "bg-red-100 text-red-800" }
+      pending: { icon: Clock, label: t('documents.pending'), className: "bg-yellow-100 text-yellow-800" },
+      approved: { icon: CheckCircle, label: t('documents.approved'), className: "bg-green-100 text-green-800" },
+      rejected: { icon: XCircle, label: t('documents.rejected'), className: "bg-red-100 text-red-800" }
     };
 
     const { icon: Icon, label, className } = config[status] || config.pending;
@@ -149,10 +151,10 @@ export default function DocumentVerification() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando documentos..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('common.loading')} />;
   }
 
-  const documentTypes = DOCUMENT_TYPES[user.user_type] || [];
+  const documentTypes = getDocumentTypes(t)[user.user_type] || [];
   const allRequiredApproved = documentTypes
     .filter(dt => dt.required)
     .every(dt => {
@@ -171,7 +173,7 @@ export default function DocumentVerification() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('common.back')}
           </Button>
         </div>
       </div>
@@ -184,10 +186,10 @@ export default function DocumentVerification() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Verificación de Documentos
+                {t('documents.title')}
               </h1>
               <p className="text-gray-500">
-                Sube tus documentos para verificar tu cuenta
+                {t('documents.status')}
               </p>
             </div>
           </div>
@@ -229,7 +231,7 @@ export default function DocumentVerification() {
                         )}
                       </CardTitle>
                       <CardDescription>
-                        {docType.required ? "Documento requerido" : "Documento opcional"}
+                        {docType.required ? t('payment.documentsRequired') : "Documento opcional"}
                       </CardDescription>
                     </div>
                     {existingDoc && getStatusBadge(existingDoc.status)}
@@ -283,12 +285,12 @@ export default function DocumentVerification() {
                             {isUploading ? (
                               <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                Subiendo...
+                                {t('documents.uploading')}
                               </>
                             ) : (
                               <>
                                 <Upload className="w-4 h-4" />
-                                Volver a subir
+                                {t('documents.reupload')}
                               </>
                             )}
                           </label>
@@ -311,17 +313,17 @@ export default function DocumentVerification() {
                         {isUploading ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Subiendo...
+                            {t('documents.uploading')}
                           </>
                         ) : (
                           <>
                             <Upload className="w-4 h-4" />
-                            Subir documento
+                            {t('documents.upload')}
                           </>
                         )}
                       </label>
                       <p className="text-xs text-gray-500 text-center mt-2">
-                        Formatos: JPG, PNG, PDF (máx. 10MB)
+                        {t('documents.formats')}
                       </p>
                     </div>
                   )}
