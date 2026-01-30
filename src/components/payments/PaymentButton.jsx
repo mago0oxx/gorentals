@@ -19,19 +19,22 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
     setError(null);
 
     try {
-      const response = await base44.functions.invoke('createCheckoutSession', {
+      const { data } = await base44.functions.invoke('createCheckoutSession', {
         booking_id: booking.id
       });
 
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
+      if (data.checkout_url) {
+        // Add small delay to ensure state is updated before redirect
+        setTimeout(() => {
+          window.location.href = data.checkout_url;
+        }, 100);
       } else {
         setError('Error al crear la sesión de pago');
         setIsProcessing(false);
       }
     } catch (err) {
       console.error('Payment error:', err);
-      setError(err.response?.data?.error || 'Error al procesar el pago');
+      setError(err.response?.data?.error || err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
       setIsProcessing(false);
     }
   };

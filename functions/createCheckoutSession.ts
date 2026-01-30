@@ -6,25 +6,34 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    
+    // Parse body first
+    const body = await req.json();
+    const { booking_id } = body;
+    
+    // Then check auth
     const user = await base44.auth.me();
 
     if (!user) {
+      console.error('Unauthorized: No user found');
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { booking_id } = await req.json();
-
     if (!booking_id) {
+      console.error('Missing booking_id');
       return Response.json({ error: 'booking_id is required' }, { status: 400 });
     }
 
     // Get booking details
+    console.log('Fetching booking:', booking_id);
     const bookings = await base44.entities.Booking.filter({ id: booking_id });
     if (bookings.length === 0) {
+      console.error('Booking not found:', booking_id);
       return Response.json({ error: 'Booking not found' }, { status: 404 });
     }
 
     const booking = bookings[0];
+    console.log('Found booking:', booking.id, 'Status:', booking.status);
 
     // Verify user is the renter
     if (booking.renter_email !== user.email) {
@@ -37,6 +46,7 @@ Deno.serve(async (req) => {
     }
 
     // Create Stripe checkout session
+    console.log('Creating Stripe session for booking:', booking_id);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -77,6 +87,7 @@ Deno.serve(async (req) => {
       customer_email: user.email
     });
 
+    console.log('Stripe session created:', session.id);
     return Response.json({ 
       checkout_url: session.url,
       session_id: session.id 
@@ -84,6 +95,9 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error creating checkout session:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Error stack:', error.stack);
+    return Response.json({ 
+      error: error.message || 'Error al crear la sesión de pago'
+    }, { status: 500 });
   }
 });
