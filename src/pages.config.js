@@ -67,6 +67,8 @@ import VehicleDetails from './pages/VehicleDetails';
 import VehicleHistory from './pages/VehicleHistory';
 import OwnerEarnings from './pages/OwnerEarnings';
 import CalendarSync from './pages/CalendarSync';
+import DocumentVerification from './pages/DocumentVerification';
+import AdminDocumentReview from './pages/AdminDocumentReview';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +93,8 @@ export const PAGES = {
     "VehicleHistory": VehicleHistory,
     "OwnerEarnings": OwnerEarnings,
     "CalendarSync": CalendarSync,
+    "DocumentVerification": DocumentVerification,
+    "AdminDocumentReview": AdminDocumentReview,
 }
 
 export const pagesConfig = {
