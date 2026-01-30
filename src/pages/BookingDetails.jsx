@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,18 +43,20 @@ import DeliveryRulesCard from "@/components/booking/DeliveryRulesCard";
 import CancellationPolicyCard from "@/components/booking/CancellationPolicyCard";
 import { motion } from "framer-motion";
 
-const statusConfig = {
-  pending: { label: "Pendiente", color: "bg-amber-100 text-amber-700", icon: Clock },
-  approved: { label: "Aprobado", color: "bg-blue-100 text-blue-700", icon: CheckCircle },
-  rejected: { label: "Rechazado", color: "bg-red-100 text-red-700", icon: XCircle },
-  paid: { label: "Pagado", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  active: { label: "En curso", color: "bg-teal-100 text-teal-700", icon: Car },
-  completed: { label: "Completado", color: "bg-gray-100 text-gray-700", icon: CheckCircle },
-  cancelled: { label: "Cancelado", color: "bg-red-100 text-red-700", icon: XCircle }
-};
+const getStatusConfig = (t) => ({
+  pending: { label: t('booking.pending'), color: "bg-amber-100 text-amber-700", icon: Clock },
+  approved: { label: t('booking.approved'), color: "bg-blue-100 text-blue-700", icon: CheckCircle },
+  rejected: { label: t('booking.rejected'), color: "bg-red-100 text-red-700", icon: XCircle },
+  paid: { label: t('booking.paid'), color: "bg-green-100 text-green-700", icon: CheckCircle },
+  active: { label: t('booking.active'), color: "bg-teal-100 text-teal-700", icon: Car },
+  completed: { label: t('booking.completed'), color: "bg-gray-100 text-gray-700", icon: CheckCircle },
+  cancelled: { label: t('booking.cancelled'), color: "bg-red-100 text-red-700", icon: XCircle }
+});
 
 export default function BookingDetails() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const statusConfig = getStatusConfig(t);
   const [booking, setBooking] = useState(null);
   const [user, setUser] = useState(null);
   const [existingReview, setExistingReview] = useState(null);
@@ -408,13 +411,13 @@ export default function BookingDetails() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando detalles..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('bookingDetails.loading')} />;
   }
 
   if (!booking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Reserva no encontrada</p>
+        <p className="text-gray-500">{t('bookingDetails.notFound')}</p>
       </div>
     );
   }
