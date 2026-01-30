@@ -13,8 +13,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 export default function Browse() {
+  const { t } = useLanguage();
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -197,7 +199,7 @@ export default function Browse() {
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
-              placeholder="Buscar por marca, modelo o ubicación..."
+              placeholder={t('browse.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 h-12 rounded-xl border-gray-200 text-base"
@@ -216,13 +218,13 @@ export default function Browse() {
       {/* Results */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
-          <LoadingSpinner className="py-20" text="Cargando vehículos..." />
+          <LoadingSpinner className="py-20" text={t('browse.loading')} />
         ) : filteredVehicles.length === 0 ? (
           <EmptyState
             icon={Car}
-            title="No se encontraron vehículos"
-            description="Intenta ajustar tus filtros o buscar con otros términos"
-            actionLabel="Limpiar filtros"
+            title={t('browse.noResults')}
+            description={t('browse.noResultsDesc')}
+            actionLabel={t('browse.clearFilters')}
             onAction={clearFilters}
           />
         ) : (
@@ -230,7 +232,7 @@ export default function Browse() {
             {/* Controls Bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <p className="text-gray-600">
-                <span className="font-medium text-gray-900">{filteredVehicles.length}</span> vehículos encontrados
+                <span className="font-medium text-gray-900">{filteredVehicles.length}</span> {t('browse.found')}
               </p>
               
               <div className="flex items-center gap-3">
@@ -241,10 +243,10 @@ export default function Browse() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Más recientes</SelectItem>
-                    <SelectItem value="price-low">Precio: menor a mayor</SelectItem>
-                    <SelectItem value="price-high">Precio: mayor a menor</SelectItem>
-                    <SelectItem value="rating">Mejor valorados</SelectItem>
+                    <SelectItem value="newest">{t('browse.newest')}</SelectItem>
+                    <SelectItem value="price-low">{t('browse.priceLowHigh')}</SelectItem>
+                    <SelectItem value="price-high">{t('browse.priceHighLow')}</SelectItem>
+                    <SelectItem value="rating">{t('browse.topRated')}</SelectItem>
                   </SelectContent>
                 </Select>
 

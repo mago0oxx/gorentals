@@ -11,8 +11,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import VehicleCard from "@/components/vehicles/VehicleCard";
+import { useLanguage } from "@/components/i18n/LanguageContext";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 
 export default function Landing() {
+  const { t } = useLanguage();
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -80,7 +83,8 @@ export default function Landing() {
             <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent">GoRentals</span>
           </Link>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             {!isAuthenticated ? (
               <>
                 <Button 
@@ -88,11 +92,11 @@ export default function Landing() {
                   onClick={() => base44.auth.redirectToLogin(createPageUrl("Landing"))}
                   className="text-gray-700 hover:text-gray-900"
                 >
-                  Iniciar Sesión
+                  {t('common.login')}
                 </Button>
                 <Link to={createPageUrl("Register")}>
                   <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-                    Registrarse
+                    {t('common.register')}
                   </Button>
                 </Link>
               </>
@@ -100,7 +104,7 @@ export default function Landing() {
               <Link to={createPageUrl("Profile")} className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors">
                 <User className="w-4 h-4" />
                 <span className="font-medium">
-                  Hola, {user?.full_name?.split(' ')[0] || 'Usuario'}
+                  {t('messages.hello')}, {user?.full_name?.split(' ')[0] || t('messages.user')}
                 </span>
               </Link>
             )}

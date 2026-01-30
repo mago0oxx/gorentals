@@ -16,8 +16,10 @@ import EmptyState from "@/components/common/EmptyState";
 import BookingCard from "@/components/booking/BookingCard";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 export default function Dashboard() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [vehicles, setVehicles] = useState([]);
@@ -93,7 +95,7 @@ export default function Dashboard() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando dashboard..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('messages.loadingDashboard')} />;
   }
 
   if (!user) return null;
@@ -118,7 +120,7 @@ export default function Dashboard() {
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Hola, {user.full_name?.split(" ")[0]}
+                  {t('messages.hello')}, {user.full_name?.split(" ")[0]}
                 </h1>
                 <p className="text-gray-500 flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
@@ -131,25 +133,25 @@ export default function Dashboard() {
               <Link to={createPageUrl("MyBookings")}>
                 <Button variant="outline" className="rounded-xl">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {isOwner ? "Gestionar" : "Reservas"}
+                  {isOwner ? t('messages.manage') : t('messages.bookings')}
                 </Button>
               </Link>
               <Link to={createPageUrl("Transactions")}>
                 <Button variant="outline" className="rounded-xl">
                   <Receipt className="w-4 h-4 mr-2" />
-                  Transacciones
+                  {t('messages.transactions')}
                 </Button>
               </Link>
               <Link to={createPageUrl("Chat")}>
                 <Button variant="outline" className="rounded-xl">
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Mensajes
+                  {t('messages.messages')}
                 </Button>
               </Link>
               <Link to={createPageUrl("Profile")}>
                 <Button variant="outline" className="rounded-xl">
                   <Settings className="w-4 h-4 mr-2" />
-                  Perfil
+                  {t('common.profile')}
                 </Button>
               </Link>
               {isOwner && (
