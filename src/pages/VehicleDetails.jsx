@@ -18,15 +18,20 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import StarRating from "@/components/ui/StarRating";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
-const vehicleTypeLabels = {
+const getVehicleTypeLabels = (t) => ({
   sedan: "Sedán", suv: "SUV", pickup: "Pickup", van: "Van", motorcycle: "Moto", compact: "Compacto"
-};
-const transmissionLabels = { automatic: "Automático", manual: "Manual" };
-const fuelLabels = { gasoline: "Gasolina", diesel: "Diésel", electric: "Eléctrico", hybrid: "Híbrido" };
+});
+const getTransmissionLabels = (t) => ({ automatic: "Automático", manual: "Manual" });
+const getFuelLabels = (t) => ({ gasoline: "Gasolina", diesel: "Diésel", electric: "Eléctrico", hybrid: "Híbrido" });
 
 export default function VehicleDetails() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const vehicleTypeLabels = getVehicleTypeLabels(t);
+  const transmissionLabels = getTransmissionLabels(t);
+  const fuelLabels = getFuelLabels(t);
   const [vehicle, setVehicle] = useState(null);
   const [owner, setOwner] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -125,13 +130,13 @@ export default function VehicleDetails() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando detalles..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('vehicleDetails.loading')} />;
   }
 
   if (!vehicle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Vehículo no encontrado</p>
+        <p className="text-gray-500">{t('vehicleDetails.notFound')}</p>
       </div>
     );
   }
@@ -149,7 +154,7 @@ export default function VehicleDetails() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('vehicleDetails.back')}
           </Button>
         </div>
       </div>
@@ -224,7 +229,7 @@ export default function VehicleDetails() {
                   </div>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-gray-900">${vehicle.price_per_day}</p>
-                    <p className="text-gray-500">por día</p>
+                    <p className="text-gray-500">{t('vehicleDetails.perDay')}</p>
                   </div>
                 </div>
 
@@ -242,14 +247,14 @@ export default function VehicleDetails() {
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                     <Settings className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500">Transmisión</p>
+                      <p className="text-xs text-gray-500">{t('vehicleDetails.transmission')}</p>
                       <p className="font-medium">{transmissionLabels[vehicle.transmission]}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                     <Fuel className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500">Combustible</p>
+                      <p className="text-xs text-gray-500">{t('vehicleDetails.fuel')}</p>
                       <p className="font-medium">{fuelLabels[vehicle.fuel_type]}</p>
                     </div>
                   </div>
@@ -257,7 +262,7 @@ export default function VehicleDetails() {
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                       <Users className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-xs text-gray-500">Asientos</p>
+                        <p className="text-xs text-gray-500">{t('vehicleDetails.seats')}</p>
                         <p className="font-medium">{vehicle.seats}</p>
                       </div>
                     </div>
@@ -265,7 +270,7 @@ export default function VehicleDetails() {
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                     <Shield className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500">Depósito</p>
+                      <p className="text-xs text-gray-500">{t('vehicleDetails.deposit')}</p>
                       <p className="font-medium">${vehicle.security_deposit}</p>
                     </div>
                   </div>
@@ -276,7 +281,7 @@ export default function VehicleDetails() {
                   <>
                     <Separator className="my-4" />
                     <div>
-                      <h3 className="font-semibold mb-3">Características</h3>
+                      <h3 className="font-semibold mb-3">{t('vehicleDetails.features')}</h3>
                       <div className="flex flex-wrap gap-2">
                         {vehicle.features.map((feature, idx) => (
                           <Badge key={idx} variant="outline" className="rounded-full">
@@ -296,8 +301,8 @@ export default function VehicleDetails() {
                     <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
                       <Briefcase className="w-5 h-5 text-green-600" />
                       <div>
-                        <p className="font-semibold text-green-900">Uso comercial permitido</p>
-                        <p className="text-sm text-green-700">Puedes usar este vehículo para Uber, Yummy, InDriver u otras apps</p>
+                        <p className="font-semibold text-green-900">{t('vehicleDetails.commercialUseAllowed')}</p>
+                        <p className="text-sm text-green-700">{t('vehicleDetails.commercialUseDesc')}</p>
                       </div>
                     </div>
                   </>
@@ -308,7 +313,7 @@ export default function VehicleDetails() {
                   <>
                     <Separator className="my-4" />
                     <div>
-                      <h3 className="font-semibold mb-3">Descripción</h3>
+                      <h3 className="font-semibold mb-3">{t('vehicleDetails.description')}</h3>
                       <p className="text-gray-600 whitespace-pre-line">{vehicle.description}</p>
                     </div>
                   </>
@@ -321,7 +326,7 @@ export default function VehicleDetails() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-teal-600" />
-                  Ubicación de Recogida
+                  {t('vehicleDetails.pickupLocation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0 pb-6">
@@ -337,7 +342,7 @@ export default function VehicleDetails() {
                     <div>
                       <p className="font-medium text-gray-900">{vehicle.location}</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Coordina con el propietario para confirmar el punto exacto de encuentro.
+                        {t('vehicleDetails.coordinateWithOwner')}
                       </p>
                     </div>
                   </div>
@@ -348,7 +353,7 @@ export default function VehicleDetails() {
             {/* Owner Info */}
             <Card className="border-0 shadow-sm rounded-2xl">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">Propietario</h3>
+                <h3 className="font-semibold mb-4">{t('vehicleDetails.owner')}</h3>
                 <div className="flex items-center gap-4">
                   <Avatar className="w-16 h-16">
                     <AvatarImage src={owner?.profile_image} />
@@ -368,7 +373,7 @@ export default function VehicleDetails() {
                       <div className="flex items-center gap-1 mt-1">
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                         <span className="font-medium">{owner.average_rating.toFixed(1)}</span>
-                        <span className="text-gray-400">({owner.total_reviews} reseñas)</span>
+                        <span className="text-gray-400">({owner.total_reviews} {t('vehicleDetails.reviews')})</span>
                       </div>
                     )}
                   </div>
@@ -382,7 +387,7 @@ export default function VehicleDetails() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                    {vehicle.average_rating?.toFixed(1)} · {vehicle.total_reviews} reseñas
+                    {vehicle.average_rating?.toFixed(1)} · {vehicle.total_reviews} {t('vehicleDetails.reviews')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -414,11 +419,11 @@ export default function VehicleDetails() {
               <CardContent className="p-6">
                 <div className="flex items-baseline gap-2 mb-6">
                   <span className="text-3xl font-bold">${vehicle.price_per_day}</span>
-                  <span className="text-gray-500">/ día</span>
+                  <span className="text-gray-500">/ {t('vehicleDetails.perDay')}</span>
                 </div>
 
                 <div className="mb-6">
-                  <p className="font-medium mb-3">Selecciona las fechas</p>
+                  <p className="font-medium mb-3">{t('vehicleDetails.selectDates')}</p>
                   <div className="border rounded-xl p-2">
                     <Calendar
                       mode="range"
@@ -435,20 +440,20 @@ export default function VehicleDetails() {
                 {pricing && (
                   <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-xl">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">${vehicle.price_per_day} x {pricing.days} días</span>
+                      <span className="text-gray-600">${vehicle.price_per_day} x {pricing.days} {t('vehicleDetails.days')}</span>
                       <span>${pricing.subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tarifa de servicio</span>
+                      <span className="text-gray-600">{t('vehicleDetails.serviceFee')}</span>
                       <span>${pricing.platformFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Depósito de seguridad</span>
+                      <span className="text-gray-600">{t('vehicleDetails.securityDeposit')}</span>
                       <span>${pricing.securityDeposit.toFixed(2)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-semibold">
-                      <span>Total</span>
+                      <span>{t('vehicleDetails.total')}</span>
                       <span>${pricing.total.toFixed(2)}</span>
                     </div>
                   </div>
@@ -459,17 +464,17 @@ export default function VehicleDetails() {
                   disabled={!pricing || (currentUser && currentUser.user_type === "owner" && currentUser.email === vehicle.owner_email)}
                   className="w-full h-14 bg-teal-600 hover:bg-teal-700 rounded-xl text-lg"
                 >
-                  {!isAuthenticated ? "Iniciar sesión para reservar" : "Solicitar reserva"}
+                  {!isAuthenticated ? t('vehicleDetails.loginToBook') : t('vehicleDetails.requestBooking')}
                 </Button>
 
                 {currentUser?.email === vehicle.owner_email && (
                   <p className="text-center text-sm text-gray-500 mt-3">
-                    No puedes reservar tu propio vehículo
+                    {t('vehicleDetails.cantBookOwn')}
                   </p>
                 )}
 
                 <p className="text-center text-xs text-gray-400 mt-4">
-                  No se te cobrará hasta que el propietario acepte tu solicitud
+                  {t('vehicleDetails.noChargeUntil')}
                 </p>
               </CardContent>
             </Card>

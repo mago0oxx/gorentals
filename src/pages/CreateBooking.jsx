@@ -19,10 +19,12 @@ import ExtrasSelector from "@/components/booking/ExtrasSelector";
 import InsuranceSelector from "@/components/booking/InsuranceSelector";
 import { NotificationService } from "@/components/notifications/notificationService";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 const COMMISSION_RATE = 0.15;
 
 export default function CreateBooking() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [user, setUser] = useState(null);
@@ -150,7 +152,7 @@ export default function CreateBooking() {
       });
 
       if (hasConflict) {
-        setError("Las fechas seleccionadas ya están reservadas. Por favor elige otras fechas.");
+        setError(t('createBooking.datesBooked'));
         setIsSubmitting(false);
         return;
       }
@@ -190,27 +192,27 @@ export default function CreateBooking() {
       navigate(createPageUrl(`BookingDetails?id=${newBooking.id}&success=true`));
     } catch (err) {
       console.error("Error creating booking:", err);
-      setError("Error al crear la reserva. Intenta de nuevo.");
+      setError(t('createBooking.createError'));
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('createBooking.loading')} />;
   }
 
   if (!vehicle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Vehículo no disponible</p>
+        <p className="text-gray-500">{t('createBooking.notAvailable')}</p>
       </div>
     );
   }
 
   const steps = [
-    { number: 1, title: "Fechas", icon: Calendar },
-    { number: 2, title: "Extras", icon: Package },
-    { number: 3, title: "Confirmar", icon: CheckCircle }
+    { number: 1, title: t('createBooking.dates'), icon: Calendar },
+    { number: 2, title: t('createBooking.extras'), icon: Package },
+    { number: 3, title: t('createBooking.confirm'), icon: CheckCircle }
   ];
 
   return (
@@ -224,7 +226,7 @@ export default function CreateBooking() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('createBooking.back')}
           </Button>
         </div>
       </div>
@@ -279,8 +281,8 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Selecciona las fechas</h1>
-                    <p className="text-gray-500">Elige cuándo necesitas el vehículo</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.selectDates')}</h1>
+                    <p className="text-gray-500">{t('createBooking.chooseDates')}</p>
                   </div>
 
                   <BookingCalendar
@@ -293,7 +295,7 @@ export default function CreateBooking() {
                     disabled={!canProceedToStep2}
                     className="w-full h-12 bg-teal-600 hover:bg-teal-700 rounded-xl"
                   >
-                    Continuar a extras
+                    {t('createBooking.continueToExtras')}
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </Button>
                 </motion.div>
@@ -309,8 +311,8 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Personaliza tu reserva</h1>
-                    <p className="text-gray-500">Agrega extras y protección adicional</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.customizeBooking')}</h1>
+                    <p className="text-gray-500">{t('createBooking.addExtras')}</p>
                   </div>
 
                   <ExtrasSelector
@@ -331,14 +333,14 @@ export default function CreateBooking() {
                       className="flex-1 h-12 rounded-xl"
                     >
                       <ChevronLeft className="w-5 h-5 mr-2" />
-                      Atrás
+                      {t('common.back')}
                     </Button>
                     <Button
                       onClick={() => setCurrentStep(3)}
                       disabled={!canProceedToStep3}
                       className="flex-1 h-12 bg-teal-600 hover:bg-teal-700 rounded-xl"
                     >
-                      Continuar a resumen
+                      {t('createBooking.continueToSummary')}
                       <ChevronRight className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
@@ -355,19 +357,19 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Confirmar reserva</h1>
-                    <p className="text-gray-500">Revisa los detalles antes de enviar</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.confirmBooking')}</h1>
+                    <p className="text-gray-500">{t('createBooking.reviewDetails')}</p>
                   </div>
 
                   {/* Notes */}
                   <Card className="border-0 shadow-sm rounded-2xl">
                     <CardContent className="p-5">
                       <Label htmlFor="notes" className="text-base font-medium">
-                        Mensaje para el propietario (opcional)
+                        {t('createBooking.messageOwner')}
                       </Label>
                       <Textarea
                         id="notes"
-                        placeholder="Cuéntale al propietario sobre tu viaje, hora de recogida preferida, etc."
+                        placeholder={t('createBooking.messagePlaceholder')}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         className="mt-3 rounded-xl resize-none"
@@ -381,12 +383,12 @@ export default function CreateBooking() {
                     <div className="flex gap-3">
                       <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <div className="text-sm">
-                        <p className="font-medium text-blue-900 mb-1">¿Cómo funciona?</p>
+                        <p className="font-medium text-blue-900 mb-1">{t('createBooking.howWorks')}</p>
                         <ul className="text-blue-700 space-y-1">
-                          <li>1. Envías tu solicitud al propietario</li>
-                          <li>2. El propietario revisa y aprueba</li>
-                          <li>3. Recibirás instrucciones de pago</li>
-                          <li>4. Coordinas la recogida del vehículo</li>
+                          <li>{t('createBooking.step1')}</li>
+                          <li>{t('createBooking.step2')}</li>
+                          <li>{t('createBooking.step3')}</li>
+                          <li>{t('createBooking.step4')}</li>
                         </ul>
                       </div>
                     </div>
@@ -408,7 +410,7 @@ export default function CreateBooking() {
                       className="flex-1 h-12 rounded-xl"
                     >
                       <ChevronLeft className="w-5 h-5 mr-2" />
-                      Atrás
+                      {t('common.back')}
                     </Button>
                     <Button
                       onClick={handleSubmit}
@@ -418,19 +420,19 @@ export default function CreateBooking() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Enviando...
+                          {t('createBooking.sending')}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="w-5 h-5 mr-2" />
-                          Enviar solicitud
+                          {t('createBooking.sendRequest')}
                         </>
                       )}
                     </Button>
                   </div>
 
                   <p className="text-center text-sm text-gray-500">
-                    No se te cobrará hasta que el propietario acepte
+                    {t('createBooking.noChargeUntil')}
                   </p>
                 </motion.div>
               )}
@@ -463,43 +465,43 @@ export default function CreateBooking() {
               {pricing && (
                 <Card className="border-0 shadow-sm rounded-2xl">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Resumen de costos</CardTitle>
+                    <CardTitle className="text-lg">{t('createBooking.costSummary')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">${pricing.pricePerDay} × {pricing.days} días</span>
+                      <span className="text-gray-600">${pricing.pricePerDay} × {pricing.days} {t('createBooking.days')}</span>
                       <span>${pricing.subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tarifa de servicio</span>
+                      <span className="text-gray-600">{t('createBooking.serviceFee')}</span>
                       <span>${pricing.platformFee.toFixed(2)}</span>
                     </div>
                     {pricing.extrasTotal > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Extras</span>
+                        <span className="text-gray-600">{t('createBooking.extras')}</span>
                         <span>${pricing.extrasTotal.toFixed(2)}</span>
                       </div>
                     )}
                     {pricing.insuranceCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Seguro adicional</span>
+                        <span className="text-gray-600">{t('createBooking.additionalInsurance')}</span>
                         <span>${pricing.insuranceCost.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 flex items-center gap-1">
                         <Shield className="w-4 h-4" />
-                        Depósito
+                        {t('common.subtotal')}
                       </span>
                       <span>${pricing.securityDeposit.toFixed(2)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between text-lg font-semibold">
-                      <span>Total</span>
+                      <span>{t('common.total')}</span>
                       <span className="text-teal-600">${pricing.total.toFixed(2)}</span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      * El depósito será devuelto después del alquiler
+                      {t('createBooking.depositRefund')}
                     </p>
                   </CardContent>
                 </Card>
