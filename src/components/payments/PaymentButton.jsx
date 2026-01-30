@@ -1,12 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Loader2, Shield, AlertCircle, ExternalLink } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CreditCard, Loader2, Shield, AlertCircle, ExternalLink, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function PaymentButton({ booking, onPaymentComplete }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [isCheckingDocs, setIsCheckingDocs] = useState(true);
+  const [hasRequiredDocs, setHasRequiredDocs] = useState(false);
+
+  useEffect(() => {
+    checkDocuments();
+  }, []);
+
+  const checkDocuments = async () => {
+    setIsCheckingDocs(true);
+    try {
+      const user = await base44.auth.me();
+      const docs = await base44.entities.VerificationDocument.filter({
+        user_email: user.email,
+        user_type: user.user_type,
+        status: "approved"
+      });
+
+      // Check if user has required document (driver license)
+      const hasDriverLicense = docs.some(d => d.document_type === "driver_license");
+      setHasRequiredDocs(hasDriverLicense);
+    } catch (err) {
+      console.error("Error checking documents:", err);
+    } finally {
+      setIsCheckingDocs(false);
+    }
+  };
 
   const handlePayment = async () => {
     // Check if running in iframe (preview mode)
@@ -38,6 +67,35 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
       setIsProcessing(false);
     }
   };
+
+  if (isCheckingDocs) {
+    return (
+      <div className="text-center py-4">
+        <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400 mb-2" />
+        <p className="text-sm text-gray-500">Verificando documentos...</p>
+      </div>
+    );
+  }
+
+  if (!hasRequiredDocs) {
+    return (
+      <>
+        <Alert className="mb-4 border-amber-200 bg-amber-50">
+          <FileText className="w-4 h-4 text-amber-600" />
+          <AlertDescription className="text-amber-800">
+            <p className="font-medium mb-2">Verificación de documentos requerida</p>
+            <p className="text-sm">Para procesar el pago, necesitas subir y verificar tu licencia de conducir.</p>
+          </AlertDescription>
+        </Alert>
+        <Link to={createPageUrl("DocumentVerification")}>
+          <Button className="w-full bg-teal-600 hover:bg-teal-700 h-12">
+            <FileText className="w-4 h-4 mr-2" />
+            Verificar documentos
+          </Button>
+        </Link>
+      </>
+    );
+  }
 
   return (
     <>
