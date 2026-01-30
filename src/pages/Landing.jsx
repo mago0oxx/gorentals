@@ -44,31 +44,31 @@ export default function Landing() {
   const features = [
     {
       icon: Car,
-      title: "Variedad de Vehículos",
-      description: "Desde compactos hasta SUVs, encuentra el vehículo perfecto para tu aventura en la isla."
+      title: t('landingPage.variety'),
+      description: t('landingPage.varietyDesc')
     },
     {
       icon: Shield,
-      title: "Alquiler Seguro",
-      description: "Verificación de usuarios, depósitos de seguridad y pagos protegidos con Stripe."
+      title: t('landingPage.securRental'),
+      description: t('landingPage.secureDesc')
     },
     {
       icon: Calendar,
-      title: "Reserva Fácil",
-      description: "Selecciona tus fechas, solicita la reserva y recibe confirmación rápida del propietario."
+      title: t('landingPage.easyBooking'),
+      description: t('landingPage.easyBookingDesc')
     },
     {
       icon: Banknote,
-      title: "Mejores Precios",
-      description: "Precios competitivos directamente de propietarios locales. Sin intermediarios costosos."
+      title: t('landingPage.bestPrices'),
+      description: t('landingPage.bestPricesDesc')
     }
   ];
 
   const stats = [
-    { value: "50+", label: "Vehículos disponibles" },
-    { value: "100+", label: "Usuarios activos" },
-    { value: "4.8", label: "Calificación promedio" },
-    { value: "24/7", label: "Soporte disponible" }
+    { value: "50+", label: t('landingPage.vehicles') },
+    { value: "100+", label: t('landingPage.users') },
+    { value: "4.8", label: t('landingPage.averageRating') },
+    { value: "24/7", label: t('landingPage.support') }
   ];
 
   return (
@@ -136,20 +136,19 @@ export default function Landing() {
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Alquila el vehículo
-              <span className="text-teal-400"> perfecto</span>
+              {t('landingPage.heroTitle1')}
+              <span className="text-teal-400"> {t('landingPage.heroTitle2')}</span>
             </h1>
             
             <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-              Conectamos propietarios de vehículos con viajeros en la Perla del Caribe. 
-              Explora la isla a tu ritmo con nuestro marketplace de alquiler de autos.
+              {t('landingPage.heroSubtitle')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to={createPageUrl("Browse")}>
                 <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-14 px-8 text-lg shadow-lg shadow-teal-500/30">
                   <Search className="w-5 h-5 mr-2" />
-                  Buscar Vehículos
+                  {t('landingPage.searchVehicles')}
                 </Button>
               </Link>
             </div>
@@ -186,10 +185,10 @@ export default function Landing() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              ¿Por qué elegirnos?
+              {t('landingPage.whyChoose')}
             </h2>
             <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-              La forma más fácil y segura de alquilar un vehículo en Isla de Margarita
+              {t('landingPage.whySubtitle')}
             </p>
           </motion.div>
           
@@ -231,15 +230,15 @@ export default function Landing() {
             >
               <div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  Vehículos destacados
+                  {t('landingPage.featured')}
                 </h2>
                 <p className="text-xl text-gray-500">
-                  Los más populares disponibles ahora
+                  {t('landingPage.featuredSubtitle')}
                 </p>
               </div>
               <Link to={createPageUrl("Browse")}>
                 <Button variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
-                  Ver todos
+                  {t('landingPage.viewAll')}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
@@ -270,18 +269,18 @@ export default function Landing() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Cómo funciona
+              {t('landingPage.howWorks')}
             </h2>
             <p className="text-xl text-gray-500">
-              Alquilar un vehículo nunca fue tan fácil
+              {t('landingPage.howWorksSubtitle')}
             </p>
           </motion.div>
           
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "Busca y elige", desc: "Explora nuestra variedad de vehículos y encuentra el ideal para ti." },
-              { step: "02", title: "Reserva y paga", desc: "Selecciona tus fechas y realiza el pago de forma segura con Stripe." },
-              { step: "03", title: "Disfruta", desc: "Recoge el vehículo y explora la Isla de Margarita a tu ritmo." }
+              { step: "01", title: t('landingPage.step1Title'), desc: t('landingPage.step1Desc') },
+              { step: "02", title: t('landingPage.step2Title'), desc: t('landingPage.step2Desc') },
+              { step: "03", title: t('landingPage.step3Title'), desc: t('landingPage.step3Desc') }
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -309,18 +308,17 @@ export default function Landing() {
           >
             <div>
               <h2 className="text-4xl font-bold text-white mb-6">
-                ¿Tienes un vehículo? <br />Gana dinero alquilándolo
+                {t('landingPage.ownVehicle')} <br />{t('landingPage.earnMoney')}
               </h2>
               <p className="text-xl text-teal-100 mb-8 leading-relaxed">
-                Únete a nuestra comunidad de propietarios y genera ingresos extra 
-                con tu vehículo cuando no lo usas. Tú controlas la disponibilidad y el precio.
+                {t('landingPage.ownDesc')}
               </p>
               <div className="space-y-4 mb-8">
                 {[
-                  "Publica tu vehículo gratis",
-                  "Tú decides cuándo está disponible",
-                  "Pagos seguros y rápidos",
-                  "Soporte dedicado para propietarios"
+                  t('landingPage.listFree'),
+                  t('landingPage.youDecide'),
+                  t('landingPage.securePay'),
+                  t('landingPage.dedicatedSupport')
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-teal-300" />
@@ -330,7 +328,7 @@ export default function Landing() {
               </div>
               <Link to={createPageUrl("Register")}>
                 <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100 rounded-xl h-14 px-8 text-lg shadow-lg">
-                  Comenzar como propietario
+                  {t('landingPage.startOwner')}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -351,19 +349,18 @@ export default function Landing() {
                 <span className="text-xl font-bold text-white">GoRentals</span>
               </div>
               <p className="text-gray-400 max-w-md">
-                El marketplace de alquiler de vehículos líder en Isla de Margarita. 
-                Conectamos propietarios con viajeros de forma segura y sencilla.
+                {t('landingPage.marketplace')}
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Enlaces</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landingPage.links')}</h4>
               <ul className="space-y-2">
-                <li><Link to={createPageUrl("Browse")} className="text-gray-400 hover:text-white transition-colors">Buscar vehículos</Link></li>
-                <li><Link to={createPageUrl("Register")} className="text-gray-400 hover:text-white transition-colors">Registrarse</Link></li>
+                <li><Link to={createPageUrl("Browse")} className="text-gray-400 hover:text-white transition-colors">{t('landingPage.searchVehicles')}</Link></li>
+                <li><Link to={createPageUrl("Register")} className="text-gray-400 hover:text-white transition-colors">{t('common.register')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Contacto</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landingPage.contact')}</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>Isla de Margarita, Venezuela</li>
                 <li>info@gorentals.com</li>
@@ -371,7 +368,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
-            <p>&copy; {new Date().getFullYear()} GoRentals. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} GoRentals. {t('landingPage.rights')}</p>
           </div>
         </div>
       </footer>
