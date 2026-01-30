@@ -157,14 +157,24 @@ export default function AdminDashboard() {
                 <p className="text-gray-500">GoRentals</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate(createPageUrl("Profile"))}
-              className="rounded-xl"
-            >
-              <User className="w-4 h-4 mr-2" />
-              Mi Perfil
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => navigate(createPageUrl("AdminDocumentReview"))}
+                variant="outline"
+                className="rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Revisar documentos
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(createPageUrl("Profile"))}
+                className="rounded-xl"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Mi Perfil
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -238,13 +238,19 @@ export default function Profile() {
                 Configuración avanzada
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">
+            <CardContent className="space-y-3">
+              <p className="text-sm text-gray-600">
                 Personaliza qué tipos de notificaciones quieres recibir
               </p>
               <Link to={createPageUrl("NotificationSettings")}>
                 <Button variant="outline" className="w-full rounded-xl h-12">
                   Gestionar preferencias
+                </Button>
+              </Link>
+              <Link to={createPageUrl("DocumentVerification")}>
+                <Button className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl h-12">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Verificar documentos
                 </Button>
               </Link>
             </CardContent>
