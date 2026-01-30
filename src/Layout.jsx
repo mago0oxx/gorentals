@@ -14,12 +14,12 @@ import {
 import { Car, User, LogOut, Shield, Search, LayoutDashboard } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
-import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard"];
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,5 +151,13 @@ export default function Layout({ children, currentPageName }) {
         {children}
       </main>
     </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <LanguageProvider>
+      <LayoutContent children={children} currentPageName={currentPageName} />
+    </LanguageProvider>
   );
 }
