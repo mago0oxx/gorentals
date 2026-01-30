@@ -13,11 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Car, User, LogOut, Shield, Search, LayoutDashboard } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard"];
 
 export default function Layout({ children, currentPageName }) {
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,18 +64,19 @@ export default function Layout({ children, currentPageName }) {
             <div className="hidden md:flex items-center gap-6">
               <Link to={createPageUrl("Browse")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
                 <Search className="w-4 h-4" />
-                Buscar
+                {t('nav.browse')}
               </Link>
               {user && (
                 <Link to={createPageUrl("Dashboard")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
+                  {t('common.dashboard')}
                 </Link>
               )}
             </div>
 
             {/* User Menu */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
               {!isLoading && user && (
                 <NotificationBell userEmail={user.email} />
               )}
@@ -98,27 +102,27 @@ export default function Layout({ children, currentPageName }) {
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl("Dashboard")} className="cursor-pointer">
                           <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
+                          {t('common.dashboard')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl("Profile")} className="cursor-pointer">
                           <User className="w-4 h-4 mr-2" />
-                          Mi perfil
+                          {t('common.profile')}
                         </Link>
                       </DropdownMenuItem>
                       {user.role === "admin" && (
                         <DropdownMenuItem asChild>
                           <Link to={createPageUrl("AdminDashboard")} className="cursor-pointer">
                             <Shield className="w-4 h-4 mr-2" />
-                            Admin
+                            {t('common.admin')}
                           </Link>
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
                         <LogOut className="w-4 h-4 mr-2" />
-                        Cerrar sesión
+                        {t('common.logout')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -126,12 +130,12 @@ export default function Layout({ children, currentPageName }) {
                   <div className="flex items-center gap-2">
                     <Link to={createPageUrl("Register")}>
                       <Button variant="ghost" className="rounded-xl">
-                        Iniciar sesión
+                        {t('common.login')}
                       </Button>
                     </Link>
                     <Link to={createPageUrl("Register")}>
                       <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-                        Registrarse
+                        {t('common.register')}
                       </Button>
                     </Link>
                   </div>
