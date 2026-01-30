@@ -49,52 +49,52 @@
  */
 import AddVehicle from './pages/AddVehicle';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminDocumentReview from './pages/AdminDocumentReview';
 import BookingDetails from './pages/BookingDetails';
 import Browse from './pages/Browse';
+import CalendarSync from './pages/CalendarSync';
 import Chat from './pages/Chat';
 import CreateBooking from './pages/CreateBooking';
 import Dashboard from './pages/Dashboard';
+import DocumentVerification from './pages/DocumentVerification';
 import Landing from './pages/Landing';
 import MyBookings from './pages/MyBookings';
 import MyVehicles from './pages/MyVehicles';
 import NotificationSettings from './pages/NotificationSettings';
 import OwnerDashboard from './pages/OwnerDashboard';
+import OwnerEarnings from './pages/OwnerEarnings';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
 import VehicleHistory from './pages/VehicleHistory';
-import OwnerEarnings from './pages/OwnerEarnings';
-import CalendarSync from './pages/CalendarSync';
-import DocumentVerification from './pages/DocumentVerification';
-import AdminDocumentReview from './pages/AdminDocumentReview';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AddVehicle": AddVehicle,
     "AdminDashboard": AdminDashboard,
+    "AdminDocumentReview": AdminDocumentReview,
     "BookingDetails": BookingDetails,
     "Browse": Browse,
+    "CalendarSync": CalendarSync,
     "Chat": Chat,
     "CreateBooking": CreateBooking,
     "Dashboard": Dashboard,
+    "DocumentVerification": DocumentVerification,
     "Landing": Landing,
     "MyBookings": MyBookings,
     "MyVehicles": MyVehicles,
     "NotificationSettings": NotificationSettings,
     "OwnerDashboard": OwnerDashboard,
+    "OwnerEarnings": OwnerEarnings,
     "Profile": Profile,
     "Register": Register,
     "Transactions": Transactions,
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
     "VehicleHistory": VehicleHistory,
-    "OwnerEarnings": OwnerEarnings,
-    "CalendarSync": CalendarSync,
-    "DocumentVerification": DocumentVerification,
-    "AdminDocumentReview": AdminDocumentReview,
 }
 
 export const pagesConfig = {

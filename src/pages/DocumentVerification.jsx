@@ -63,9 +63,12 @@ export default function DocumentVerification() {
     const file = event.target.files[0];
     if (!file) return;
 
+    console.log('[DocumentVerification] Starting upload for:', documentType, 'File:', file.name);
+
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert("El archivo es demasiado grande. Máximo 10MB.");
+      event.target.value = null;
       return;
     }
 
@@ -73,16 +76,26 @@ export default function DocumentVerification() {
     const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
     if (!validTypes.includes(file.type)) {
       alert("Tipo de archivo no válido. Solo se permiten imágenes JPG, PNG o PDF.");
+      event.target.value = null;
       return;
     }
 
-    setUploading({ ...uploading, [documentType]: true });
+    setUploading(prev => ({ ...prev, [documentType]: true }));
 
     try {
-      // Upload file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      console.log('[DocumentVerification] Uploading file to server...');
+      
+      // Add timeout for file upload (60 seconds)
+      const uploadPromise = base44.integrations.Core.UploadFile({ file });
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('La carga del archivo tardó demasiado')), 60000)
+      );
+      
+      const { file_url } = await Promise.race([uploadPromise, timeoutPromise]);
+      console.log('[DocumentVerification] File uploaded:', file_url);
 
       // Create document record
+      console.log('[DocumentVerification] Creating document record...');
       await base44.entities.VerificationDocument.create({
         user_id: user.id,
         user_email: user.email,
@@ -92,18 +105,24 @@ export default function DocumentVerification() {
         document_url: file_url,
         status: "pending"
       });
+      console.log('[DocumentVerification] Document record created');
 
       // Reload documents
+      console.log('[DocumentVerification] Reloading documents...');
       const docs = await base44.entities.VerificationDocument.filter({
         user_email: user.email
       }, "-created_date");
       setDocuments(docs);
+      console.log('[DocumentVerification] Documents reloaded successfully');
+
+      alert("Documento subido exitosamente. Será revisado en 24-48 horas.");
 
     } catch (error) {
-      console.error("Error uploading document:", error);
-      alert("Error al subir el documento. Inténtalo de nuevo.");
+      console.error('[DocumentVerification] Error:', error);
+      alert(error.message || "Error al subir el documento. Inténtalo de nuevo.");
     } finally {
-      setUploading({ ...uploading, [documentType]: false });
+      setUploading(prev => ({ ...prev, [documentType]: false }));
+      event.target.value = null;
     }
   };
 
