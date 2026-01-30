@@ -38,36 +38,45 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
   };
 
   const handlePayment = async () => {
-    // Check if running in iframe (preview mode)
-    if (window.self !== window.top) {
-      setError('⚠️ Los pagos no funcionan en vista previa. Por favor, publica tu app o abre el enlace en una nueva pestaña para procesar pagos.');
-      return;
-    }
-
     setIsProcessing(true);
     setError(null);
 
     try {
-      console.log('Calling createCheckoutSession with booking_id:', booking.id);
+      console.log('[PaymentButton] Starting payment for booking:', booking.id);
       
-      const response = await base44.functions.invoke('createCheckoutSession', {
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('La solicitud tardó demasiado. Por favor intenta de nuevo.')), 30000)
+      );
+
+      const functionPromise = base44.functions.invoke('createCheckoutSession', {
         booking_id: booking.id
       });
 
-      console.log('Response from createCheckoutSession:', response);
+      const response = await Promise.race([functionPromise, timeoutPromise]);
 
-      if (response?.data?.checkout_url) {
-        console.log('Redirecting to:', response.data.checkout_url);
-        window.location.href = response.data.checkout_url;
-      } else {
-        console.error('No checkout URL in response:', response);
-        setError('Error al crear la sesión de pago - no se recibió URL');
-        setIsProcessing(false);
+      console.log('[PaymentButton] Received response:', response);
+
+      if (!response || !response.data) {
+        throw new Error('No se recibió respuesta del servidor');
       }
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+
+      if (!response.data.checkout_url) {
+        throw new Error('No se recibió URL de pago');
+      }
+
+      console.log('[PaymentButton] Redirecting to Stripe Checkout:', response.data.checkout_url);
+      
+      // Redirect to Stripe
+      window.location.href = response.data.checkout_url;
+
     } catch (err) {
-      console.error('Payment error:', err);
-      console.error('Error details:', err.response?.data);
-      setError(err.response?.data?.error || err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
+      console.error('[PaymentButton] Error:', err);
+      setError(err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
       setIsProcessing(false);
     }
   };
