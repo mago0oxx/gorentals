@@ -11,7 +11,7 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
   const handlePayment = async () => {
     // Check if running in iframe (preview mode)
     if (window.self !== window.top) {
-      alert('Para procesar pagos, por favor abre la aplicación en una nueva pestaña. Los pagos no funcionan en el modo de vista previa.');
+      setError('⚠️ Los pagos no funcionan en vista previa. Por favor, publica tu app o abre el enlace en una nueva pestaña para procesar pagos.');
       return;
     }
 
