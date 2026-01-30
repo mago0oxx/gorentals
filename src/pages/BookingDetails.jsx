@@ -423,6 +423,7 @@ export default function BookingDetails() {
   const StatusIcon = status.icon;
   const isOwner = user?.email === booking.owner_email;
   const isRenter = user?.email === booking.renter_email;
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -659,11 +660,11 @@ export default function BookingDetails() {
           <DeliveryRulesCard isOwner={isOwner} />
         )}
 
-        {/* Actions for Owner */}
-        {isOwner && booking.status === "pending" && (
+        {/* Actions for Owner or Admin */}
+        {(isOwner || isAdmin) && booking.status === "pending" && (
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardContent className="p-5">
-              <h3 className="font-semibold mb-4">Acciones del propietario</h3>
+              <h3 className="font-semibold mb-4">{isAdmin ? "Acciones del administrador" : "Acciones del propietario"}</h3>
               <div className="flex gap-3">
                 <Button
                   onClick={() => handleStatusUpdate("approved")}
@@ -718,8 +719,8 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Waiting for Payment (Owner) */}
-        {isOwner && booking.status === "approved" && (
+        {/* Waiting for Payment (Owner or Admin) */}
+        {(isOwner || isAdmin) && booking.status === "approved" && (
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardContent className="p-5">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
@@ -732,8 +733,8 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Mark as Active (Owner) */}
-        {isOwner && booking.status === "paid" && (
+        {/* Mark as Active (Owner or Admin) */}
+        {(isOwner || isAdmin) && booking.status === "paid" && (
           <Card className="border-0 shadow-sm rounded-2xl border-teal-200">
             <CardContent className="p-5 space-y-4">
               <div className="bg-teal-50 rounded-xl p-4 border border-teal-100">
@@ -761,8 +762,8 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Complete Booking (Owner) */}
-        {isOwner && booking.status === "active" && (
+        {/* Complete Booking (Owner or Admin) */}
+        {(isOwner || isAdmin) && booking.status === "active" && (
           <Card className="border-0 shadow-sm rounded-2xl border-green-200">
             <CardContent className="p-5 space-y-4">
               <div className="bg-green-50 rounded-xl p-4 border border-green-100">
