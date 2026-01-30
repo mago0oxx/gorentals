@@ -154,6 +154,12 @@ export default function Dashboard() {
               </Link>
               {isOwner && (
                 <>
+                  <Link to={createPageUrl("OwnerEarnings")}>
+                    <Button variant="outline" className="rounded-xl">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Ganancias
+                    </Button>
+                  </Link>
                   <Link to={createPageUrl("OwnerDashboard")}>
                     <Button variant="outline" className="rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50">
                       <Car className="w-4 h-4 mr-2" />
