@@ -331,13 +331,6 @@ export default function Landing() {
                 </Button>
               </Link>
             </div>
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1449965408869-ebd3fee56ce8?w=800"
-                alt="Propietario"
-                className="rounded-3xl shadow-2xl"
-              />
-            </div>
           </motion.div>
         </div>
       </section>
