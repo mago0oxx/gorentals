@@ -133,6 +133,12 @@ export default function OwnerDashboard() {
             <ChevronLeft className="w-5 h-5 mr-1" />
             Volver al Dashboard
           </Button>
+          <Link to={createPageUrl("CalendarSync")}>
+            <Button variant="outline" className="rounded-xl">
+              <Calendar className="w-4 h-4 mr-2" />
+              Sincronizar calendario
+            </Button>
+          </Link>
           <Link to={createPageUrl("AddVehicle")}>
             <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
               <Plus className="w-4 h-4 mr-2" />

@@ -66,6 +66,7 @@ import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
 import VehicleHistory from './pages/VehicleHistory';
 import OwnerEarnings from './pages/OwnerEarnings';
+import CalendarSync from './pages/CalendarSync';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "VehicleDetails": VehicleDetails,
     "VehicleHistory": VehicleHistory,
     "OwnerEarnings": OwnerEarnings,
+    "CalendarSync": CalendarSync,
 }
 
 export const pagesConfig = {
