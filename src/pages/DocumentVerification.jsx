@@ -277,25 +277,22 @@ export default function DocumentVerification() {
                             onChange={(e) => handleFileUpload(docType.value, e)}
                             disabled={isUploading}
                           />
-                          <label htmlFor={`reupload-${docType.value}`}>
-                            <Button
-                              as="span"
-                              variant="outline"
-                              className="w-full rounded-xl cursor-pointer"
-                              disabled={isUploading}
-                            >
-                              {isUploading ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Subiendo...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-4 h-4 mr-2" />
-                                  Volver a subir
-                                </>
-                              )}
-                            </Button>
+                          <label 
+                            htmlFor={`reupload-${docType.value}`}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer disabled:pointer-events-none disabled:opacity-50"
+                            style={isUploading ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                          >
+                            {isUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Subiendo...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Volver a subir
+                              </>
+                            )}
                           </label>
                         </div>
                       )}
@@ -310,24 +307,22 @@ export default function DocumentVerification() {
                         onChange={(e) => handleFileUpload(docType.value, e)}
                         disabled={isUploading}
                       />
-                      <label htmlFor={`upload-${docType.value}`}>
-                        <Button
-                          as="span"
-                          className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
-                          disabled={isUploading}
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Subiendo...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Subir documento
-                            </>
-                          )}
-                        </Button>
+                      <label 
+                        htmlFor={`upload-${docType.value}`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-teal-700 cursor-pointer disabled:pointer-events-none disabled:opacity-50"
+                        style={isUploading ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Subiendo...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Subir documento
+                          </>
+                        )}
                       </label>
                       <p className="text-xs text-gray-500 text-center mt-2">
                         Formatos: JPG, PNG, PDF (máx. 10MB)
