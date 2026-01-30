@@ -69,6 +69,20 @@ export default function CreateBooking() {
       setVehicle(vehicleData[0]);
     }
 
+    // Pre-populate dates from URL params if available
+    if (startDateParam && endDateParam) {
+      const start = new Date(startDateParam);
+      const end = new Date(endDateParam);
+      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      
+      setSelectedDates({
+        startDate: startDateParam,
+        endDate: endDateParam,
+        days: days
+      });
+      setCurrentStep(2); // Skip to extras step since dates are already selected
+    }
+
     setIsLoading(false);
   };
 
