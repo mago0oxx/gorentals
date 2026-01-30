@@ -83,30 +83,39 @@ export default function BookingDetails() {
   }, [bookingId]);
 
   const loadData = async () => {
-    if (!bookingId) return;
+    if (!bookingId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
 
-    const [userData, bookingData] = await Promise.all([
-      base44.auth.me(),
-      base44.entities.Booking.filter({ id: bookingId })
-    ]);
+    try {
+      const [userData, bookingData] = await Promise.all([
+        base44.auth.me().catch(() => null),
+        base44.entities.Booking.filter({ id: bookingId })
+      ]);
 
-    setUser(userData);
-    
-    if (bookingData.length > 0) {
-      setBooking(bookingData[0]);
+      setUser(userData);
       
-      // Check for existing review
-      const reviews = await base44.entities.Review.filter({
-        booking_id: bookingId,
-        renter_id: userData.id
-      });
-      if (reviews.length > 0) {
-        setExistingReview(reviews[0]);
+      if (bookingData.length > 0) {
+        setBooking(bookingData[0]);
+        
+        // Check for existing review
+        if (userData) {
+          const reviews = await base44.entities.Review.filter({
+            booking_id: bookingId,
+            renter_id: userData.id
+          });
+          if (reviews.length > 0) {
+            setExistingReview(reviews[0]);
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error loading booking data:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const getOrCreateConversation = async () => {
