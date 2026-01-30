@@ -6,23 +6,28 @@ export const NotificationService = {
   // Notificar al propietario de nueva solicitud de reserva
   async notifyNewBookingRequest(booking) {
     // Crear notificación en la app
-    await base44.entities.Notification.create({
-      user_email: booking.owner_email,
-      title: "Nueva solicitud de reserva",
-      message: `${booking.renter_name} quiere alquilar tu ${booking.vehicle_title} del ${format(new Date(booking.start_date), "d MMM", { locale: es })} al ${format(new Date(booking.end_date), "d MMM", { locale: es })}`,
-      type: "booking_request",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.owner_email,
+        title: "Nueva solicitud de reserva",
+        message: `${booking.renter_name} quiere alquilar tu ${booking.vehicle_title} del ${format(new Date(booking.start_date), "d MMM", { locale: es })} al ${format(new Date(booking.end_date), "d MMM", { locale: es })}`,
+        type: "booking_request",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
     // Enviar email al propietario
-    const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
-    const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
-    const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+    try {
+      const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+      const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+      const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
 
-    await base44.integrations.Core.SendEmail({
-      to: booking.owner_email,
-      subject: `Nueva solicitud de reserva - ${booking.vehicle_title}`,
+      await base44.integrations.Core.SendEmail({
+        to: booking.owner_email,
+        subject: `Nueva solicitud de reserva - ${booking.vehicle_title}`,
       body: `
         <h2>¡Nueva Solicitud de Reserva!</h2>
         
@@ -67,23 +72,28 @@ export const NotificationService = {
   // Notificar al arrendatario que su reserva fue aprobada
   async notifyBookingApproved(booking) {
     // Crear notificación en la app
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "¡Reserva aprobada!",
-      message: `Tu solicitud para ${booking.vehicle_title} ha sido aprobada. Procede con el pago para confirmar.`,
-      type: "booking_approved",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "¡Reserva aprobada!",
+        message: `Tu solicitud para ${booking.vehicle_title} ha sido aprobada. Procede con el pago para confirmar.`,
+        type: "booking_approved",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
     // Enviar email al arrendatario
-    const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
-    const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
-    const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+    try {
+      const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+      const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+      const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
 
-    await base44.integrations.Core.SendEmail({
-      to: booking.renter_email,
-      subject: `¡Reserva aprobada! - ${booking.vehicle_title}`,
+      await base44.integrations.Core.SendEmail({
+        to: booking.renter_email,
+        subject: `¡Reserva aprobada! - ${booking.vehicle_title}`,
       body: `
         <h2>¡Tu Reserva ha sido Aprobada! 🎉</h2>
         
@@ -119,25 +129,33 @@ export const NotificationService = {
           Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
         </p>
       `
-    });
+      });
+    } catch (err) {
+      console.log('Could not send email to renter:', err.message);
+    }
   },
 
   // Notificar al arrendatario que su reserva fue rechazada
   async notifyBookingRejected(booking) {
     // Crear notificación en la app
-    await base44.entities.Notification.create({
-      user_email: booking.renter_email,
-      title: "Reserva rechazada",
-      message: `Lo sentimos, tu solicitud para ${booking.vehicle_title} no fue aprobada. Busca otras opciones disponibles.`,
-      type: "booking_rejected",
-      booking_id: booking.id,
-      is_read: false
-    });
+    try {
+      await base44.entities.Notification.create({
+        user_email: booking.renter_email,
+        title: "Reserva rechazada",
+        message: `Lo sentimos, tu solicitud para ${booking.vehicle_title} no fue aprobada. Busca otras opciones disponibles.`,
+        type: "booking_rejected",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
 
     // Enviar email al arrendatario
-    await base44.integrations.Core.SendEmail({
-      to: booking.renter_email,
-      subject: `Solicitud de reserva no aprobada - ${booking.vehicle_title}`,
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: booking.renter_email,
+        subject: `Solicitud de reserva no aprobada - ${booking.vehicle_title}`,
       body: `
         <h2>Solicitud de Reserva No Aprobada</h2>
         
@@ -165,7 +183,10 @@ export const NotificationService = {
           Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
         </p>
       `
-    });
+      });
+    } catch (err) {
+      console.log('Could not send email to renter:', err.message);
+    }
   },
 
   // Notificar al propietario que el pago fue recibido
