@@ -85,6 +85,12 @@ export default function Landing() {
           </Link>
           
           <div className="flex items-center gap-2">
+            <Link to={createPageUrl("LocalGuides")}>
+              <Button variant="ghost" className="text-gray-700 hover:text-teal-600 hidden sm:flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Guías Locales
+              </Button>
+            </Link>
             <LanguageSwitcher />
             {!isAuthenticated ? (
               <>
@@ -150,6 +156,12 @@ export default function Landing() {
                 <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-14 px-8 text-lg shadow-lg shadow-teal-500/30">
                   <Search className="w-5 h-5 mr-2" />
                   {t('landingPage.searchVehicles')}
+                </Button>
+              </Link>
+              <Link to={createPageUrl("LocalGuides")}>
+                <Button size="lg" variant="outline" className="bg-white/90 backdrop-blur-sm border-2 border-white text-gray-900 hover:bg-white rounded-xl h-14 px-8 text-lg shadow-lg">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Guías Locales
                 </Button>
               </Link>
             </div>
