@@ -107,12 +107,14 @@ export default function LocalGuidesMap({ guides, selectedCategory }) {
   }, [map, filteredGuides]);
 
   return (
-    <div className="relative h-[600px] w-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+    <div className="relative h-[400px] md:h-[600px] w-full rounded-xl md:rounded-2xl overflow-hidden shadow-lg border-2 md:border-4 border-white">
       <MapContainer
         center={mapCenter}
         zoom={11}
         className="h-full w-full"
-        scrollWheelZoom={true}
+        scrollWheelZoom={false}
+        dragging={true}
+        touchZoom={true}
         ref={setMap}
       >
         <TileLayer
@@ -197,28 +199,28 @@ export default function LocalGuidesMap({ guides, selectedCategory }) {
       </MapContainer>
 
       {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-lg p-4 z-[1000]">
-        <h4 className="font-semibold text-sm mb-2">Categorías</h4>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: categoryColors.beach }}></div>
+      <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-white rounded-lg md:rounded-xl shadow-lg p-2 md:p-4 z-[1000] max-w-[140px] md:max-w-none">
+        <h4 className="font-semibold text-xs md:text-sm mb-1 md:mb-2">Categorías</h4>
+        <div className="space-y-1 md:space-y-2">
+          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColors.beach }}></div>
             <span>Playas</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: categoryColors.attraction }}></div>
+          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColors.attraction }}></div>
             <span>Atracciones</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: categoryColors.restaurant }}></div>
-            <span>Restaurantes</span>
+          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColors.restaurant }}></div>
+            <span>Comida</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: categoryColors.route }}></div>
+          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColors.route }}></div>
             <span>Rutas</span>
           </div>
         </div>
-        <div className="mt-3 pt-3 border-t text-xs text-gray-600">
-          {filteredGuides.length} lugares en el mapa
+        <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t text-xs text-gray-600">
+          {filteredGuides.length} lugares
         </div>
       </div>
     </div>

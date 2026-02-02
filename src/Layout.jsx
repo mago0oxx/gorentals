@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Car, User, LogOut, Shield, Search, LayoutDashboard, MapPin } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Car, User, LogOut, Shield, Search, LayoutDashboard, MapPin, Menu } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
@@ -23,6 +24,7 @@ function LayoutContent({ children, currentPageName }) {
   const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -50,17 +52,17 @@ function LayoutContent({ children, currentPageName }) {
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
       <nav className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-3 md:px-4">
+          <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
             <Link to={createPageUrl("Landing")} className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <Car className="w-6 h-6 text-white" />
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+                <Car className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
+              <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
 
-            {/* Nav Links */}
+            {/* Nav Links - Desktop */}
             <div className="hidden md:flex items-center gap-6">
               <Link to={createPageUrl("Browse")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
                 <Search className="w-4 h-4" />
@@ -79,8 +81,90 @@ function LayoutContent({ children, currentPageName }) {
             </div>
 
             {/* User Menu */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               <LanguageSwitcher />
+              
+              {/* Mobile Menu */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[280px]">
+                  <div className="flex flex-col gap-4 mt-8">
+                    <Link 
+                      to={createPageUrl("Browse")} 
+                      className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Search className="w-5 h-5" />
+                      <span className="font-medium">{t('nav.browse')}</span>
+                    </Link>
+                    <Link 
+                      to={createPageUrl("LocalGuides")} 
+                      className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <MapPin className="w-5 h-5" />
+                      <span className="font-medium">Guías Locales</span>
+                    </Link>
+                    {user && (
+                      <>
+                        <Link 
+                          to={createPageUrl("Dashboard")} 
+                          className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="w-5 h-5" />
+                          <span className="font-medium">{t('common.dashboard')}</span>
+                        </Link>
+                        <Link 
+                          to={createPageUrl("Profile")} 
+                          className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <User className="w-5 h-5" />
+                          <span className="font-medium">{t('common.profile')}</span>
+                        </Link>
+                        {user.role === "admin" && (
+                          <Link 
+                            to={createPageUrl("AdminDashboard")} 
+                            className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Shield className="w-5 h-5" />
+                            <span className="font-medium">{t('common.admin')}</span>
+                          </Link>
+                        )}
+                        <button 
+                          onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                          className="flex items-center gap-3 text-red-600 hover:text-red-700 p-3 rounded-lg hover:bg-red-50 text-left w-full"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          <span className="font-medium">{t('common.logout')}</span>
+                        </button>
+                      </>
+                    )}
+                    {!user && !isLoading && (
+                      <div className="flex flex-col gap-2 pt-4">
+                        <Link to={createPageUrl("Register")} onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="outline" className="w-full">
+                            {t('common.login')}
+                          </Button>
+                        </Link>
+                        <Link to={createPageUrl("Register")} onClick={() => setMobileMenuOpen(false)}>
+                          <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                            {t('common.register')}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+              
+              <div className="hidden md:flex items-center gap-2">
               {!isLoading && user && (
                 <NotificationBell userEmail={user.email} />
               )}
@@ -145,6 +229,7 @@ function LayoutContent({ children, currentPageName }) {
                   </div>
                 )
               )}
+              </div>
             </div>
           </div>
         </div>
