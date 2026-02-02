@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, Star, Clock, DollarSign, Compass, 
-  UtensilsCrossed, Waves, Camera, Navigation
+  UtensilsCrossed, Waves, Camera, Navigation, ArrowLeft
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
@@ -72,6 +74,12 @@ export default function LocalGuides() {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-teal-900/70 via-teal-800/50 to-teal-900/70" />
         </div>
+        <Link to={createPageUrl("Landing")} className="absolute top-6 left-6 z-10">
+          <Button variant="secondary" className="rounded-xl backdrop-blur-sm bg-white/90 hover:bg-white">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver al inicio
+          </Button>
+        </Link>
         <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="w-8 h-8 text-teal-300" />
