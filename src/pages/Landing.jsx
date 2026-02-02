@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
 
 export default function Landing() {
   const { t } = useLanguage();
@@ -216,6 +217,13 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Promotions Section */}
+      <section className="py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <FeaturedPromotions />
         </div>
       </section>
 
