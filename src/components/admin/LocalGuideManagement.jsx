@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, Edit, Trash2, Star, MapPin, Camera, Navigation, 
-  UtensilsCrossed, Waves, Loader2, Eye, EyeOff 
+  UtensilsCrossed, Waves, Loader2, Eye, EyeOff, Upload, X 
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +21,7 @@ export default function LocalGuideManagement() {
   const [editingGuide, setEditingGuide] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -146,6 +147,40 @@ export default function LocalGuideManagement() {
     } catch (error) {
       toast.error("Error al actualizar");
     }
+  };
+
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingImage(true);
+    try {
+      const uploadPromises = files.map(file => 
+        base44.integrations.Core.UploadFile({ file })
+      );
+      
+      const results = await Promise.all(uploadPromises);
+      const newPhotoUrls = results.map(result => result.file_url);
+      
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newPhotoUrls]
+      }));
+      
+      toast.success(`${files.length} imagen(es) subida(s) exitosamente`);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      toast.error("Error al subir las imágenes");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemovePhoto = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
   };
 
   const resetForm = () => {
@@ -326,13 +361,71 @@ export default function LocalGuideManagement() {
                 </div>
 
                 <div className="col-span-2">
-                  <Label>URLs de Fotos (una por línea)</Label>
-                  <Textarea
-                    value={formData.photos.join("\n")}
-                    onChange={(e) => setFormData({ ...formData, photos: e.target.value.split("\n") })}
-                    placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"
-                    rows={3}
-                  />
+                  <Label>Fotos del Lugar</Label>
+                  
+                  {/* Image Upload Button */}
+                  <div className="mb-4">
+                    <label className="cursor-pointer">
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 hover:border-teal-500 hover:bg-teal-50 transition-all text-center">
+                        <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm text-gray-600 mb-1">
+                          {uploadingImage ? "Subiendo imágenes..." : "Haz clic para subir imágenes"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Puedes seleccionar múltiples archivos
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Photo Preview Grid */}
+                  {formData.photos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      {formData.photos.map((photo, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={photo}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          {index === 0 && (
+                            <Badge className="absolute bottom-2 left-2 bg-teal-600 text-xs">
+                              Principal
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* URL Input (optional) */}
+                  <details className="mt-2">
+                    <summary className="text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+                      O agregar URLs manualmente
+                    </summary>
+                    <Textarea
+                      value={formData.photos.join("\n")}
+                      onChange={(e) => setFormData({ ...formData, photos: e.target.value.split("\n").filter(url => url.trim()) })}
+                      placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"
+                      rows={3}
+                      className="mt-2"
+                    />
+                  </details>
                 </div>
 
                 <div className="col-span-2">
