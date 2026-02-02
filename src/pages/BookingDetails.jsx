@@ -386,18 +386,13 @@ export default function BookingDetails() {
       }
     }
 
-    // Send notification
-    const notificationMessage = isOwner 
-      ? `Tu reserva de ${booking.vehicle_title} fue cancelada por el propietario.`
-      : `La reserva de ${booking.vehicle_title} fue cancelada por el arrendatario.`;
-    
-    await base44.entities.Notification.create({
-      user_email: isOwner ? booking.renter_email : booking.owner_email,
-      title: "Reserva cancelada",
-      message: notificationMessage + (refund > 0 ? ` Reembolso: $${refund.toFixed(2)}` : ""),
-      type: "booking_cancelled",
-      booking_id: booking.id
-    });
+    // Send notification and email
+    await NotificationService.notifyBookingCancelled(
+      booking,
+      canceller,
+      cancelReason,
+      refund
+    );
 
     setShowCancelDialog(false);
     setIsCancelling(false);

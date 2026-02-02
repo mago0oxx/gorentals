@@ -21,7 +21,7 @@ export const NotificationService = {
 
     // Enviar email al propietario
     try {
-      const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+      const bookingUrl = `${window.location.origin}/#/BookingDetails?id=${booking.id}`;
       const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
       const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
 
@@ -90,7 +90,7 @@ export const NotificationService = {
 
     // Enviar email al arrendatario
     try {
-      const bookingUrl = `${window.location.origin}/BookingDetails?id=${booking.id}`;
+      const bookingUrl = `${window.location.origin}/#/BookingDetails?id=${booking.id}`;
       const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
       const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
 
@@ -171,7 +171,7 @@ export const NotificationService = {
         </div>
         
         <div style="margin: 30px 0;">
-          <a href="${window.location.origin}/Browse" style="background: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+          <a href="${window.location.origin}/#/Browse" style="background: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
             Explorar otros vehículos
           </a>
         </div>
@@ -310,6 +310,87 @@ export const NotificationService = {
       });
     } catch (err) {
       console.log('Could not create notification:', err.message);
+    }
+  },
+
+  // Notificar cancelación de reserva
+  async notifyBookingCancelled(booking, cancelledBy, cancelReason, refundAmount) {
+    const recipientEmail = cancelledBy === "owner" ? booking.renter_email : booking.owner_email;
+    const recipientName = cancelledBy === "owner" ? booking.renter_name : booking.owner_name;
+    const cancellerName = cancelledBy === "owner" ? booking.owner_name : booking.renter_name;
+    const bookingUrl = `${window.location.origin}/#/BookingDetails?id=${booking.id}`;
+    
+    // Crear notificación en la app
+    try {
+      await base44.entities.Notification.create({
+        user_email: recipientEmail,
+        title: "Reserva cancelada",
+        message: `La reserva de ${booking.vehicle_title} fue cancelada por ${cancelledBy === "owner" ? "el propietario" : "el arrendatario"}${refundAmount > 0 ? `. Reembolso: $${refundAmount.toFixed(2)}` : "."}`,
+        type: "booking_cancelled",
+        booking_id: booking.id,
+        is_read: false
+      });
+    } catch (err) {
+      console.log('Could not create notification:', err.message);
+    }
+
+    // Enviar email
+    try {
+      const startDate = format(new Date(booking.start_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+      const endDate = format(new Date(booking.end_date), "EEEE d 'de' MMMM, yyyy", { locale: es });
+
+      await base44.integrations.Core.SendEmail({
+        to: recipientEmail,
+        subject: `Reserva cancelada - ${booking.vehicle_title}`,
+        body: `
+        <h2>Reserva Cancelada</h2>
+        
+        <p>Hola ${recipientName},</p>
+        
+        <p>La reserva para <strong>${booking.vehicle_title}</strong> ha sido cancelada por ${cancelledBy === "owner" ? "el propietario" : "el arrendatario"}.</p>
+        
+        <div style="background: #fef2f2; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ef4444;">
+          <h3 style="margin-top: 0; color: #991b1b;">Detalles de la reserva:</h3>
+          <p><strong>📅 Fechas:</strong><br/>
+          Desde: ${startDate}<br/>
+          Hasta: ${endDate}<br/>
+          Total: ${booking.total_days} días</p>
+          
+          ${cancelReason ? `<p><strong>📝 Motivo:</strong> ${cancelReason}</p>` : ''}
+        </div>
+        
+        ${refundAmount > 0 ? `
+        <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
+          <p style="margin: 0; color: #065f46;">
+            <strong>💰 Reembolso:</strong> $${refundAmount.toFixed(2)}<br/>
+            El reembolso será procesado en los próximos 5-10 días hábiles.
+          </p>
+        </div>
+        ` : ''}
+        
+        <div style="margin: 30px 0;">
+          <a href="${bookingUrl}" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Ver detalles de la reserva
+          </a>
+        </div>
+        
+        ${cancelledBy !== "owner" ? `
+        <div style="margin: 30px 0;">
+          <a href="${window.location.origin}/#/Browse" style="background: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Explorar otros vehículos
+          </a>
+        </div>
+        ` : ''}
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;"/>
+        
+        <p style="color: #9ca3af; font-size: 12px;">
+          Este es un mensaje automático de GoRentals. Por favor no respondas a este correo.
+        </p>
+      `
+      });
+    } catch (err) {
+      console.log('Could not send cancellation email:', err.message);
     }
   }
 };
