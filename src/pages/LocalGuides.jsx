@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, Star, Clock, DollarSign, Compass, 
-  UtensilsCrossed, Waves, Camera, Navigation, ArrowLeft
+  UtensilsCrossed, Waves, Camera, Navigation, ArrowLeft, Map
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import LocalGuidesMap from "@/components/maps/LocalGuidesMap";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 
 export default function LocalGuides() {
@@ -108,6 +109,20 @@ export default function LocalGuides() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Interactive Map Section */}
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center">
+              <Map className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Mapa Interactivo</h2>
+              <p className="text-gray-600">Explora todos los lugares en el mapa</p>
+            </div>
+          </div>
+          <LocalGuidesMap guides={guides} selectedCategory={activeCategory} />
+        </div>
+
         {/* Category Tabs */}
         <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
           <TabsList className="grid w-full grid-cols-5 h-auto bg-white/80 backdrop-blur-sm p-2 rounded-2xl shadow-lg">
@@ -195,7 +210,7 @@ export default function LocalGuides() {
           {filteredGuides.filter(g => !g.is_featured || guides.filter(gf => gf.is_featured).length <= 2).map((guide) => {
             const Icon = getCategoryIcon(guide.category);
             return (
-              <Card key={guide.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0 bg-white/80 backdrop-blur-sm">
+              <Card key={guide.id} id={`guide-${guide.id}`} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0 bg-white/80 backdrop-blur-sm scroll-mt-24">
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={guide.photos?.[0] || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"}
