@@ -63,20 +63,38 @@ export default function LocalGuides() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50">
       {/* Hero Section */}
-      <div className="relative h-[400px] overflow-hidden">
+      <div className="relative h-[500px] overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url(https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600)",
+            backgroundImage: "url(https://images.unsplash.com/photo-1540202404-a2f29016b523?w=1600)",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-teal-900/70 via-teal-800/50 to-teal-900/70" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
-          <h1 className="text-5xl font-bold mb-4">Guías Locales</h1>
-          <p className="text-xl text-center max-w-2xl opacity-90">
-            Descubre los mejores lugares de Isla de Margarita
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin className="w-8 h-8 text-teal-300" />
+            <span className="text-teal-300 font-medium text-lg">Isla de Margarita, Venezuela</span>
+          </div>
+          <h1 className="text-6xl font-bold mb-4 text-center">Explora la Perla del Caribe</h1>
+          <p className="text-xl text-center max-w-3xl opacity-90 mb-6">
+            Descubre playas paradisíacas, gastronomía única, rutas increíbles y atracciones imperdibles
           </p>
+          <div className="flex gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+              <Waves className="w-4 h-4" />
+              <span>50+ Playas</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+              <UtensilsCrossed className="w-4 h-4" />
+              <span>Gastronomía Local</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+              <Camera className="w-4 h-4" />
+              <span>Atracciones Únicas</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -108,12 +126,68 @@ export default function LocalGuides() {
           </TabsList>
         </Tabs>
 
+        {/* Featured Section */}
+        {guides.filter(g => g.is_featured).length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Star className="w-8 h-8 text-yellow-500 fill-yellow-500" />
+              Lugares Destacados
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {guides.filter(g => g.is_featured).slice(0, 2).map((guide) => {
+                const Icon = getCategoryIcon(guide.category);
+                return (
+                  <Card key={guide.id} className="overflow-hidden hover:shadow-2xl transition-all duration-300 group border-0">
+                    <div className="relative h-80 overflow-hidden">
+                      <img
+                        src={guide.photos?.[0] || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800"}
+                        alt={guide.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge className="bg-teal-500 text-white border-0">
+                            <Icon className="w-3 h-3 mr-1" />
+                            {guide.category === "beach" && "Playa"}
+                            {guide.category === "restaurant" && "Restaurante"}
+                            {guide.category === "route" && "Ruta"}
+                            {guide.category === "attraction" && "Atracción"}
+                          </Badge>
+                          {guide.rating && (
+                            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg">
+                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                              <span className="text-sm font-medium">{guide.rating.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="text-2xl font-bold mb-2">{guide.title}</h3>
+                        <p className="text-sm opacity-90 line-clamp-2 mb-3">{guide.description}</p>
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="w-4 h-4" />
+                          {guide.location}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Guides Grid */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          {activeCategory === "all" ? "Todos los lugares" : 
+            activeCategory === "beach" ? "Playas" :
+            activeCategory === "restaurant" ? "Restaurantes" :
+            activeCategory === "route" ? "Rutas" : "Atracciones"}
+        </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGuides.map((guide) => {
+          {filteredGuides.filter(g => !g.is_featured || guides.filter(gf => gf.is_featured).length <= 2).map((guide) => {
             const Icon = getCategoryIcon(guide.category);
             return (
-              <Card key={guide.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0">
+              <Card key={guide.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0 bg-white/80 backdrop-blur-sm">
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={guide.photos?.[0] || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"}
@@ -121,24 +195,26 @@ export default function LocalGuides() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <Badge className="bg-white/90 text-teal-700 border-0">
+                    <Badge className="bg-white/95 backdrop-blur-sm text-teal-700 border-0 shadow-lg">
                       <Icon className="w-3 h-3 mr-1" />
                       {guide.category === "beach" && "Playa"}
                       {guide.category === "restaurant" && "Restaurante"}
                       {guide.category === "route" && "Ruta"}
                       {guide.category === "attraction" && "Atracción"}
                     </Badge>
-                    {guide.is_featured && (
-                      <Badge className="bg-yellow-500 text-white border-0">
-                        <Star className="w-3 h-3 mr-1" />
-                        Destacado
-                      </Badge>
-                    )}
                   </div>
                   {guide.price_level && (
                     <div className="absolute top-4 right-4">
-                      <Badge className="bg-black/70 text-white border-0">
+                      <Badge className="bg-black/70 backdrop-blur-sm text-white border-0">
                         {getPriceLevelText(guide.price_level)}
+                      </Badge>
+                    </div>
+                  )}
+                  {guide.best_time_to_visit && (
+                    <div className="absolute bottom-4 left-4">
+                      <Badge className="bg-teal-500/90 backdrop-blur-sm text-white border-0">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {guide.best_time_to_visit}
                       </Badge>
                     </div>
                   )}
@@ -187,22 +263,24 @@ export default function LocalGuides() {
                   </div>
 
                   {guide.tips && guide.tips.length > 0 && (
-                    <div className="bg-teal-50 rounded-xl p-3 mb-4">
-                      <p className="text-xs font-medium text-teal-900 mb-1">💡 Consejo:</p>
-                      <p className="text-xs text-teal-700">{guide.tips[0]}</p>
+                    <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-3 mb-4 border border-teal-100">
+                      <p className="text-xs font-semibold text-teal-900 mb-1 flex items-center gap-1">
+                        💡 Consejo local:
+                      </p>
+                      <p className="text-xs text-teal-700 leading-relaxed">{guide.tips[0]}</p>
                     </div>
                   )}
 
                   {guide.coordinates && (
                     <Button 
                       variant="outline" 
-                      className="w-full rounded-xl"
+                      className="w-full rounded-xl border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
                       onClick={() => window.open(
                         `https://www.google.com/maps/dir/?api=1&destination=${guide.coordinates.lat},${guide.coordinates.lng}`,
                         '_blank'
                       )}
                     >
-                      <MapPin className="w-4 h-4 mr-2" />
+                      <Navigation className="w-4 h-4 mr-2" />
                       Cómo llegar
                     </Button>
                   )}
