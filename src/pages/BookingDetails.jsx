@@ -93,6 +93,16 @@ export default function BookingDetails() {
     setIsLoading(true);
 
     try {
+      // Check if user is authenticated
+      const isAuth = await base44.auth.isAuthenticated();
+      
+      if (!isAuth) {
+        // Redirect to login with return URL
+        const returnUrl = `BookingDetails?id=${bookingId}${success === "true" ? "&success=true" : ""}`;
+        base44.auth.redirectToLogin(returnUrl);
+        return;
+      }
+
       const [userData, bookingData] = await Promise.all([
         base44.auth.me().catch(() => null),
         base44.entities.Booking.filter({ id: bookingId })
