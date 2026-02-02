@@ -11,13 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Car, User, LogOut, Shield, Search, LayoutDashboard } from "lucide-react";
+import { Car, User, LogOut, Shield, Search, LayoutDashboard, MapPin } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
 
 // Pages that don't show the navbar
-const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard"];
+const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard", "LocalGuides"];
 
 function LayoutContent({ children, currentPageName }) {
   const { t } = useLanguage();
@@ -65,6 +65,10 @@ function LayoutContent({ children, currentPageName }) {
               <Link to={createPageUrl("Browse")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 {t('nav.browse')}
+              </Link>
+              <Link to={createPageUrl("LocalGuides")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Guías Locales
               </Link>
               {user && (
                 <Link to={createPageUrl("Dashboard")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">

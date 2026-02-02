@@ -69,6 +69,7 @@ import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
 import VehicleHistory from './pages/VehicleHistory';
+import LocalGuides from './pages/LocalGuides';
 import __Layout from './Layout.jsx';
 
 
@@ -95,6 +96,7 @@ export const PAGES = {
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
     "VehicleHistory": VehicleHistory,
+    "LocalGuides": LocalGuides,
 }
 
 export const pagesConfig = {
