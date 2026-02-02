@@ -103,15 +103,15 @@ export default function BookingDetails() {
         return;
       }
 
-      const [userData, bookingData] = await Promise.all([
-        base44.auth.me().catch(() => null),
-        base44.entities.Booking.filter({ id: bookingId })
-      ]);
-
+      const userData = await base44.auth.me().catch(() => null);
       setUser(userData);
-      
-      if (bookingData.length > 0) {
-        setBooking(bookingData[0]);
+
+      // Try to get booking by ID - use list with limit instead of filter
+      const allBookings = await base44.entities.Booking.list('-created_date', 500);
+      const bookingData = allBookings.find(b => b.id === bookingId);
+
+      if (bookingData) {
+        setBooking(bookingData);
         
         // Check for existing review
         if (userData) {
