@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Car, MapPin, Grid3x3, Map as MapIcon, ArrowUpDown } from "lucide-react";
+import { Search, Car, MapPin, Grid3x3, Map as MapIcon, ArrowUpDown, User, LayoutDashboard, LogOut } from "lucide-react";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import VehicleFilters from "@/components/vehicles/VehicleFilters";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -21,6 +29,8 @@ export default function Browse() {
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     vehicleType: "all",
@@ -39,7 +49,17 @@ export default function Browse() {
 
   useEffect(() => {
     loadVehicles();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const auth = await base44.auth.isAuthenticated();
+    setIsAuthenticated(auth);
+    if (auth) {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    }
+  };
 
   useEffect(() => {
     applyFilters();
@@ -190,9 +210,59 @@ export default function Browse() {
               <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
             
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-teal-600" />
-              <span className="text-sm text-gray-600">Isla de Margarita</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-teal-600" />
+                <span className="text-sm text-gray-600">Isla de Margarita</span>
+              </div>
+
+              {isAuthenticated && user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.profile_image} />
+                        <AvatarFallback className="bg-teal-100 text-teal-700">
+                          {user.full_name?.[0] || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5">
+                      <p className="font-medium">{user.full_name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to={createPageUrl("Dashboard")} className="cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to={createPageUrl("Profile")} className="cursor-pointer">
+                        <User className="w-4 h-4 mr-2" />
+                        Mi Perfil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => base44.auth.logout(createPageUrl("Landing"))} 
+                      className="cursor-pointer text-red-600 focus:text-red-600"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Cerrar sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to={createPageUrl("Register")}>
+                  <Button size="sm" className="bg-teal-600 hover:bg-teal-700 rounded-xl">
+                    Ingresar
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
