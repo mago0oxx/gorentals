@@ -33,10 +33,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Users, Car, Calendar, DollarSign, TrendingUp, MoreVertical,
-  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle, User, Tag
+  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle, User, Tag, MapPin
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import CouponManagement from "@/components/admin/CouponManagement";
+import LocalGuideManagement from "@/components/admin/LocalGuideManagement";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -261,6 +262,10 @@ export default function AdminDashboard() {
               <Tag className="w-4 h-4 mr-2" />
               Cupones
             </TabsTrigger>
+            <TabsTrigger value="guides">
+              <MapPin className="w-4 h-4 mr-2" />
+              Guías Turísticas
+            </TabsTrigger>
           </TabsList>
 
           {/* Users Tab */}
@@ -413,6 +418,11 @@ export default function AdminDashboard() {
           {/* Coupons Tab */}
           <TabsContent value="coupons">
             <CouponManagement coupons={coupons} onRefresh={loadData} />
+          </TabsContent>
+
+          {/* Guides Tab */}
+          <TabsContent value="guides">
+            <LocalGuideManagement />
           </TabsContent>
 
           {/* Bookings Tab */}
