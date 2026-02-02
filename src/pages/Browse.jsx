@@ -14,6 +14,7 @@ import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
 
 export default function Browse() {
   const { t } = useLanguage();
@@ -217,6 +218,11 @@ export default function Browse() {
 
       {/* Results */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Promotions */}
+        <div className="mb-8">
+          <FeaturedPromotions compact />
+        </div>
+
         {isLoading ? (
           <LoadingSpinner className="py-20" text={t('browse.loading')} />
         ) : filteredVehicles.length === 0 ? (

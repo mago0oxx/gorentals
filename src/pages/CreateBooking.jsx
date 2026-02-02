@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { 
   ChevronLeft, ChevronRight, Loader2, CheckCircle, Shield, 
-  AlertCircle, MapPin, Calendar, Package, DollarSign
+  AlertCircle, MapPin, Calendar, Package, DollarSign, Tag
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -17,6 +17,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import BookingCalendar from "@/components/booking/BookingCalendar";
 import ExtrasSelector from "@/components/booking/ExtrasSelector";
 import InsuranceSelector from "@/components/booking/InsuranceSelector";
+import CouponInput from "@/components/booking/CouponInput";
 import { NotificationService } from "@/components/notifications/notificationService";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/components/i18n/LanguageContext";
@@ -38,6 +39,7 @@ export default function CreateBooking() {
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [insurance, setInsurance] = useState({ type: "none", cost: 0 });
   const [notes, setNotes] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const params = new URLSearchParams(window.location.search);
   const vehicleId = params.get("id");
@@ -97,8 +99,17 @@ export default function CreateBooking() {
     const extrasTotal = selectedExtras.reduce((sum, e) => sum + e.total, 0);
     const insuranceCost = insurance.cost;
     const securityDeposit = vehicle.security_deposit || 0;
-    const total = subtotal + platformFee + extrasTotal + insuranceCost + securityDeposit;
-    const ownerPayout = subtotal - platformFee + extrasTotal;
+    
+    let totalBeforeDeposit = subtotal + platformFee + extrasTotal + insuranceCost;
+    let discountAmount = 0;
+    
+    if (appliedCoupon) {
+      discountAmount = appliedCoupon.discountAmount || 0;
+      totalBeforeDeposit = Math.max(0, totalBeforeDeposit - discountAmount);
+    }
+    
+    const total = totalBeforeDeposit + securityDeposit;
+    const ownerPayout = subtotal - platformFee + extrasTotal - (discountAmount * 0.5); // Owner absorbs 50% of discount
 
     return {
       days,
@@ -108,6 +119,7 @@ export default function CreateBooking() {
       extrasTotal,
       insuranceCost,
       securityDeposit,
+      discountAmount,
       total,
       ownerPayout
     };
@@ -179,6 +191,8 @@ export default function CreateBooking() {
         extras_total: pricing.extrasTotal,
         insurance_type: insurance.type,
         insurance_cost: insurance.cost,
+        discount_amount: pricing.discountAmount || 0,
+        coupon_code: appliedCoupon?.code || null,
         total_amount: pricing.total,
         owner_payout: pricing.ownerPayout,
         status: "pending",
@@ -186,6 +200,25 @@ export default function CreateBooking() {
         pickup_location: vehicle.location,
         notes: notes
       });
+
+      // Register coupon usage if applied
+      if (appliedCoupon) {
+        await Promise.all([
+          base44.entities.CouponUsage.create({
+            coupon_id: appliedCoupon.id,
+            coupon_code: appliedCoupon.code,
+            booking_id: newBooking.id,
+            user_id: user.id,
+            user_email: user.email,
+            discount_amount: pricing.discountAmount,
+            original_amount: pricing.subtotal + pricing.platformFee + pricing.extrasTotal + pricing.insuranceCost,
+            final_amount: pricing.total - pricing.securityDeposit
+          }),
+          base44.entities.Coupon.update(appliedCoupon.id, {
+            used_count: appliedCoupon.used_count + 1
+          })
+        ]);
+      }
 
       await NotificationService.notifyNewBookingRequest(newBooking);
 
@@ -325,6 +358,17 @@ export default function CreateBooking() {
                     totalDays={selectedDates?.days || 1}
                     onInsuranceChange={setInsurance}
                   />
+
+                  {/* Coupon Input */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">¿Tienes un cupón?</h3>
+                    <CouponInput
+                      totalAmount={pricing?.subtotal + pricing?.platformFee + pricing?.extrasTotal + pricing?.insuranceCost || 0}
+                      vehicleType={vehicle.vehicle_type}
+                      onCouponApplied={setAppliedCoupon}
+                      onCouponRemoved={() => setAppliedCoupon(null)}
+                    />
+                  </div>
 
                   <div className="flex gap-3">
                     <Button
@@ -488,10 +532,19 @@ export default function CreateBooking() {
                         <span>${pricing.insuranceCost.toFixed(2)}</span>
                       </div>
                     )}
+                    {pricing.discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Tag className="w-4 h-4" />
+                          Descuento
+                        </span>
+                        <span>-${pricing.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 flex items-center gap-1">
                         <Shield className="w-4 h-4" />
-                        {t('common.subtotal')}
+                        Depósito
                       </span>
                       <span>${pricing.securityDeposit.toFixed(2)}</span>
                     </div>
