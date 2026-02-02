@@ -58,6 +58,7 @@ import CreateBooking from './pages/CreateBooking';
 import Dashboard from './pages/Dashboard';
 import DocumentVerification from './pages/DocumentVerification';
 import Landing from './pages/Landing';
+import LocalGuides from './pages/LocalGuides';
 import MyBookings from './pages/MyBookings';
 import MyVehicles from './pages/MyVehicles';
 import NotificationSettings from './pages/NotificationSettings';
@@ -69,7 +70,6 @@ import Transactions from './pages/Transactions';
 import VehicleCalendar from './pages/VehicleCalendar';
 import VehicleDetails from './pages/VehicleDetails';
 import VehicleHistory from './pages/VehicleHistory';
-import LocalGuides from './pages/LocalGuides';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +85,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DocumentVerification": DocumentVerification,
     "Landing": Landing,
+    "LocalGuides": LocalGuides,
     "MyBookings": MyBookings,
     "MyVehicles": MyVehicles,
     "NotificationSettings": NotificationSettings,
@@ -96,7 +97,6 @@ export const PAGES = {
     "VehicleCalendar": VehicleCalendar,
     "VehicleDetails": VehicleDetails,
     "VehicleHistory": VehicleHistory,
-    "LocalGuides": LocalGuides,
 }
 
 export const pagesConfig = {

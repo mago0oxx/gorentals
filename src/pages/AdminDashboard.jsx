@@ -33,9 +33,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Users, Car, Calendar, DollarSign, TrendingUp, MoreVertical,
-  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle, User
+  Search, Shield, UserX, Trash2, Eye, Ban, CheckCircle, User, Tag
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import CouponManagement from "@/components/admin/CouponManagement";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -55,6 +56,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalVehicles: 0,
@@ -81,15 +83,17 @@ export default function AdminDashboard() {
       return;
     }
 
-    const [usersData, vehiclesData, bookingsData] = await Promise.all([
+    const [usersData, vehiclesData, bookingsData, couponsData] = await Promise.all([
       base44.entities.User.list("-created_date"),
       base44.entities.Vehicle.list("-created_date"),
-      base44.entities.Booking.list("-created_date")
+      base44.entities.Booking.list("-created_date"),
+      base44.entities.Coupon.list("-created_date")
     ]);
 
     setUsers(usersData);
     setVehicles(vehiclesData);
     setBookings(bookingsData);
+    setCoupons(couponsData);
 
     // Calculate stats
     const completedBookings = bookingsData.filter(b => b.status === "completed");
@@ -253,6 +257,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="vehicles">Vehículos</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
+            <TabsTrigger value="coupons">
+              <Tag className="w-4 h-4 mr-2" />
+              Cupones
+            </TabsTrigger>
           </TabsList>
 
           {/* Users Tab */}
@@ -400,6 +408,11 @@ export default function AdminDashboard() {
                 </TableBody>
               </Table>
             </Card>
+          </TabsContent>
+
+          {/* Coupons Tab */}
+          <TabsContent value="coupons">
+            <CouponManagement coupons={coupons} onRefresh={loadData} />
           </TabsContent>
 
           {/* Bookings Tab */}
