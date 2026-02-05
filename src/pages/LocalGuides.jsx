@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import LocalGuidesMap from "@/components/maps/LocalGuidesMap";
+import PullToRefresh from "@/components/common/PullToRefresh";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 
 export default function LocalGuides() {
@@ -33,6 +34,10 @@ export default function LocalGuides() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    await loadGuides();
   };
 
   const getCategoryIcon = (category) => {
@@ -64,7 +69,8 @@ export default function LocalGuides() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section */}
       <div className="relative h-[400px] md:h-[500px] overflow-hidden">
         <div 
@@ -330,7 +336,6 @@ export default function LocalGuides() {
           </div>
         )}
       </div>
-    </div>
     </PullToRefresh>
   );
 }
