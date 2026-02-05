@@ -15,7 +15,9 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Car, User, LogOut, Shield, Search, LayoutDashboard, MapPin, Menu } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard", "LocalGuides"];
@@ -49,9 +51,9 @@ function LayoutContent({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 safe-area-inset">
       {/* Navbar */}
-      <nav className="bg-white border-b sticky top-0 z-50">
+      <nav className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 sticky top-0 z-50 safe-area-top">
         <div className="max-w-7xl mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
@@ -59,21 +61,21 @@ function LayoutContent({ children, currentPageName }) {
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
                 <Car className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
+              <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 dark:from-teal-400 dark:to-teal-500 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
 
             {/* Nav Links - Desktop */}
             <div className="hidden md:flex items-center gap-6">
-              <Link to={createPageUrl("Browse")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
+              <Link to={createPageUrl("Browse")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 {t('nav.browse')}
               </Link>
-              <Link to={createPageUrl("LocalGuides")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
+              <Link to={createPageUrl("LocalGuides")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 Guías Locales
               </Link>
               {user && (
-                <Link to={createPageUrl("Dashboard")} className="text-gray-600 hover:text-gray-900 flex items-center gap-2">
+                <Link to={createPageUrl("Dashboard")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4" />
                   {t('common.dashboard')}
                 </Link>
@@ -82,6 +84,7 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* User Menu */}
             <div className="flex items-center gap-1 md:gap-2">
+              <ThemeToggle />
               <LanguageSwitcher />
               
               {/* Mobile Menu */}
@@ -245,8 +248,10 @@ function LayoutContent({ children, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
   return (
-    <LanguageProvider>
-      <LayoutContent children={children} currentPageName={currentPageName} />
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <LayoutContent children={children} currentPageName={currentPageName} />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
