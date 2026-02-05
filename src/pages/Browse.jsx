@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
+import PullToRefresh from "@/components/common/PullToRefresh";
 
 export default function Browse() {
   const { t } = useLanguage();
@@ -73,6 +74,10 @@ export default function Browse() {
     );
     setVehicles(data);
     setIsLoading(false);
+  };
+
+  const handleRefresh = async () => {
+    await loadVehicles();
   };
 
   const applyFilters = () => {

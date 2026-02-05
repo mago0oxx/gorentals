@@ -17,6 +17,7 @@ import BookingCard from "@/components/booking/BookingCard";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import PullToRefresh from "@/components/common/PullToRefresh";
 
 export default function Dashboard() {
   const { t } = useLanguage();
@@ -94,6 +95,10 @@ export default function Dashboard() {
     setIsLoading(false);
   };
 
+  const handleRefresh = async () => {
+    await loadData();
+  };
+
   if (isLoading) {
     return <LoadingSpinner className="min-h-screen" text={t('messages.loadingDashboard')} />;
   }
@@ -106,7 +111,8 @@ export default function Dashboard() {
   const pastBookings = bookings.filter(b => ["completed", "rejected", "cancelled"].includes(b.status));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PullToRefresh onRefresh={handleRefresh}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -402,5 +408,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
