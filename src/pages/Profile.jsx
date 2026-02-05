@@ -11,12 +11,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   ChevronLeft, Loader2, Upload, User, MapPin, Phone, Mail, 
-  Star, LogOut, Shield, Bell, Car
+  Star, LogOut, Shield, Bell, Car, Trash2, AlertTriangle
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function Profile() {
   const { t } = useLanguage();
@@ -25,6 +37,8 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
   const [formData, setFormData] = useState({
     phone: "",
     location: "",
@@ -73,6 +87,24 @@ export default function Profile() {
 
   const handleLogout = () => {
     base44.auth.logout(createPageUrl("Landing"));
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmEmail !== user.email) {
+      toast.error("El email no coincide");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await base44.functions.invoke('deleteAccount', { confirmEmail: user.email });
+      toast.success("Cuenta eliminada exitosamente");
+      base44.auth.logout(createPageUrl("Landing"));
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.error("Error al eliminar la cuenta");
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -288,11 +320,95 @@ export default function Profile() {
             </Card>
           )}
 
+          {/* Danger Zone */}
+          <Card className="border-red-200 bg-red-50/50 shadow-sm rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2 text-red-700">
+                <AlertTriangle className="w-5 h-5" />
+                Zona de Peligro
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-600">
+                La eliminación de cuenta es permanente y no se puede deshacer. Todos tus datos, reservas y vehículos serán eliminados.
+              </p>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className="w-full rounded-xl h-12"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar Cuenta
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                      ¿Estás absolutamente seguro?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="space-y-3">
+                      <p>
+                        Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta
+                        y todos los datos asociados de nuestros servidores.
+                      </p>
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-sm font-medium text-red-900 mb-2">
+                          Se eliminarán:
+                        </p>
+                        <ul className="text-sm text-red-700 space-y-1 list-disc list-inside">
+                          <li>Tu perfil y datos personales</li>
+                          <li>Todas tus reservas (activas e históricas)</li>
+                          <li>Todos tus vehículos publicados</li>
+                          <li>Tus conversaciones y mensajes</li>
+                          <li>Tus reseñas y calificaciones</li>
+                        </ul>
+                      </div>
+                      <div className="pt-2">
+                        <Label className="text-sm font-medium">
+                          Para confirmar, escribe tu email: <span className="font-bold">{user?.email}</span>
+                        </Label>
+                        <Input
+                          type="email"
+                          value={deleteConfirmEmail}
+                          onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                          placeholder={user?.email}
+                          className="mt-2"
+                        />
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDeleteConfirmEmail("")}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting || deleteConfirmEmail !== user?.email}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        "Eliminar mi cuenta"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
+
           {/* Logout */}
           <Button
             variant="outline"
             onClick={handleLogout}
-            className="w-full rounded-xl h-12 border-red-200 text-red-600 hover:bg-red-50"
+            className="w-full rounded-xl h-12 border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {t('common.logout')}
