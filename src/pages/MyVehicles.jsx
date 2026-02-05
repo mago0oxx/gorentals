@@ -64,21 +64,41 @@ export default function MyVehicles() {
   };
 
   const toggleAvailability = async (vehicle) => {
-    await base44.entities.Vehicle.update(vehicle.id, {
-      is_available: !vehicle.is_available
-    });
+    // Optimistic update
+    const previousVehicles = [...vehicles];
     setVehicles(prev =>
       prev.map(v =>
         v.id === vehicle.id ? { ...v, is_available: !v.is_available } : v
       )
     );
+
+    try {
+      await base44.entities.Vehicle.update(vehicle.id, {
+        is_available: !vehicle.is_available
+      });
+    } catch (error) {
+      // Rollback on error
+      setVehicles(previousVehicles);
+      console.error("Failed to toggle availability:", error);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await base44.entities.Vehicle.delete(deleteId);
+    
+    // Optimistic update
+    const previousVehicles = [...vehicles];
     setVehicles(prev => prev.filter(v => v.id !== deleteId));
+    const idToDelete = deleteId;
     setDeleteId(null);
+
+    try {
+      await base44.entities.Vehicle.delete(idToDelete);
+    } catch (error) {
+      // Rollback on error
+      setVehicles(previousVehicles);
+      console.error("Failed to delete vehicle:", error);
+    }
   };
 
   if (isLoading) {
