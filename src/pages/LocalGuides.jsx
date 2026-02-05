@@ -336,6 +336,7 @@ export default function LocalGuides() {
           </div>
         )}
       </div>
+      </div>
     </PullToRefresh>
   );
 }
