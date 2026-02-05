@@ -16,11 +16,15 @@ import { Car, User, LogOut, Shield, Search, LayoutDashboard, MapPin, Menu } from
 import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import BottomNav from "@/components/navigation/BottomNav";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard", "LocalGuides"];
+
+// Pages that show bottom navigation
+const bottomNavPages = ["Browse", "Dashboard", "MyBookings", "Chat", "Profile", "LocalGuides"];
 
 function LayoutContent({ children, currentPageName }) {
   const { t } = useLanguage();
@@ -239,9 +243,14 @@ function LayoutContent({ children, currentPageName }) {
       </nav>
 
       {/* Page Content */}
-      <main>
+      <main className={bottomNavPages.includes(currentPageName) && user ? "pb-20" : ""}>
         {children}
       </main>
+
+      {/* Bottom Navigation */}
+      {bottomNavPages.includes(currentPageName) && user && (
+        <BottomNav user={user} />
+      )}
     </div>
   );
 }
