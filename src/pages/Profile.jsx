@@ -227,7 +227,7 @@ export default function Profile() {
                   id="location"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="Porlamar, Isla de Margarita"
+                  placeholder={t('profile.locationPlaceholder')}
                   className="mt-2 rounded-xl"
                 />
               </div>
