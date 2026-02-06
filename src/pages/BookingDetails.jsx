@@ -42,6 +42,7 @@ import VehicleHistoryCard from "@/components/booking/VehicleHistoryCard";
 import DeliveryRulesCard from "@/components/booking/DeliveryRulesCard";
 import CancellationPolicyCard from "@/components/booking/CancellationPolicyCard";
 import { motion } from "framer-motion";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 const getStatusConfig = (t) => ({
   pending: { label: t('booking.pending'), color: "bg-amber-100 text-amber-700", icon: Clock },
@@ -55,6 +56,7 @@ const getStatusConfig = (t) => ({
 
 export default function BookingDetails() {
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const statusConfig = getStatusConfig(t);
   const [booking, setBooking] = useState(null);
@@ -595,25 +597,25 @@ export default function BookingDetails() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Alquiler</span>
-                <span className="font-medium">${booking.price_per_day}/día × {booking.total_days} días</span>
+                <span className="font-medium">{formatPrice(booking.price_per_day)}/día × {booking.total_days} días</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal de alquiler</span>
-                <span className="font-semibold">${booking.subtotal?.toFixed(2)}</span>
+                <span className="font-semibold">{formatPrice(booking.subtotal)}</span>
               </div>
               
               <Separator />
               
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tarifa de servicio (15%)</span>
-                <span>${booking.platform_fee?.toFixed(2)}</span>
+                <span>{formatPrice(booking.platform_fee)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-blue-600" />
                   <span className="text-gray-600">Depósito de seguridad</span>
                 </div>
-                <span className="font-medium text-blue-600">${booking.security_deposit?.toFixed(2)}</span>
+                <span className="font-medium text-blue-600">{formatPrice(booking.security_deposit)}</span>
               </div>
               
               <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
@@ -625,7 +627,7 @@ export default function BookingDetails() {
             
             <div className="flex justify-between items-center text-lg">
               <span className="font-semibold">Total a pagar</span>
-              <span className="font-bold text-teal-600">${booking.total_amount?.toFixed(2)}</span>
+              <span className="font-bold text-teal-600">{formatPrice(booking.total_amount)}</span>
             </div>
             
             {isOwner && (
@@ -634,7 +636,7 @@ export default function BookingDetails() {
                 <div className="bg-green-50 rounded-xl p-4 border border-green-100">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-green-800">Tu ganancia</span>
-                    <span className="text-2xl font-bold text-green-700">${booking.owner_payout?.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-green-700">{formatPrice(booking.owner_payout)}</span>
                   </div>
                   <p className="text-xs text-green-700">
                     Recibirás este monto después de completar la reserva exitosamente.
@@ -789,7 +791,7 @@ export default function BookingDetails() {
               </div>
               <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
                 <p className="text-sm text-blue-800">
-                  Al completar, recibirás <strong>${booking.owner_payout?.toFixed(2)}</strong> en tu cuenta y se liberará el depósito del arrendatario.
+                  Al completar, recibirás <strong>{formatPrice(booking.owner_payout)}</strong> en tu cuenta y se liberará el depósito del arrendatario.
                 </p>
               </div>
               <Button
@@ -923,7 +925,7 @@ export default function BookingDetails() {
                   Monto a reembolsar:
                 </p>
                 <p className={`text-2xl font-bold ${refundAmount > 0 ? "text-green-900" : "text-red-900"}`}>
-                  ${refundAmount.toFixed(2)}
+                  {formatPrice(refundAmount)}
                 </p>
               </div>
             )}

@@ -19,6 +19,7 @@ import StarRating from "@/components/ui/StarRating";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 const getVehicleTypeLabels = (t) => ({
   sedan: "Sedán", suv: "SUV", pickup: "Pickup", van: "Van", motorcycle: "Moto", compact: "Compacto"
@@ -28,6 +29,7 @@ const getFuelLabels = (t) => ({ gasoline: "Gasolina", diesel: "Diésel", electri
 
 export default function VehicleDetails() {
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const vehicleTypeLabels = getVehicleTypeLabels(t);
   const transmissionLabels = getTransmissionLabels(t);
@@ -228,7 +230,7 @@ export default function VehicleDetails() {
                     <p className="text-gray-500">{vehicle.brand} {vehicle.model} • {vehicle.year}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-3xl font-bold text-gray-900">${vehicle.price_per_day}</p>
+                    <p className="text-3xl font-bold text-gray-900">{formatPrice(vehicle.price_per_day)}</p>
                     <p className="text-gray-500">{t('vehicleDetails.perDay')}</p>
                   </div>
                 </div>
@@ -271,7 +273,7 @@ export default function VehicleDetails() {
                     <Shield className="w-5 h-5 text-gray-400" />
                     <div>
                       <p className="text-xs text-gray-500">{t('vehicleDetails.deposit')}</p>
-                      <p className="font-medium">${vehicle.security_deposit}</p>
+                      <p className="font-medium">{formatPrice(vehicle.security_deposit)}</p>
                     </div>
                   </div>
                 </div>
@@ -418,7 +420,7 @@ export default function VehicleDetails() {
             <Card className="border-0 shadow-lg rounded-2xl sticky top-20">
               <CardContent className="p-6">
                 <div className="flex items-baseline gap-2 mb-6">
-                  <span className="text-3xl font-bold">${vehicle.price_per_day}</span>
+                  <span className="text-3xl font-bold">{formatPrice(vehicle.price_per_day)}</span>
                   <span className="text-gray-500">/ {t('vehicleDetails.perDay')}</span>
                 </div>
 
@@ -440,21 +442,21 @@ export default function VehicleDetails() {
                 {pricing && (
                   <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-xl">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">${vehicle.price_per_day} x {pricing.days} {t('vehicleDetails.days')}</span>
-                      <span>${pricing.subtotal.toFixed(2)}</span>
+                      <span className="text-gray-600">{formatPrice(vehicle.price_per_day)} x {pricing.days} {t('vehicleDetails.days')}</span>
+                      <span>{formatPrice(pricing.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">{t('vehicleDetails.serviceFee')}</span>
-                      <span>${pricing.platformFee.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.platformFee)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">{t('vehicleDetails.securityDeposit')}</span>
-                      <span>${pricing.securityDeposit.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.securityDeposit)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-semibold">
                       <span>{t('vehicleDetails.total')}</span>
-                      <span>${pricing.total.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.total)}</span>
                     </div>
                   </div>
                 )}

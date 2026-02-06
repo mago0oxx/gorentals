@@ -21,11 +21,13 @@ import CouponInput from "@/components/booking/CouponInput";
 import { NotificationService } from "@/components/notifications/notificationService";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 const COMMISSION_RATE = 0.15;
 
 export default function CreateBooking() {
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [user, setUser] = useState(null);
@@ -513,23 +515,23 @@ export default function CreateBooking() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">${pricing.pricePerDay} × {pricing.days} {t('createBooking.days')}</span>
-                      <span>${pricing.subtotal.toFixed(2)}</span>
+                      <span className="text-gray-600">{formatPrice(pricing.pricePerDay)} × {pricing.days} {t('createBooking.days')}</span>
+                      <span>{formatPrice(pricing.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">{t('createBooking.serviceFee')}</span>
-                      <span>${pricing.platformFee.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.platformFee)}</span>
                     </div>
                     {pricing.extrasTotal > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">{t('createBooking.extras')}</span>
-                        <span>${pricing.extrasTotal.toFixed(2)}</span>
+                        <span>{formatPrice(pricing.extrasTotal)}</span>
                       </div>
                     )}
                     {pricing.insuranceCost > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">{t('createBooking.additionalInsurance')}</span>
-                        <span>${pricing.insuranceCost.toFixed(2)}</span>
+                        <span>{formatPrice(pricing.insuranceCost)}</span>
                       </div>
                     )}
                     {pricing.discountAmount > 0 && (
@@ -538,7 +540,7 @@ export default function CreateBooking() {
                           <Tag className="w-4 h-4" />
                           Descuento
                         </span>
-                        <span>-${pricing.discountAmount.toFixed(2)}</span>
+                        <span>-{formatPrice(pricing.discountAmount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
@@ -546,12 +548,12 @@ export default function CreateBooking() {
                         <Shield className="w-4 h-4" />
                         Depósito
                       </span>
-                      <span>${pricing.securityDeposit.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.securityDeposit)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between text-lg font-semibold">
                       <span>{t('common.total')}</span>
-                      <span className="text-teal-600">${pricing.total.toFixed(2)}</span>
+                      <span className="text-teal-600">{formatPrice(pricing.total)}</span>
                     </div>
                     <p className="text-xs text-gray-500">
                       {t('createBooking.depositRefund')}
