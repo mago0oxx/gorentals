@@ -17,6 +17,7 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import BottomNav from "@/components/navigation/BottomNav";
+import BranchSelector from "@/components/branch/BranchSelector";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
@@ -31,6 +32,7 @@ function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
     checkAuth();
@@ -68,8 +70,12 @@ function LayoutContent({ children, currentPageName }) {
               <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 dark:from-teal-400 dark:to-teal-500 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
 
-            {/* Nav Links - Desktop */}
+            {/* Branch Selector & Nav Links - Desktop */}
             <div className="hidden md:flex items-center gap-6">
+              <BranchSelector 
+                selectedBranch={selectedBranch}
+                onBranchChange={setSelectedBranch}
+              />
               <Link to={createPageUrl("Browse")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 {t('nav.browse')}
@@ -100,6 +106,16 @@ function LayoutContent({ children, currentPageName }) {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[280px]">
                   <div className="flex flex-col gap-4 mt-8">
+                    <div className="pb-4 border-b">
+                      <BranchSelector 
+                        selectedBranch={selectedBranch}
+                        onBranchChange={(branch) => {
+                          setSelectedBranch(branch);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex-col items-start"
+                      />
+                    </div>
                     <Link 
                       to={createPageUrl("Browse")} 
                       className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
