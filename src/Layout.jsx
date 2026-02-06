@@ -80,10 +80,12 @@ function LayoutContent({ children, currentPageName }) {
                 <Search className="w-4 h-4" />
                 {t('nav.browse')}
               </Link>
-              <Link to={createPageUrl("LocalGuides")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Guías Locales
-              </Link>
+              {selectedBranch?.city !== "Buenos Aires" && (
+                <Link to={createPageUrl("LocalGuides")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Guías Locales
+                </Link>
+              )}
               {user && (
                 <Link to={createPageUrl("Dashboard")} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4" />
@@ -124,14 +126,16 @@ function LayoutContent({ children, currentPageName }) {
                       <Search className="w-5 h-5" />
                       <span className="font-medium">{t('nav.browse')}</span>
                     </Link>
-                    <Link 
-                      to={createPageUrl("LocalGuides")} 
-                      className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <MapPin className="w-5 h-5" />
-                      <span className="font-medium">Guías Locales</span>
-                    </Link>
+                    {selectedBranch?.city !== "Buenos Aires" && (
+                      <Link 
+                        to={createPageUrl("LocalGuides")} 
+                        className="flex items-center gap-3 text-gray-700 hover:text-teal-600 p-3 rounded-lg hover:bg-teal-50"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <MapPin className="w-5 h-5" />
+                        <span className="font-medium">Guías Locales</span>
+                      </Link>
+                    )}
                     {user && (
                       <>
                         <Link 
