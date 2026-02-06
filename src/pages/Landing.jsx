@@ -14,31 +14,27 @@ import VehicleCard from "@/components/vehicles/VehicleCard";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
+import { useBranchDetection } from "@/components/branch/useBranchDetection";
 
 export default function Landing() {
   const { t } = useLanguage();
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const { detectedBranch, isDetecting } = useBranchDetection();
   const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
-    initializeBranch();
-  }, []);
+    if (detectedBranch && !selectedBranch) {
+      setSelectedBranch(detectedBranch);
+    }
+  }, [detectedBranch]);
 
   useEffect(() => {
     if (selectedBranch) {
       loadData();
     }
   }, [selectedBranch]);
-
-  const initializeBranch = async () => {
-    const branches = await base44.entities.Branch.list("sort_order");
-    const buenosAires = branches.find(b => b.city === "Buenos Aires");
-    if (buenosAires) {
-      setSelectedBranch(buenosAires);
-    }
-  };
 
   const loadData = async () => {
     const auth = await base44.auth.isAuthenticated();
@@ -91,6 +87,32 @@ export default function Landing() {
     { value: "24/7", label: t('landingPage.support') }
   ];
 
+  const getBranchContent = () => {
+    if (!selectedBranch) return {};
+    
+    if (selectedBranch.city === "Buenos Aires") {
+      return {
+        heroImage: "https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=1600",
+        location: "Buenos Aires, Argentina",
+        heroTitle1: "Alquilá el auto perfecto",
+        heroTitle2: "en Buenos Aires",
+        heroSubtitle: "Descubrí la ciudad y sus alrededores con total libertad. Desde compactos para la ciudad hasta SUVs para escapadas.",
+        footerLocation: "Buenos Aires, Argentina"
+      };
+    } else {
+      return {
+        heroImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600",
+        location: "Isla de Margarita, Venezuela",
+        heroTitle1: t('landingPage.heroTitle1'),
+        heroTitle2: t('landingPage.heroTitle2'),
+        heroSubtitle: t('landingPage.heroSubtitle'),
+        footerLocation: "Isla de Margarita, Venezuela"
+      };
+    }
+  };
+
+  const branchContent = getBranchContent();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -142,8 +164,8 @@ export default function Landing() {
       <section className="relative min-h-[90vh] flex items-center pt-20">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600"
-            alt="Isla de Margarita"
+            src={branchContent.heroImage}
+            alt={branchContent.location}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-transparent" />
@@ -158,16 +180,16 @@ export default function Landing() {
           >
             <div className="flex items-center gap-2 mb-6">
               <MapPin className="w-5 h-5 text-teal-400" />
-              <span className="text-teal-400 font-medium">Isla de Margarita, Venezuela</span>
+              <span className="text-teal-400 font-medium">{branchContent.location}</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              {t('landingPage.heroTitle1')}
-              <span className="text-teal-400"> {t('landingPage.heroTitle2')}</span>
+              {branchContent.heroTitle1}
+              <span className="text-teal-400"> {branchContent.heroTitle2}</span>
             </h1>
             
             <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-              {t('landingPage.heroSubtitle')}
+              {branchContent.heroSubtitle}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
@@ -401,7 +423,7 @@ export default function Landing() {
             <div>
               <h4 className="text-white font-semibold mb-4">{t('landingPage.contact')}</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Isla de Margarita, Venezuela</li>
+                <li>{branchContent.footerLocation}</li>
                 <li>info@gorentals.com</li>
               </ul>
             </div>

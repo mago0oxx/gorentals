@@ -24,6 +24,7 @@ import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
 import PullToRefresh from "@/components/common/PullToRefresh";
+import { useBranchDetection } from "@/components/branch/useBranchDetection";
 
 export default function Browse() {
   const { t } = useLanguage();

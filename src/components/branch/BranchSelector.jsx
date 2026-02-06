@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function BranchSelector({ selectedBranch, onBranchChange, className }) {
+export default function BranchSelector({ selectedBranch, onBranchChange, className, autoDetect = false }) {
   const [branches, setBranches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,14 +15,6 @@ export default function BranchSelector({ selectedBranch, onBranchChange, classNa
     try {
       const data = await base44.entities.Branch.list("sort_order");
       setBranches(data);
-      
-      // Set default to Buenos Aires if no branch selected
-      if (!selectedBranch && data.length > 0) {
-        const buenosAires = data.find(b => b.city === "Buenos Aires");
-        if (buenosAires && onBranchChange) {
-          onBranchChange(buenosAires);
-        }
-      }
     } catch (error) {
       console.error("Error loading branches:", error);
     } finally {
