@@ -130,7 +130,7 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-gray-500 flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {user.location || "Isla de Margarita"}
+                  {user.location || t('messages.location')}
                 </p>
               </div>
             </div>
