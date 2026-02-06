@@ -25,6 +25,7 @@ import { useLanguage } from "@/components/i18n/LanguageContext";
 import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
 import PullToRefresh from "@/components/common/PullToRefresh";
 import { useBranchDetection } from "@/components/branch/useBranchDetection";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 export default function Browse() {
   const { t } = useLanguage();
@@ -205,12 +206,13 @@ export default function Browse() {
   };
 
   const clearFilters = () => {
+    const newRange = getPriceRange();
     setFilters({
       vehicleType: "all",
       transmission: "all",
       fuelType: "all",
       seats: "all",
-      priceRange: [0, 500],
+      priceRange: [newRange.min, newRange.max],
       startDate: null,
       endDate: null,
       location: "",

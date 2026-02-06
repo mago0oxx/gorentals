@@ -18,8 +18,10 @@ import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import BottomNav from "@/components/navigation/BottomNav";
 import BranchSelector from "@/components/branch/BranchSelector";
+import CurrencySwitcher from "@/components/currency/CurrencySwitcher";
 import { useLanguage, LanguageProvider } from "@/components/i18n/LanguageContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { CurrencyProvider, useCurrency } from "@/components/currency/CurrencyContext";
 
 // Pages that don't show the navbar
 const fullScreenPages = ["Landing", "Register", "Browse", "VehicleDetails", "CreateBooking", "BookingDetails", "AddVehicle", "MyVehicles", "VehicleCalendar", "Profile", "AdminDashboard", "LocalGuides"];
@@ -29,6 +31,7 @@ const bottomNavPages = ["Browse", "Dashboard", "MyBookings", "Chat", "Profile", 
 
 function LayoutContent({ children, currentPageName }) {
   const { t } = useLanguage();
+  const { setSuggestedCurrency } = useCurrency();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,6 +40,12 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (selectedBranch?.city) {
+      setSuggestedCurrency(selectedBranch.city);
+    }
+  }, [selectedBranch]);
 
   const checkAuth = async () => {
     const isAuth = await base44.auth.isAuthenticated();
@@ -96,6 +105,7 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* User Menu */}
             <div className="flex items-center gap-1 md:gap-2">
+              <CurrencySwitcher />
               <ThemeToggle />
               <LanguageSwitcher />
               
@@ -278,9 +288,11 @@ function LayoutContent({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <LayoutContent children={children} currentPageName={currentPageName} />
-      </LanguageProvider>
+      <CurrencyProvider>
+        <LanguageProvider>
+          <LayoutContent children={children} currentPageName={currentPageName} />
+        </LanguageProvider>
+      </CurrencyProvider>
     </ThemeProvider>
   );
 }

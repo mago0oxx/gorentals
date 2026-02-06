@@ -12,9 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SlidersHorizontal, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 export default function VehicleFilters({ filters, onFiltersChange, onClearFilters }) {
+  const { getPriceRange, getCurrencySymbol } = useCurrency();
   const [open, setOpen] = useState(false);
+  const priceRange = getPriceRange();
 
   const vehicleTypes = [
     { value: "all", label: "Todos los tipos" },
@@ -193,14 +196,14 @@ export default function VehicleFilters({ filters, onFiltersChange, onClearFilter
               {/* Price Range */}
               <div>
                 <Label className="text-sm font-medium mb-3 block">
-                  Precio por día: ${filters.priceRange[0]} - ${filters.priceRange[1]}
+                  Precio por día: {getCurrencySymbol()}{filters.priceRange[0].toLocaleString()} - {getCurrencySymbol()}{filters.priceRange[1].toLocaleString()}
                 </Label>
                 <Slider
                   value={filters.priceRange}
                   onValueChange={(v) => updateFilter("priceRange", v)}
-                  min={0}
-                  max={500}
-                  step={10}
+                  min={priceRange.min}
+                  max={priceRange.max}
+                  step={priceRange.step}
                   className="mt-2"
                 />
               </div>
