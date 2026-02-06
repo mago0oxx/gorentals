@@ -333,48 +333,21 @@ export default function BookingDetails() {
       cancellation_reason: cancelReason
     });
 
-    // If paid, process refund
+    // If paid, process refund automatically
     if (booking.status === "paid" || booking.status === "active") {
-      // Create refund transaction for renter
-      await base44.entities.Transaction.create({
-        booking_id: booking.id,
-        user_email: booking.renter_email,
-        user_role: "renter",
-        type: "refund",
-        amount: refund,
-        status: "completed",
-        description: `Reembolso por cancelación - ${booking.vehicle_title}`,
-        vehicle_title: booking.vehicle_title,
-        metadata: {
-          cancelled_by: canceller,
-          cancellation_reason: cancelReason,
-          original_amount: booking.total_amount
+      try {
+        // Call refund processing function
+        const refundResponse = await base44.functions.invoke('processRefund', {
+          booking_id: booking.id
+        });
+
+        if (refundResponse.data?.error) {
+          console.error('Refund processing error:', refundResponse.data.error);
         }
-      });
-
-      // Update payment transaction to refunded
-      const payments = await base44.entities.Transaction.filter({
-        booking_id: booking.id,
-        type: "payment",
-        user_email: booking.renter_email
-      });
-      if (payments.length > 0) {
-        await base44.entities.Transaction.update(payments[0].id, {
-          status: "refunded"
-        });
+      } catch (error) {
+        console.error('Error calling refund function:', error);
       }
 
-      // Cancel pending owner payout if exists
-      const payouts = await base44.entities.Transaction.filter({
-        booking_id: booking.id,
-        type: "payout",
-        user_email: booking.owner_email
-      });
-      if (payouts.length > 0) {
-        await base44.entities.Transaction.update(payouts[0].id, {
-          status: "cancelled"
-        });
-      }
     }
 
     // Unblock dates on vehicle
