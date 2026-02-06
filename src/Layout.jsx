@@ -35,7 +35,11 @@ function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(() => {
+    // Load selected branch from localStorage immediately
+    const saved = localStorage.getItem('selectedBranch');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   useEffect(() => {
     checkAuth();
