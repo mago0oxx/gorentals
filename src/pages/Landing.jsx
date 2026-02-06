@@ -20,10 +20,25 @@ export default function Landing() {
   const [featuredVehicles, setFeaturedVehicles] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
-    loadData();
+    initializeBranch();
   }, []);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      loadData();
+    }
+  }, [selectedBranch]);
+
+  const initializeBranch = async () => {
+    const branches = await base44.entities.Branch.list("sort_order");
+    const buenosAires = branches.find(b => b.city === "Buenos Aires");
+    if (buenosAires) {
+      setSelectedBranch(buenosAires);
+    }
+  };
 
   const loadData = async () => {
     const auth = await base44.auth.isAuthenticated();
@@ -35,7 +50,11 @@ export default function Landing() {
     }
     
     const vehicles = await base44.entities.Vehicle.filter(
-      { is_active: true, is_available: true },
+      { 
+        is_active: true, 
+        is_available: true,
+        branch_id: selectedBranch?.id
+      },
       "-created_date",
       6
     );

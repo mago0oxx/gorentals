@@ -47,11 +47,26 @@ export default function Browse() {
   });
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
-    loadVehicles();
+    initializeBranch();
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      loadVehicles();
+    }
+  }, [selectedBranch]);
+
+  const initializeBranch = async () => {
+    const branches = await base44.entities.Branch.list("sort_order");
+    const buenosAires = branches.find(b => b.city === "Buenos Aires");
+    if (buenosAires) {
+      setSelectedBranch(buenosAires);
+    }
+  };
 
   const checkAuth = async () => {
     const auth = await base44.auth.isAuthenticated();
@@ -69,7 +84,11 @@ export default function Browse() {
   const loadVehicles = async () => {
     setIsLoading(true);
     const data = await base44.entities.Vehicle.filter(
-      { is_active: true, is_available: true },
+      { 
+        is_active: true, 
+        is_available: true,
+        branch_id: selectedBranch?.id
+      },
       "-created_date"
     );
     setVehicles(data);
@@ -217,10 +236,12 @@ export default function Browse() {
             </Link>
             
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-teal-600" />
-                <span className="text-sm text-gray-600">Isla de Margarita</span>
-              </div>
+              {selectedBranch && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-teal-600" />
+                  <span className="text-sm text-gray-600">{selectedBranch.city}</span>
+                </div>
+              )}
 
               {isAuthenticated && user ? (
                 <DropdownMenu>
