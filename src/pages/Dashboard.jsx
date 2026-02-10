@@ -115,78 +115,100 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={user.profile_image} />
-                <AvatarFallback className="bg-teal-100 text-teal-700 text-xl">
-                  {user.full_name?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {t('messages.hello')}, {user.full_name?.split(" ")[0]}
-                </h1>
-                <p className="text-gray-500 flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  {user.location || t('messages.location')}
-                </p>
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+          <div className="flex flex-col gap-4">
+            {/* User Info */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Avatar className="w-12 h-12 md:w-16 md:h-16">
+                  <AvatarImage src={user.profile_image} />
+                  <AvatarFallback className="bg-teal-100 text-teal-700 text-lg md:text-xl">
+                    {user.full_name?.[0] || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900">
+                    {t('messages.hello')}, {user.full_name?.split(" ")[0]}
+                  </h1>
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                    {user.location || t('messages.location')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <NotificationBell userEmail={user.email} />
+                <Link to={createPageUrl("Profile")} className="md:hidden">
+                  <Button variant="ghost" size="icon" className="rounded-xl">
+                    <Settings className="w-5 h-5" />
+                  </Button>
+                </Link>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <NotificationBell userEmail={user.email} />
+
+            {/* Action Buttons - Responsive Grid */}
+            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
+              {!isOwner && (
+                <Link to={createPageUrl("AddVehicle")} className="col-span-2 md:col-span-1">
+                  <Button className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Publicar mi auto
+                  </Button>
+                </Link>
+              )}
+              {isOwner && (
+                <Link to={createPageUrl("AddVehicle")} className="col-span-2 md:col-span-1">
+                  <Button className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl">
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('messages.addVehicle')}
+                  </Button>
+                </Link>
+              )}
               <Link to={createPageUrl("MyBookings")}>
-                <Button variant="outline" className="rounded-xl">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {isOwner ? t('messages.manage') : t('messages.bookings')}
-                </Button>
-              </Link>
-              <Link to={createPageUrl("Transactions")}>
-                <Button variant="outline" className="rounded-xl">
-                  <Receipt className="w-4 h-4 mr-2" />
-                  {t('messages.transactions')}
+                <Button variant="outline" className="w-full rounded-xl">
+                  <Calendar className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">{isOwner ? t('messages.manage') : t('messages.bookings')}</span>
                 </Button>
               </Link>
               <Link to={createPageUrl("Chat")}>
-                <Button variant="outline" className="rounded-xl">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  {t('messages.messages')}
-                </Button>
-              </Link>
-              <Link to={createPageUrl("Profile")}>
-                <Button variant="outline" className="rounded-xl">
-                  <Settings className="w-4 h-4 mr-2" />
-                  {t('common.profile')}
+                <Button variant="outline" className="w-full rounded-xl">
+                  <MessageCircle className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">{t('messages.messages')}</span>
                 </Button>
               </Link>
               {isOwner && (
                 <>
-                  <Link to={createPageUrl("OwnerEarnings")}>
-                    <Button variant="outline" className="rounded-xl">
-                      <DollarSign className="w-4 h-4 mr-2" />
-                      {t('messages.earnings')}
-                    </Button>
-                  </Link>
                   <Link to={createPageUrl("OwnerDashboard")}>
-                    <Button variant="outline" className="rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50">
-                      <Car className="w-4 h-4 mr-2" />
-                      {t('messages.fullManagement')}
+                    <Button variant="outline" className="w-full rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50">
+                      <Car className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">{t('messages.fullManagement')}</span>
                     </Button>
                   </Link>
-                  <Link to={createPageUrl("AddVehicle")}>
-                    <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('messages.addVehicle')}
+                  <Link to={createPageUrl("OwnerEarnings")}>
+                    <Button variant="outline" className="w-full rounded-xl">
+                      <DollarSign className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">{t('messages.earnings')}</span>
                     </Button>
                   </Link>
                 </>
               )}
+              <Link to={createPageUrl("Transactions")} className="hidden md:block">
+                <Button variant="outline" className="w-full rounded-xl">
+                  <Receipt className="w-4 h-4 mr-2" />
+                  {t('messages.transactions')}
+                </Button>
+              </Link>
+              <Link to={createPageUrl("Profile")} className="hidden md:block">
+                <Button variant="outline" className="w-full rounded-xl">
+                  <Settings className="w-4 h-4 mr-2" />
+                  {t('common.profile')}
+                </Button>
+              </Link>
               {!isOwner && (
                 <Link to={createPageUrl("Browse")}>
-                  <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
-                    <Car className="w-4 h-4 mr-2" />
-                    {t('messages.searchVehicles')}
+                  <Button variant="outline" className="w-full rounded-xl">
+                    <Car className="w-4 h-4 md:mr-2" />
+                    <span className="hidden md:inline">{t('messages.searchVehicles')}</span>
                   </Button>
                 </Link>
               )}
