@@ -6,12 +6,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreditCard, Loader2, Shield, AlertCircle, ExternalLink, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useCurrency } from "@/components/currency/CurrencyContext";
+import PaymentMethodSelector from "./PaymentMethodSelector";
 
 export default function PaymentButton({ booking, onPaymentComplete }) {
+  const { currency, formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [isCheckingDocs, setIsCheckingDocs] = useState(true);
   const [hasRequiredDocs, setHasRequiredDocs] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [showSavedMethods, setShowSavedMethods] = useState(true);
 
   useEffect(() => {
     checkDocuments();
@@ -38,36 +43,50 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
   };
 
   const handlePayment = async () => {
-    // Check if running in iframe (preview mode)
-    if (window.self !== window.top) {
-      setError('⚠️ Los pagos no funcionan en vista previa. Por favor, publica tu app o abre el enlace en una nueva pestaña para procesar pagos.');
-      return;
-    }
-
     setIsProcessing(true);
     setError(null);
 
     try {
-      console.log('Calling createCheckoutSession with booking_id:', booking.id);
+      console.log('[PaymentButton] Starting payment for booking:', booking.id);
       
-      const response = await base44.functions.invoke('createCheckoutSession', {
-        booking_id: booking.id
+      // Determine payment provider based on currency
+      const isMercadoPago = currency === 'ARS';
+      const functionName = isMercadoPago ? 'createMercadoPagoCheckout' : 'createCheckoutSession';
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('La solicitud tardó demasiado. Por favor intenta de nuevo.')), 30000)
+      );
+
+      const functionPromise = base44.functions.invoke(functionName, {
+        booking_id: booking.id,
+        payment_method_id: selectedPaymentMethod?.payment_method_id
       });
 
-      console.log('Response from createCheckoutSession:', response);
+      const response = await Promise.race([functionPromise, timeoutPromise]);
 
-      if (response?.data?.checkout_url) {
-        console.log('Redirecting to:', response.data.checkout_url);
-        window.location.href = response.data.checkout_url;
-      } else {
-        console.error('No checkout URL in response:', response);
-        setError('Error al crear la sesión de pago - no se recibió URL');
-        setIsProcessing(false);
+      console.log('[PaymentButton] Received response:', response);
+
+      if (!response || !response.data) {
+        throw new Error('No se recibió respuesta del servidor');
       }
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+
+      if (!response.data.checkout_url) {
+        throw new Error('No se recibió URL de pago');
+      }
+
+      console.log('[PaymentButton] Redirecting to checkout:', response.data.checkout_url);
+      
+      // Redirect to payment provider
+      window.location.href = response.data.checkout_url;
+
     } catch (err) {
-      console.error('Payment error:', err);
-      console.error('Error details:', err.response?.data);
-      setError(err.response?.data?.error || err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
+      console.error('[PaymentButton] Error:', err);
+      setError(err.message || 'Error al procesar el pago. Por favor intenta de nuevo.');
       setIsProcessing(false);
     }
   };
@@ -101,6 +120,10 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
     );
   }
 
+  const isMercadoPago = currency === 'ARS';
+  const paymentProvider = isMercadoPago ? 'MercadoPago' : 'Stripe';
+  const paymentIcon = isMercadoPago ? '💳' : '💳';
+
   return (
     <>
       {error && (
@@ -114,22 +137,22 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
       <div className="bg-gray-50 rounded-xl p-4 space-y-2 mb-4">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Alquiler ({booking.total_days} días)</span>
-          <span>${booking.subtotal?.toFixed(2)}</span>
+          <span>{formatPrice(booking.subtotal)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tarifa de servicio</span>
-          <span>${booking.platform_fee?.toFixed(2)}</span>
+          <span>{formatPrice(booking.platform_fee)}</span>
         </div>
         {(booking.extras_total || 0) > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Extras</span>
-            <span>${booking.extras_total?.toFixed(2)}</span>
+            <span>{formatPrice(booking.extras_total)}</span>
           </div>
         )}
         {(booking.insurance_cost || 0) > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Seguro</span>
-            <span>${booking.insurance_cost?.toFixed(2)}</span>
+            <span>{formatPrice(booking.insurance_cost)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm">
@@ -137,14 +160,24 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
             <Shield className="w-3 h-3" />
             Depósito (reembolsable)
           </span>
-          <span>${booking.security_deposit?.toFixed(2)}</span>
+          <span>{formatPrice(booking.security_deposit)}</span>
         </div>
         <Separator />
         <div className="flex justify-between font-semibold text-base">
           <span>Total</span>
-          <span>${booking.total_amount?.toFixed(2)}</span>
+          <span>{formatPrice(booking.total_amount)}</span>
         </div>
       </div>
+
+      {/* Payment Method Selector */}
+      {showSavedMethods && (
+        <div className="mb-4">
+          <PaymentMethodSelector
+            onMethodSelect={setSelectedPaymentMethod}
+            selectedMethod={selectedPaymentMethod}
+          />
+        </div>
+      )}
 
       <Button
         onClick={handlePayment}
@@ -159,14 +192,14 @@ export default function PaymentButton({ booking, onPaymentComplete }) {
         ) : (
           <>
             <CreditCard className="w-5 h-5 mr-2" />
-            Pagar con Stripe
+            Pagar con {paymentProvider}
             <ExternalLink className="w-4 h-4 ml-2" />
           </>
         )}
       </Button>
 
       <p className="text-xs text-center text-gray-500 mt-3">
-        🔒 Pago seguro procesado por Stripe
+        🔒 Pago seguro procesado por {paymentProvider}
       </p>
     </>
   );

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 const vehicleTypes = [
   { value: "sedan", label: "Sedán" },
@@ -37,7 +38,7 @@ const fuelTypes = [
   { value: "hybrid", label: "Híbrido" }
 ];
 
-const featureOptions = [
+const getFeatureOptions = (t) => [
   "Aire acondicionado",
   "GPS",
   "Bluetooth",
@@ -51,7 +52,9 @@ const featureOptions = [
 ];
 
 export default function AddVehicle() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const featureOptions = getFeatureOptions(t);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -188,7 +191,7 @@ export default function AddVehicle() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('addVehicle.loading')} />;
   }
 
   return (
@@ -202,7 +205,7 @@ export default function AddVehicle() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('addVehicle.back')}
           </Button>
           <Button
             variant="outline"
@@ -210,7 +213,7 @@ export default function AddVehicle() {
             className="rounded-xl"
           >
             <User className="w-4 h-4 mr-2" />
-            Mi Perfil
+            {t('addVehicle.myProfile')}
           </Button>
         </div>
       </div>
@@ -221,17 +224,17 @@ export default function AddVehicle() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {editId ? "Editar vehículo" : "Agregar vehículo"}
+            {editId ? t('addVehicle.editVehicle') : t('addVehicle.addVehicle')}
           </h1>
           <p className="text-gray-500 mb-8">
-            {editId ? "Actualiza la información de tu vehículo" : "Publica tu vehículo para comenzar a ganar"}
+            {editId ? t('addVehicle.updateInfo') : t('addVehicle.publishStart')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Photos */}
             <Card className="border-0 shadow-sm rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-lg">Fotos del vehículo</CardTitle>
+                <CardTitle className="text-lg">{t('addVehicle.vehiclePhotos')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
@@ -260,7 +263,7 @@ export default function AddVehicle() {
                     ) : (
                       <>
                         <Upload className="w-6 h-6 text-gray-400 mb-2" />
-                        <span className="text-xs text-gray-500">Subir fotos</span>
+                        <span className="text-xs text-gray-500">{t('addVehicle.uploadPhotos')}</span>
                       </>
                     )}
                   </label>
@@ -273,17 +276,17 @@ export default function AddVehicle() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Car className="w-5 h-5" />
-                  Información básica
+                  {t('addVehicle.basicInfo')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Título del anuncio *</Label>
+                  <Label htmlFor="title">{t('addVehicle.listingTitle')} *</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Ej: Toyota Corolla 2020 - Económico y confiable"
+                    placeholder={t('addVehicle.titlePlaceholder')}
                     className="mt-2 rounded-xl"
                     required
                   />
@@ -291,7 +294,7 @@ export default function AddVehicle() {
 
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="brand">Marca *</Label>
+                    <Label htmlFor="brand">{t('addVehicle.brand')} *</Label>
                     <Input
                       id="brand"
                       value={formData.brand}
@@ -302,7 +305,7 @@ export default function AddVehicle() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="model">Modelo *</Label>
+                    <Label htmlFor="model">{t('addVehicle.model')} *</Label>
                     <Input
                       id="model"
                       value={formData.model}
@@ -313,7 +316,7 @@ export default function AddVehicle() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="year">Año *</Label>
+                    <Label htmlFor="year">{t('addVehicle.year')} *</Label>
                     <Input
                       id="year"
                       type="number"
@@ -329,7 +332,7 @@ export default function AddVehicle() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <Label>Tipo de vehículo *</Label>
+                    <Label>{t('addVehicle.vehicleType')} *</Label>
                     <Select
                       value={formData.vehicle_type}
                       onValueChange={(v) => setFormData({ ...formData, vehicle_type: v })}
@@ -348,7 +351,7 @@ export default function AddVehicle() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="seats">Número de asientos</Label>
+                    <Label htmlFor="seats">{t('addVehicle.seats')}</Label>
                     <Input
                       id="seats"
                       type="number"
@@ -363,7 +366,7 @@ export default function AddVehicle() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <Label>Transmisión *</Label>
+                    <Label>{t('addVehicle.transmission')} *</Label>
                     <Select
                       value={formData.transmission}
                       onValueChange={(v) => setFormData({ ...formData, transmission: v })}
@@ -382,7 +385,7 @@ export default function AddVehicle() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Combustible *</Label>
+                    <Label>{t('addVehicle.fuel')} *</Label>
                     <Select
                       value={formData.fuel_type}
                       onValueChange={(v) => setFormData({ ...formData, fuel_type: v })}
@@ -403,12 +406,12 @@ export default function AddVehicle() {
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Descripción</Label>
+                  <Label htmlFor="description">{t('addVehicle.description')}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe tu vehículo, condiciones de alquiler, etc."
+                    placeholder={t('addVehicle.descPlaceholder')}
                     className="mt-2 rounded-xl resize-none"
                     rows={4}
                   />
@@ -419,7 +422,7 @@ export default function AddVehicle() {
             {/* Features */}
             <Card className="border-0 shadow-sm rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-lg">Características</CardTitle>
+                <CardTitle className="text-lg">{t('addVehicle.features')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
@@ -447,13 +450,13 @@ export default function AddVehicle() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <DollarSign className="w-5 h-5" />
-                  Precio y ubicación
+                  {t('addVehicle.priceLocation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="price">Precio por día (USD) *</Label>
+                    <Label htmlFor="price">{t('addVehicle.pricePerDay')} *</Label>
                     <div className="relative mt-2">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                       <Input
@@ -470,7 +473,7 @@ export default function AddVehicle() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="deposit">Depósito de seguridad (USD) *</Label>
+                    <Label htmlFor="deposit">{t('addVehicle.securityDeposit')} *</Label>
                     <div className="relative mt-2">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                       <Input
@@ -489,14 +492,14 @@ export default function AddVehicle() {
                 </div>
 
                 <div>
-                  <Label htmlFor="location">Ubicación de recogida *</Label>
+                  <Label htmlFor="location">{t('addVehicle.pickupLocation')} *</Label>
                   <div className="relative mt-2">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="location"
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      placeholder="Ej: Porlamar, Pampatar, Juan Griego"
+                      placeholder={t('addVehicle.locationPlaceholder')}
                       className="pl-10 rounded-xl"
                       required
                     />
@@ -508,8 +511,8 @@ export default function AddVehicle() {
                     <div className="flex items-center gap-3">
                       <Briefcase className="w-5 h-5 text-gray-600" />
                       <div>
-                        <p className="font-medium">Permitir uso comercial</p>
-                        <p className="text-sm text-gray-500">Uber, Yummy, InDriver u otras apps de transporte</p>
+                        <p className="font-medium">{t('addVehicle.commercialUse')}</p>
+                        <p className="text-sm text-gray-500">{t('addVehicle.commercialDesc')}</p>
                       </div>
                     </div>
                     <Switch
@@ -523,8 +526,8 @@ export default function AddVehicle() {
                   <div className="flex gap-3">
                     <Info className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-1">Comisión de la plataforma</p>
-                      <p>GoRentals cobra una comisión del 15% sobre cada reserva. El resto es tu ganancia.</p>
+                      <p className="font-medium mb-1">{t('addVehicle.platformCommission')}</p>
+                      <p>{t('addVehicle.commissionDesc')}</p>
                     </div>
                   </div>
                 </div>
@@ -540,10 +543,10 @@ export default function AddVehicle() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Guardando...
+                  {t('profile.saving')}
                 </>
               ) : (
-                editId ? "Guardar cambios" : "Publicar vehículo"
+                editId ? t('profile.saveChanges') : t('addVehicle.publish')
               )}
             </Button>
           </form>

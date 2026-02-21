@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +32,7 @@ import EmptyState from "@/components/common/EmptyState";
 import { motion } from "framer-motion";
 
 export default function MyVehicles() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,25 +64,45 @@ export default function MyVehicles() {
   };
 
   const toggleAvailability = async (vehicle) => {
-    await base44.entities.Vehicle.update(vehicle.id, {
-      is_available: !vehicle.is_available
-    });
+    // Optimistic update
+    const previousVehicles = [...vehicles];
     setVehicles(prev =>
       prev.map(v =>
         v.id === vehicle.id ? { ...v, is_available: !v.is_available } : v
       )
     );
+
+    try {
+      await base44.entities.Vehicle.update(vehicle.id, {
+        is_available: !vehicle.is_available
+      });
+    } catch (error) {
+      // Rollback on error
+      setVehicles(previousVehicles);
+      console.error("Failed to toggle availability:", error);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await base44.entities.Vehicle.delete(deleteId);
+    
+    // Optimistic update
+    const previousVehicles = [...vehicles];
     setVehicles(prev => prev.filter(v => v.id !== deleteId));
+    const idToDelete = deleteId;
     setDeleteId(null);
+
+    try {
+      await base44.entities.Vehicle.delete(idToDelete);
+    } catch (error) {
+      // Rollback on error
+      setVehicles(previousVehicles);
+      console.error("Failed to delete vehicle:", error);
+    }
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando vehículos..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('myVehicles.loading')} />;
   }
 
   return (
@@ -96,7 +118,7 @@ export default function MyVehicles() {
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold">Mis vehículos</h1>
+            <h1 className="text-xl font-bold">{t('myVehicles.title')}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -105,12 +127,12 @@ export default function MyVehicles() {
               className="rounded-xl"
             >
               <User className="w-4 h-4 mr-2" />
-              Mi Perfil
+              {t('addVehicle.myProfile')}
             </Button>
             <Link to={createPageUrl("AddVehicle")}>
               <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl">
                 <Plus className="w-4 h-4 mr-2" />
-                Agregar
+                {t('myVehicles.add')}
               </Button>
             </Link>
           </div>
@@ -121,9 +143,9 @@ export default function MyVehicles() {
         {vehicles.length === 0 ? (
           <EmptyState
             icon={Car}
-            title="No tienes vehículos publicados"
-            description="Publica tu primer vehículo y comienza a generar ingresos"
-            actionLabel="Agregar vehículo"
+            title={t('myVehicles.noVehicles')}
+            description={t('myVehicles.publishFirst')}
+            actionLabel={t('messages.addVehicle')}
             actionLink="AddVehicle"
           />
         ) : (
@@ -171,26 +193,26 @@ export default function MyVehicles() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => navigate(createPageUrl(`VehicleDetails?id=${vehicle.id}`))}>
                                 <Eye className="w-4 h-4 mr-2" />
-                                Ver publicación
+                                {t('myVehicles.viewListing')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => navigate(createPageUrl(`AddVehicle?edit=${vehicle.id}`))}>
                                 <Edit className="w-4 h-4 mr-2" />
-                                Editar
+                                {t('myVehicles.edit')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => navigate(createPageUrl(`VehicleCalendar?id=${vehicle.id}`))}>
                                 <Calendar className="w-4 h-4 mr-2" />
-                                Disponibilidad
+                                {t('myVehicles.availability')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => navigate(createPageUrl(`VehicleHistory?id=${vehicle.id}`))}>
                                 <History className="w-4 h-4 mr-2" />
-                                Historial
+                                {t('myVehicles.history')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteId(vehicle.id)}
                                 className="text-red-600 focus:text-red-600"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar
+                                {t('myVehicles.delete')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -211,7 +233,7 @@ export default function MyVehicles() {
                             </div>
                           )}
                           <Badge variant="outline" className="rounded-full">
-                            {vehicle.total_bookings || 0} reservas
+                            {vehicle.total_bookings || 0} {t('myVehicles.bookings')}
                           </Badge>
                         </div>
 
@@ -220,12 +242,12 @@ export default function MyVehicles() {
                             <span className="text-2xl font-bold text-gray-900">
                               ${vehicle.price_per_day}
                             </span>
-                            <span className="text-gray-500">/día</span>
+                            <span className="text-gray-500">{t('myVehicles.perDay')}</span>
                           </div>
                           
                           <div className="flex items-center gap-3">
                             <span className={`text-sm ${vehicle.is_available ? "text-green-600" : "text-gray-500"}`}>
-                              {vehicle.is_available ? "Disponible" : "No disponible"}
+                              {vehicle.is_available ? t('myVehicles.available') : t('myVehicles.notAvailable')}
                             </span>
                             <Switch
                               checked={vehicle.is_available}
@@ -247,18 +269,18 @@ export default function MyVehicles() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este vehículo?</AlertDialogTitle>
+            <AlertDialogTitle>{t('myVehicles.deleteDialog')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. El vehículo será eliminado permanentemente.
+              {t('myVehicles.deleteWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              Eliminar
+              {t('myVehicles.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

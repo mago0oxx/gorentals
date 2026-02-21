@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Car, MapPin, Grid3x3, Map as MapIcon, ArrowUpDown } from "lucide-react";
+import { Search, Car, MapPin, Grid3x3, Map as MapIcon, ArrowUpDown, User, LayoutDashboard, LogOut } from "lucide-react";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import VehicleFilters from "@/components/vehicles/VehicleFilters";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -13,11 +21,19 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import VehicleLocationMap from "@/components/maps/VehicleLocationMap";
+import { useLanguage } from "@/components/i18n/LanguageContext";
+import FeaturedPromotions from "@/components/promotions/FeaturedPromotions";
+import PullToRefresh from "@/components/common/PullToRefresh";
+import { useBranchDetection } from "@/components/branch/useBranchDetection";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 export default function Browse() {
+  const { t } = useLanguage();
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     vehicleType: "all",
@@ -33,10 +49,35 @@ export default function Browse() {
   });
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
-    loadVehicles();
+    initializeBranch();
+    checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      loadVehicles();
+    }
+  }, [selectedBranch]);
+
+  const initializeBranch = async () => {
+    const branches = await base44.entities.Branch.list("sort_order");
+    const buenosAires = branches.find(b => b.city === "Buenos Aires");
+    if (buenosAires) {
+      setSelectedBranch(buenosAires);
+    }
+  };
+
+  const checkAuth = async () => {
+    const auth = await base44.auth.isAuthenticated();
+    setIsAuthenticated(auth);
+    if (auth) {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    }
+  };
 
   useEffect(() => {
     applyFilters();
@@ -45,11 +86,19 @@ export default function Browse() {
   const loadVehicles = async () => {
     setIsLoading(true);
     const data = await base44.entities.Vehicle.filter(
-      { is_active: true, is_available: true },
+      { 
+        is_active: true, 
+        is_available: true,
+        branch_id: selectedBranch?.id
+      },
       "-created_date"
     );
     setVehicles(data);
     setIsLoading(false);
+  };
+
+  const handleRefresh = async () => {
+    await loadVehicles();
   };
 
   const applyFilters = () => {
@@ -157,12 +206,13 @@ export default function Browse() {
   };
 
   const clearFilters = () => {
+    const newRange = getPriceRange();
     setFilters({
       vehicleType: "all",
       transmission: "all",
       fuelType: "all",
       seats: "all",
-      priceRange: [0, 500],
+      priceRange: [newRange.min, newRange.max],
       startDate: null,
       endDate: null,
       location: "",
@@ -175,7 +225,8 @@ export default function Browse() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PullToRefresh onRefresh={handleRefresh}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -187,9 +238,61 @@ export default function Browse() {
               <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent hidden sm:block">GoRentals</span>
             </Link>
             
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-teal-600" />
-              <span className="text-sm text-gray-600">Isla de Margarita</span>
+            <div className="flex items-center gap-3">
+              {selectedBranch && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-teal-600" />
+                  <span className="text-sm text-gray-600">{selectedBranch.city}</span>
+                </div>
+              )}
+
+              {isAuthenticated && user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.profile_image} />
+                        <AvatarFallback className="bg-teal-100 text-teal-700">
+                          {user.full_name?.[0] || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5">
+                      <p className="font-medium">{user.full_name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to={createPageUrl("Dashboard")} className="cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to={createPageUrl("Profile")} className="cursor-pointer">
+                        <User className="w-4 h-4 mr-2" />
+                        Mi Perfil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => base44.auth.logout(createPageUrl("Landing"))} 
+                      className="cursor-pointer text-red-600 focus:text-red-600"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Cerrar sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to={createPageUrl("Register")}>
+                  <Button size="sm" className="bg-teal-600 hover:bg-teal-700 rounded-xl">
+                    Ingresar
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -197,7 +300,7 @@ export default function Browse() {
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
-              placeholder="Buscar por marca, modelo o ubicación..."
+              placeholder={t('browse.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 h-12 rounded-xl border-gray-200 text-base"
@@ -215,14 +318,19 @@ export default function Browse() {
 
       {/* Results */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Promotions */}
+        <div className="mb-8">
+          <FeaturedPromotions compact />
+        </div>
+
         {isLoading ? (
-          <LoadingSpinner className="py-20" text="Cargando vehículos..." />
+          <LoadingSpinner className="py-20" text={t('browse.loading')} />
         ) : filteredVehicles.length === 0 ? (
           <EmptyState
             icon={Car}
-            title="No se encontraron vehículos"
-            description="Intenta ajustar tus filtros o buscar con otros términos"
-            actionLabel="Limpiar filtros"
+            title={t('browse.noResults')}
+            description={t('browse.noResultsDesc')}
+            actionLabel={t('browse.clearFilters')}
             onAction={clearFilters}
           />
         ) : (
@@ -230,7 +338,7 @@ export default function Browse() {
             {/* Controls Bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <p className="text-gray-600">
-                <span className="font-medium text-gray-900">{filteredVehicles.length}</span> vehículos encontrados
+                <span className="font-medium text-gray-900">{filteredVehicles.length}</span> {t('browse.found')}
               </p>
               
               <div className="flex items-center gap-3">
@@ -241,10 +349,10 @@ export default function Browse() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Más recientes</SelectItem>
-                    <SelectItem value="price-low">Precio: menor a mayor</SelectItem>
-                    <SelectItem value="price-high">Precio: mayor a menor</SelectItem>
-                    <SelectItem value="rating">Mejor valorados</SelectItem>
+                    <SelectItem value="newest">{t('browse.newest')}</SelectItem>
+                    <SelectItem value="price-low">{t('browse.priceLowHigh')}</SelectItem>
+                    <SelectItem value="price-high">{t('browse.priceHighLow')}</SelectItem>
+                    <SelectItem value="rating">{t('browse.topRated')}</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -298,5 +406,6 @@ export default function Browse() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

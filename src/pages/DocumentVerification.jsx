@@ -11,21 +11,23 @@ import {
   Clock, Shield, AlertCircle, Loader2
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
-const DOCUMENT_TYPES = {
+const getDocumentTypes = (t) => ({
   owner: [
-    { value: "driver_license", label: "Licencia de conducir", required: true },
+    { value: "driver_license", label: t('documents.driverLicense'), required: true },
     { value: "vehicle_registration", label: "Registro del vehículo", required: true },
     { value: "vehicle_insurance", label: "Seguro del vehículo", required: false }
   ],
   renter: [
-    { value: "driver_license", label: "Licencia de conducir", required: true },
-    { value: "passport", label: "Pasaporte", required: false },
-    { value: "dni", label: "DNI/Cédula", required: false }
+    { value: "driver_license", label: t('documents.driverLicense'), required: true },
+    { value: "passport", label: t('documents.passport'), required: false },
+    { value: "dni", label: t('documents.dni'), required: false }
   ]
-};
+});
 
 export default function DocumentVerification() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,9 +65,12 @@ export default function DocumentVerification() {
     const file = event.target.files[0];
     if (!file) return;
 
+    console.log('[DocumentVerification] Starting upload for:', documentType, 'File:', file.name);
+
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert("El archivo es demasiado grande. Máximo 10MB.");
+      event.target.value = null;
       return;
     }
 
@@ -73,16 +78,26 @@ export default function DocumentVerification() {
     const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
     if (!validTypes.includes(file.type)) {
       alert("Tipo de archivo no válido. Solo se permiten imágenes JPG, PNG o PDF.");
+      event.target.value = null;
       return;
     }
 
-    setUploading({ ...uploading, [documentType]: true });
+    setUploading(prev => ({ ...prev, [documentType]: true }));
 
     try {
-      // Upload file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      console.log('[DocumentVerification] Uploading file to server...');
+      
+      // Add timeout for file upload (60 seconds)
+      const uploadPromise = base44.integrations.Core.UploadFile({ file });
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('La carga del archivo tardó demasiado')), 60000)
+      );
+      
+      const { file_url } = await Promise.race([uploadPromise, timeoutPromise]);
+      console.log('[DocumentVerification] File uploaded:', file_url);
 
       // Create document record
+      console.log('[DocumentVerification] Creating document record...');
       await base44.entities.VerificationDocument.create({
         user_id: user.id,
         user_email: user.email,
@@ -92,18 +107,24 @@ export default function DocumentVerification() {
         document_url: file_url,
         status: "pending"
       });
+      console.log('[DocumentVerification] Document record created');
 
       // Reload documents
+      console.log('[DocumentVerification] Reloading documents...');
       const docs = await base44.entities.VerificationDocument.filter({
         user_email: user.email
       }, "-created_date");
       setDocuments(docs);
+      console.log('[DocumentVerification] Documents reloaded successfully');
+
+      alert("Documento subido exitosamente. Será revisado en 24-48 horas.");
 
     } catch (error) {
-      console.error("Error uploading document:", error);
-      alert("Error al subir el documento. Inténtalo de nuevo.");
+      console.error('[DocumentVerification] Error:', error);
+      alert(error.message || "Error al subir el documento. Inténtalo de nuevo.");
     } finally {
-      setUploading({ ...uploading, [documentType]: false });
+      setUploading(prev => ({ ...prev, [documentType]: false }));
+      event.target.value = null;
     }
   };
 
@@ -114,9 +135,9 @@ export default function DocumentVerification() {
 
   const getStatusBadge = (status) => {
     const config = {
-      pending: { icon: Clock, label: "Pendiente", className: "bg-yellow-100 text-yellow-800" },
-      approved: { icon: CheckCircle, label: "Aprobado", className: "bg-green-100 text-green-800" },
-      rejected: { icon: XCircle, label: "Rechazado", className: "bg-red-100 text-red-800" }
+      pending: { icon: Clock, label: t('documents.pending'), className: "bg-yellow-100 text-yellow-800" },
+      approved: { icon: CheckCircle, label: t('documents.approved'), className: "bg-green-100 text-green-800" },
+      rejected: { icon: XCircle, label: t('documents.rejected'), className: "bg-red-100 text-red-800" }
     };
 
     const { icon: Icon, label, className } = config[status] || config.pending;
@@ -130,10 +151,10 @@ export default function DocumentVerification() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando documentos..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('common.loading')} />;
   }
 
-  const documentTypes = DOCUMENT_TYPES[user.user_type] || [];
+  const documentTypes = getDocumentTypes(t)[user.user_type] || [];
   const allRequiredApproved = documentTypes
     .filter(dt => dt.required)
     .every(dt => {
@@ -152,7 +173,7 @@ export default function DocumentVerification() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('common.back')}
           </Button>
         </div>
       </div>
@@ -165,10 +186,10 @@ export default function DocumentVerification() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Verificación de Documentos
+                {t('documents.title')}
               </h1>
               <p className="text-gray-500">
-                Sube tus documentos para verificar tu cuenta
+                {t('documents.status')}
               </p>
             </div>
           </div>
@@ -210,7 +231,7 @@ export default function DocumentVerification() {
                         )}
                       </CardTitle>
                       <CardDescription>
-                        {docType.required ? "Documento requerido" : "Documento opcional"}
+                        {docType.required ? t('payment.documentsRequired') : "Documento opcional"}
                       </CardDescription>
                     </div>
                     {existingDoc && getStatusBadge(existingDoc.status)}
@@ -256,27 +277,22 @@ export default function DocumentVerification() {
                             className="hidden"
                             accept="image/jpeg,image/png,image/jpg,application/pdf"
                             onChange={(e) => handleFileUpload(docType.value, e)}
-                            disabled={isUploading}
                           />
-                          <label htmlFor={`reupload-${docType.value}`}>
-                            <Button
-                              as="span"
-                              variant="outline"
-                              className="w-full rounded-xl cursor-pointer"
-                              disabled={isUploading}
-                            >
-                              {isUploading ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Subiendo...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-4 h-4 mr-2" />
-                                  Volver a subir
-                                </>
-                              )}
-                            </Button>
+                          <label 
+                            htmlFor={`reupload-${docType.value}`}
+                            className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
+                            {isUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                {t('documents.uploading')}
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4" />
+                                {t('documents.reupload')}
+                              </>
+                            )}
                           </label>
                         </div>
                       )}
@@ -289,29 +305,25 @@ export default function DocumentVerification() {
                         className="hidden"
                         accept="image/jpeg,image/png,image/jpg,application/pdf"
                         onChange={(e) => handleFileUpload(docType.value, e)}
-                        disabled={isUploading}
                       />
-                      <label htmlFor={`upload-${docType.value}`}>
-                        <Button
-                          as="span"
-                          className="w-full bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
-                          disabled={isUploading}
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Subiendo...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Subir documento
-                            </>
-                          )}
-                        </Button>
+                      <label 
+                        htmlFor={`upload-${docType.value}`}
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-teal-700 ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            {t('documents.uploading')}
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            {t('documents.upload')}
+                          </>
+                        )}
                       </label>
                       <p className="text-xs text-gray-500 text-center mt-2">
-                        Formatos: JPG, PNG, PDF (máx. 10MB)
+                        {t('documents.formats')}
                       </p>
                     </div>
                   )}

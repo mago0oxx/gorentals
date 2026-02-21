@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { 
   ChevronLeft, ChevronRight, Loader2, CheckCircle, Shield, 
-  AlertCircle, MapPin, Calendar, Package, DollarSign
+  AlertCircle, MapPin, Calendar, Package, DollarSign, Tag
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -17,12 +17,17 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import BookingCalendar from "@/components/booking/BookingCalendar";
 import ExtrasSelector from "@/components/booking/ExtrasSelector";
 import InsuranceSelector from "@/components/booking/InsuranceSelector";
+import CouponInput from "@/components/booking/CouponInput";
 import { NotificationService } from "@/components/notifications/notificationService";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
 const COMMISSION_RATE = 0.15;
 
 export default function CreateBooking() {
+  const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [user, setUser] = useState(null);
@@ -36,6 +41,7 @@ export default function CreateBooking() {
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [insurance, setInsurance] = useState({ type: "none", cost: 0 });
   const [notes, setNotes] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const params = new URLSearchParams(window.location.search);
   const vehicleId = params.get("id");
@@ -95,8 +101,17 @@ export default function CreateBooking() {
     const extrasTotal = selectedExtras.reduce((sum, e) => sum + e.total, 0);
     const insuranceCost = insurance.cost;
     const securityDeposit = vehicle.security_deposit || 0;
-    const total = subtotal + platformFee + extrasTotal + insuranceCost + securityDeposit;
-    const ownerPayout = subtotal - platformFee + extrasTotal;
+    
+    let totalBeforeDeposit = subtotal + platformFee + extrasTotal + insuranceCost;
+    let discountAmount = 0;
+    
+    if (appliedCoupon) {
+      discountAmount = appliedCoupon.discountAmount || 0;
+      totalBeforeDeposit = Math.max(0, totalBeforeDeposit - discountAmount);
+    }
+    
+    const total = totalBeforeDeposit + securityDeposit;
+    const ownerPayout = subtotal - platformFee + extrasTotal - (discountAmount * 0.5); // Owner absorbs 50% of discount
 
     return {
       days,
@@ -106,6 +121,7 @@ export default function CreateBooking() {
       extrasTotal,
       insuranceCost,
       securityDeposit,
+      discountAmount,
       total,
       ownerPayout
     };
@@ -150,7 +166,7 @@ export default function CreateBooking() {
       });
 
       if (hasConflict) {
-        setError("Las fechas seleccionadas ya están reservadas. Por favor elige otras fechas.");
+        setError(t('createBooking.datesBooked'));
         setIsSubmitting(false);
         return;
       }
@@ -177,6 +193,8 @@ export default function CreateBooking() {
         extras_total: pricing.extrasTotal,
         insurance_type: insurance.type,
         insurance_cost: insurance.cost,
+        discount_amount: pricing.discountAmount || 0,
+        coupon_code: appliedCoupon?.code || null,
         total_amount: pricing.total,
         owner_payout: pricing.ownerPayout,
         status: "pending",
@@ -185,32 +203,51 @@ export default function CreateBooking() {
         notes: notes
       });
 
+      // Register coupon usage if applied
+      if (appliedCoupon) {
+        await Promise.all([
+          base44.entities.CouponUsage.create({
+            coupon_id: appliedCoupon.id,
+            coupon_code: appliedCoupon.code,
+            booking_id: newBooking.id,
+            user_id: user.id,
+            user_email: user.email,
+            discount_amount: pricing.discountAmount,
+            original_amount: pricing.subtotal + pricing.platformFee + pricing.extrasTotal + pricing.insuranceCost,
+            final_amount: pricing.total - pricing.securityDeposit
+          }),
+          base44.entities.Coupon.update(appliedCoupon.id, {
+            used_count: appliedCoupon.used_count + 1
+          })
+        ]);
+      }
+
       await NotificationService.notifyNewBookingRequest(newBooking);
 
       navigate(createPageUrl(`BookingDetails?id=${newBooking.id}&success=true`));
     } catch (err) {
       console.error("Error creating booking:", err);
-      setError("Error al crear la reserva. Intenta de nuevo.");
+      setError(t('createBooking.createError'));
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('createBooking.loading')} />;
   }
 
   if (!vehicle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Vehículo no disponible</p>
+        <p className="text-gray-500">{t('createBooking.notAvailable')}</p>
       </div>
     );
   }
 
   const steps = [
-    { number: 1, title: "Fechas", icon: Calendar },
-    { number: 2, title: "Extras", icon: Package },
-    { number: 3, title: "Confirmar", icon: CheckCircle }
+    { number: 1, title: t('createBooking.dates'), icon: Calendar },
+    { number: 2, title: t('createBooking.extras'), icon: Package },
+    { number: 3, title: t('createBooking.confirm'), icon: CheckCircle }
   ];
 
   return (
@@ -224,7 +261,7 @@ export default function CreateBooking() {
             className="text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
-            Volver
+            {t('createBooking.back')}
           </Button>
         </div>
       </div>
@@ -279,8 +316,8 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Selecciona las fechas</h1>
-                    <p className="text-gray-500">Elige cuándo necesitas el vehículo</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.selectDates')}</h1>
+                    <p className="text-gray-500">{t('createBooking.chooseDates')}</p>
                   </div>
 
                   <BookingCalendar
@@ -293,7 +330,7 @@ export default function CreateBooking() {
                     disabled={!canProceedToStep2}
                     className="w-full h-12 bg-teal-600 hover:bg-teal-700 rounded-xl"
                   >
-                    Continuar a extras
+                    {t('createBooking.continueToExtras')}
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </Button>
                 </motion.div>
@@ -309,8 +346,8 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Personaliza tu reserva</h1>
-                    <p className="text-gray-500">Agrega extras y protección adicional</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.customizeBooking')}</h1>
+                    <p className="text-gray-500">{t('createBooking.addExtras')}</p>
                   </div>
 
                   <ExtrasSelector
@@ -324,6 +361,17 @@ export default function CreateBooking() {
                     onInsuranceChange={setInsurance}
                   />
 
+                  {/* Coupon Input */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">¿Tienes un cupón?</h3>
+                    <CouponInput
+                      totalAmount={pricing?.subtotal + pricing?.platformFee + pricing?.extrasTotal + pricing?.insuranceCost || 0}
+                      vehicleType={vehicle.vehicle_type}
+                      onCouponApplied={setAppliedCoupon}
+                      onCouponRemoved={() => setAppliedCoupon(null)}
+                    />
+                  </div>
+
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
@@ -331,14 +379,14 @@ export default function CreateBooking() {
                       className="flex-1 h-12 rounded-xl"
                     >
                       <ChevronLeft className="w-5 h-5 mr-2" />
-                      Atrás
+                      {t('common.back')}
                     </Button>
                     <Button
                       onClick={() => setCurrentStep(3)}
                       disabled={!canProceedToStep3}
                       className="flex-1 h-12 bg-teal-600 hover:bg-teal-700 rounded-xl"
                     >
-                      Continuar a resumen
+                      {t('createBooking.continueToSummary')}
                       <ChevronRight className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
@@ -355,19 +403,19 @@ export default function CreateBooking() {
                   className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Confirmar reserva</h1>
-                    <p className="text-gray-500">Revisa los detalles antes de enviar</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('createBooking.confirmBooking')}</h1>
+                    <p className="text-gray-500">{t('createBooking.reviewDetails')}</p>
                   </div>
 
                   {/* Notes */}
                   <Card className="border-0 shadow-sm rounded-2xl">
                     <CardContent className="p-5">
                       <Label htmlFor="notes" className="text-base font-medium">
-                        Mensaje para el propietario (opcional)
+                        {t('createBooking.messageOwner')}
                       </Label>
                       <Textarea
                         id="notes"
-                        placeholder="Cuéntale al propietario sobre tu viaje, hora de recogida preferida, etc."
+                        placeholder={t('createBooking.messagePlaceholder')}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         className="mt-3 rounded-xl resize-none"
@@ -381,12 +429,12 @@ export default function CreateBooking() {
                     <div className="flex gap-3">
                       <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <div className="text-sm">
-                        <p className="font-medium text-blue-900 mb-1">¿Cómo funciona?</p>
+                        <p className="font-medium text-blue-900 mb-1">{t('createBooking.howWorks')}</p>
                         <ul className="text-blue-700 space-y-1">
-                          <li>1. Envías tu solicitud al propietario</li>
-                          <li>2. El propietario revisa y aprueba</li>
-                          <li>3. Recibirás instrucciones de pago</li>
-                          <li>4. Coordinas la recogida del vehículo</li>
+                          <li>{t('createBooking.step1')}</li>
+                          <li>{t('createBooking.step2')}</li>
+                          <li>{t('createBooking.step3')}</li>
+                          <li>{t('createBooking.step4')}</li>
                         </ul>
                       </div>
                     </div>
@@ -408,7 +456,7 @@ export default function CreateBooking() {
                       className="flex-1 h-12 rounded-xl"
                     >
                       <ChevronLeft className="w-5 h-5 mr-2" />
-                      Atrás
+                      {t('common.back')}
                     </Button>
                     <Button
                       onClick={handleSubmit}
@@ -418,19 +466,19 @@ export default function CreateBooking() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Enviando...
+                          {t('createBooking.sending')}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="w-5 h-5 mr-2" />
-                          Enviar solicitud
+                          {t('createBooking.sendRequest')}
                         </>
                       )}
                     </Button>
                   </div>
 
                   <p className="text-center text-sm text-gray-500">
-                    No se te cobrará hasta que el propietario acepte
+                    {t('createBooking.noChargeUntil')}
                   </p>
                 </motion.div>
               )}
@@ -463,27 +511,36 @@ export default function CreateBooking() {
               {pricing && (
                 <Card className="border-0 shadow-sm rounded-2xl">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Resumen de costos</CardTitle>
+                    <CardTitle className="text-lg">{t('createBooking.costSummary')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">${pricing.pricePerDay} × {pricing.days} días</span>
-                      <span>${pricing.subtotal.toFixed(2)}</span>
+                      <span className="text-gray-600">{formatPrice(pricing.pricePerDay)} × {pricing.days} {t('createBooking.days')}</span>
+                      <span>{formatPrice(pricing.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tarifa de servicio</span>
-                      <span>${pricing.platformFee.toFixed(2)}</span>
+                      <span className="text-gray-600">{t('createBooking.serviceFee')}</span>
+                      <span>{formatPrice(pricing.platformFee)}</span>
                     </div>
                     {pricing.extrasTotal > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Extras</span>
-                        <span>${pricing.extrasTotal.toFixed(2)}</span>
+                        <span className="text-gray-600">{t('createBooking.extras')}</span>
+                        <span>{formatPrice(pricing.extrasTotal)}</span>
                       </div>
                     )}
                     {pricing.insuranceCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Seguro adicional</span>
-                        <span>${pricing.insuranceCost.toFixed(2)}</span>
+                        <span className="text-gray-600">{t('createBooking.additionalInsurance')}</span>
+                        <span>{formatPrice(pricing.insuranceCost)}</span>
+                      </div>
+                    )}
+                    {pricing.discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Tag className="w-4 h-4" />
+                          Descuento
+                        </span>
+                        <span>-{formatPrice(pricing.discountAmount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
@@ -491,15 +548,15 @@ export default function CreateBooking() {
                         <Shield className="w-4 h-4" />
                         Depósito
                       </span>
-                      <span>${pricing.securityDeposit.toFixed(2)}</span>
+                      <span>{formatPrice(pricing.securityDeposit)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between text-lg font-semibold">
-                      <span>Total</span>
-                      <span className="text-teal-600">${pricing.total.toFixed(2)}</span>
+                      <span>{t('common.total')}</span>
+                      <span className="text-teal-600">{formatPrice(pricing.total)}</span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      * El depósito será devuelto después del alquiler
+                      {t('createBooking.depositRefund')}
                     </p>
                   </CardContent>
                 </Card>

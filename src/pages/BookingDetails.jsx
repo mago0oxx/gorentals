@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,19 +42,23 @@ import VehicleHistoryCard from "@/components/booking/VehicleHistoryCard";
 import DeliveryRulesCard from "@/components/booking/DeliveryRulesCard";
 import CancellationPolicyCard from "@/components/booking/CancellationPolicyCard";
 import { motion } from "framer-motion";
+import { useCurrency } from "@/components/currency/CurrencyContext";
 
-const statusConfig = {
-  pending: { label: "Pendiente", color: "bg-amber-100 text-amber-700", icon: Clock },
-  approved: { label: "Aprobado", color: "bg-blue-100 text-blue-700", icon: CheckCircle },
-  rejected: { label: "Rechazado", color: "bg-red-100 text-red-700", icon: XCircle },
-  paid: { label: "Pagado", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  active: { label: "En curso", color: "bg-teal-100 text-teal-700", icon: Car },
-  completed: { label: "Completado", color: "bg-gray-100 text-gray-700", icon: CheckCircle },
-  cancelled: { label: "Cancelado", color: "bg-red-100 text-red-700", icon: XCircle }
-};
+const getStatusConfig = (t) => ({
+  pending: { label: t('booking.pending'), color: "bg-amber-100 text-amber-700", icon: Clock },
+  approved: { label: t('booking.approved'), color: "bg-blue-100 text-blue-700", icon: CheckCircle },
+  rejected: { label: t('booking.rejected'), color: "bg-red-100 text-red-700", icon: XCircle },
+  paid: { label: t('booking.paid'), color: "bg-green-100 text-green-700", icon: CheckCircle },
+  active: { label: t('booking.active'), color: "bg-teal-100 text-teal-700", icon: Car },
+  completed: { label: t('booking.completed'), color: "bg-gray-100 text-gray-700", icon: CheckCircle },
+  cancelled: { label: t('booking.cancelled'), color: "bg-red-100 text-red-700", icon: XCircle }
+});
 
 export default function BookingDetails() {
+  const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
+  const statusConfig = getStatusConfig(t);
   const [booking, setBooking] = useState(null);
   const [user, setUser] = useState(null);
   const [existingReview, setExistingReview] = useState(null);
@@ -90,15 +95,25 @@ export default function BookingDetails() {
     setIsLoading(true);
 
     try {
-      const [userData, bookingData] = await Promise.all([
-        base44.auth.me().catch(() => null),
-        base44.entities.Booking.filter({ id: bookingId })
-      ]);
-
-      setUser(userData);
+      // Check if user is authenticated
+      const isAuth = await base44.auth.isAuthenticated();
       
-      if (bookingData.length > 0) {
-        setBooking(bookingData[0]);
+      if (!isAuth) {
+        // Redirect to login with return URL
+        const returnUrl = `BookingDetails?id=${bookingId}${success === "true" ? "&success=true" : ""}`;
+        base44.auth.redirectToLogin(returnUrl);
+        return;
+      }
+
+      const userData = await base44.auth.me().catch(() => null);
+      setUser(userData);
+
+      // Try to get booking by ID - use list with limit instead of filter
+      const allBookings = await base44.entities.Booking.list('-created_date', 500);
+      const bookingData = allBookings.find(b => b.id === bookingId);
+
+      if (bookingData) {
+        setBooking(bookingData);
         
         // Check for existing review
         if (userData) {
@@ -318,48 +333,21 @@ export default function BookingDetails() {
       cancellation_reason: cancelReason
     });
 
-    // If paid, process refund
+    // If paid, process refund automatically
     if (booking.status === "paid" || booking.status === "active") {
-      // Create refund transaction for renter
-      await base44.entities.Transaction.create({
-        booking_id: booking.id,
-        user_email: booking.renter_email,
-        user_role: "renter",
-        type: "refund",
-        amount: refund,
-        status: "completed",
-        description: `Reembolso por cancelación - ${booking.vehicle_title}`,
-        vehicle_title: booking.vehicle_title,
-        metadata: {
-          cancelled_by: canceller,
-          cancellation_reason: cancelReason,
-          original_amount: booking.total_amount
+      try {
+        // Call refund processing function
+        const refundResponse = await base44.functions.invoke('processRefund', {
+          booking_id: booking.id
+        });
+
+        if (refundResponse.data?.error) {
+          console.error('Refund processing error:', refundResponse.data.error);
         }
-      });
-
-      // Update payment transaction to refunded
-      const payments = await base44.entities.Transaction.filter({
-        booking_id: booking.id,
-        type: "payment",
-        user_email: booking.renter_email
-      });
-      if (payments.length > 0) {
-        await base44.entities.Transaction.update(payments[0].id, {
-          status: "refunded"
-        });
+      } catch (error) {
+        console.error('Error calling refund function:', error);
       }
 
-      // Cancel pending owner payout if exists
-      const payouts = await base44.entities.Transaction.filter({
-        booking_id: booking.id,
-        type: "payout",
-        user_email: booking.owner_email
-      });
-      if (payouts.length > 0) {
-        await base44.entities.Transaction.update(payouts[0].id, {
-          status: "cancelled"
-        });
-      }
     }
 
     // Unblock dates on vehicle
@@ -383,18 +371,13 @@ export default function BookingDetails() {
       }
     }
 
-    // Send notification
-    const notificationMessage = isOwner 
-      ? `Tu reserva de ${booking.vehicle_title} fue cancelada por el propietario.`
-      : `La reserva de ${booking.vehicle_title} fue cancelada por el arrendatario.`;
-    
-    await base44.entities.Notification.create({
-      user_email: isOwner ? booking.renter_email : booking.owner_email,
-      title: "Reserva cancelada",
-      message: notificationMessage + (refund > 0 ? ` Reembolso: $${refund.toFixed(2)}` : ""),
-      type: "booking_cancelled",
-      booking_id: booking.id
-    });
+    // Send notification and email
+    await NotificationService.notifyBookingCancelled(
+      booking,
+      canceller,
+      cancelReason,
+      refund
+    );
 
     setShowCancelDialog(false);
     setIsCancelling(false);
@@ -408,13 +391,13 @@ export default function BookingDetails() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner className="min-h-screen" text="Cargando detalles..." />;
+    return <LoadingSpinner className="min-h-screen" text={t('bookingDetails.loading')} />;
   }
 
   if (!booking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Reserva no encontrada</p>
+        <p className="text-gray-500">{t('bookingDetails.notFound')}</p>
       </div>
     );
   }
@@ -587,25 +570,25 @@ export default function BookingDetails() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Alquiler</span>
-                <span className="font-medium">${booking.price_per_day}/día × {booking.total_days} días</span>
+                <span className="font-medium">{formatPrice(booking.price_per_day)}/día × {booking.total_days} días</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal de alquiler</span>
-                <span className="font-semibold">${booking.subtotal?.toFixed(2)}</span>
+                <span className="font-semibold">{formatPrice(booking.subtotal)}</span>
               </div>
               
               <Separator />
               
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tarifa de servicio (15%)</span>
-                <span>${booking.platform_fee?.toFixed(2)}</span>
+                <span>{formatPrice(booking.platform_fee)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-blue-600" />
                   <span className="text-gray-600">Depósito de seguridad</span>
                 </div>
-                <span className="font-medium text-blue-600">${booking.security_deposit?.toFixed(2)}</span>
+                <span className="font-medium text-blue-600">{formatPrice(booking.security_deposit)}</span>
               </div>
               
               <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
@@ -617,7 +600,7 @@ export default function BookingDetails() {
             
             <div className="flex justify-between items-center text-lg">
               <span className="font-semibold">Total a pagar</span>
-              <span className="font-bold text-teal-600">${booking.total_amount?.toFixed(2)}</span>
+              <span className="font-bold text-teal-600">{formatPrice(booking.total_amount)}</span>
             </div>
             
             {isOwner && (
@@ -626,7 +609,7 @@ export default function BookingDetails() {
                 <div className="bg-green-50 rounded-xl p-4 border border-green-100">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-green-800">Tu ganancia</span>
-                    <span className="text-2xl font-bold text-green-700">${booking.owner_payout?.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-green-700">{formatPrice(booking.owner_payout)}</span>
                   </div>
                   <p className="text-xs text-green-700">
                     Recibirás este monto después de completar la reserva exitosamente.
@@ -781,7 +764,7 @@ export default function BookingDetails() {
               </div>
               <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
                 <p className="text-sm text-blue-800">
-                  Al completar, recibirás <strong>${booking.owner_payout?.toFixed(2)}</strong> en tu cuenta y se liberará el depósito del arrendatario.
+                  Al completar, recibirás <strong>{formatPrice(booking.owner_payout)}</strong> en tu cuenta y se liberará el depósito del arrendatario.
                 </p>
               </div>
               <Button
@@ -915,7 +898,7 @@ export default function BookingDetails() {
                   Monto a reembolsar:
                 </p>
                 <p className={`text-2xl font-bold ${refundAmount > 0 ? "text-green-900" : "text-red-900"}`}>
-                  ${refundAmount.toFixed(2)}
+                  {formatPrice(refundAmount)}
                 </p>
               </div>
             )}

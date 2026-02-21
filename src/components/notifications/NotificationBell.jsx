@@ -129,17 +129,45 @@ export default function NotificationBell({ userEmail }) {
 
   const markAsRead = async (notification) => {
     if (!notification.is_read) {
-      await base44.entities.Notification.update(notification.id, { is_read: true });
-      loadNotifications();
+      // Optimistic update
+      setNotifications(prev => 
+        prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      try {
+        await base44.entities.Notification.update(notification.id, { is_read: true });
+      } catch (error) {
+        // Rollback on error
+        setNotifications(prev => 
+          prev.map(n => n.id === notification.id ? { ...n, is_read: false } : n)
+        );
+        setUnreadCount(prev => prev + 1);
+        console.error("Failed to mark notification as read:", error);
+      }
     }
   };
 
   const markAllAsRead = async () => {
     const unread = notifications.filter(n => !n.is_read);
-    await Promise.all(unread.map(n => 
-      base44.entities.Notification.update(n.id, { is_read: true })
-    ));
-    loadNotifications();
+    if (unread.length === 0) return;
+
+    // Optimistic update
+    const previousNotifications = [...notifications];
+    const previousUnreadCount = unreadCount;
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setUnreadCount(0);
+
+    try {
+      await Promise.all(unread.map(n => 
+        base44.entities.Notification.update(n.id, { is_read: true })
+      ));
+    } catch (error) {
+      // Rollback on error
+      setNotifications(previousNotifications);
+      setUnreadCount(previousUnreadCount);
+      console.error("Failed to mark all as read:", error);
+    }
   };
 
   return (
