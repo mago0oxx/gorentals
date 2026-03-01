@@ -13,7 +13,7 @@ export const useCurrency = () => {
 // Exchange rates (actualizar periódicamente)
 const EXCHANGE_RATES = {
   USD: 1,
-  ARS: 1000  // 1 USD = ~1000 ARS (aproximado)
+  ARS: 1300  // 1 USD = ~1300 ARS
 };
 
 // Price ranges by currency
