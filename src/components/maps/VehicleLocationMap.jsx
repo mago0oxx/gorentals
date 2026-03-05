@@ -58,7 +58,7 @@ const createCustomMarker = (price) => {
 };
 
 // Location mapping for Isla de Margarita
-const locationCoordinates = {
+const margaritaCoordinates = {
   "porlamar": { lat: 10.9576, lng: -63.8496 },
   "pampatar": { lat: 10.9983, lng: -63.7983 },
   "juan griego": { lat: 11.0819, lng: -63.9694 },
@@ -69,15 +69,53 @@ const locationCoordinates = {
   "costa azul": { lat: 10.9700, lng: -63.8600 }
 };
 
+// Location mapping for Buenos Aires
+const buenosAiresCoordinates = {
+  "palermo": { lat: -34.5755, lng: -58.4244 },
+  "belgrano": { lat: -34.5595, lng: -58.4560 },
+  "microcentro": { lat: -34.6037, lng: -58.3816 },
+  "san telmo": { lat: -34.6214, lng: -58.3731 },
+  "recoleta": { lat: -34.5875, lng: -58.3938 },
+  "puerto madero": { lat: -34.6131, lng: -58.3631 },
+  "caballito": { lat: -34.6185, lng: -58.4417 },
+  "villa urquiza": { lat: -34.5730, lng: -58.4890 },
+  "almagro": { lat: -34.6098, lng: -58.4175 },
+  "flores": { lat: -34.6320, lng: -58.4600 },
+  "mataderos": { lat: -34.6557, lng: -58.5120 },
+  "constitucion": { lat: -34.6270, lng: -58.3820 },
+  "retiro": { lat: -34.5922, lng: -58.3743 },
+  "once": { lat: -34.6089, lng: -58.4085 },
+  "liniers": { lat: -34.6435, lng: -58.5220 },
+  "corrientes": { lat: -34.6041, lng: -58.3952 },
+  "buenos aires": { lat: -34.6037, lng: -58.3816 }
+};
+
 export const getCoordinatesFromLocation = (location) => {
-  if (!location) return [10.9971, -63.9137]; // Default center of Margarita
+  if (!location) {
+    // Detect branch from localStorage
+    try {
+      const branch = JSON.parse(localStorage.getItem('selectedBranch'));
+      if (branch?.city === "Buenos Aires") return [-34.6037, -58.3816];
+    } catch {}
+    return [10.9971, -63.9137]; // Default Margarita
+  }
 
   const locationLower = location.toLowerCase();
-  
-  // Check for exact or partial matches
-  for (const [key, coords] of Object.entries(locationCoordinates)) {
+
+  // Check Buenos Aires coordinates first
+  for (const [key, coords] of Object.entries(buenosAiresCoordinates)) {
     if (locationLower.includes(key)) {
-      // Add small random offset for multiple vehicles in same area
+      const offset = 0.003;
+      return [
+        coords.lat + (Math.random() - 0.5) * offset,
+        coords.lng + (Math.random() - 0.5) * offset
+      ];
+    }
+  }
+
+  // Then check Margarita coordinates
+  for (const [key, coords] of Object.entries(margaritaCoordinates)) {
+    if (locationLower.includes(key)) {
       const offset = 0.005;
       return [
         coords.lat + (Math.random() - 0.5) * offset,
@@ -86,7 +124,17 @@ export const getCoordinatesFromLocation = (location) => {
     }
   }
 
-  // If no match, return default with slight randomization
+  // Fallback: detect branch from localStorage
+  try {
+    const branch = JSON.parse(localStorage.getItem('selectedBranch'));
+    if (branch?.city === "Buenos Aires") {
+      return [
+        -34.6037 + (Math.random() - 0.5) * 0.05,
+        -58.3816 + (Math.random() - 0.5) * 0.05
+      ];
+    }
+  } catch {}
+
   return [
     10.9971 + (Math.random() - 0.5) * 0.05,
     -63.9137 + (Math.random() - 0.5) * 0.05
@@ -96,11 +144,19 @@ export const getCoordinatesFromLocation = (location) => {
 export default function VehicleLocationMap({ vehicle, vehicles, height = "400px", zoom = 12, showPopup = true }) {
   const isSingleVehicle = !!vehicle;
   const vehicleList = isSingleVehicle ? [vehicle] : vehicles || [];
+
+  // Detect default center from branch or first vehicle
+  const getDefaultCenter = () => {
+    if (isSingleVehicle) return getCoordinatesFromLocation(vehicle.location);
+    if (vehicleList.length > 0) return getCoordinatesFromLocation(vehicleList[0].location);
+    try {
+      const branch = JSON.parse(localStorage.getItem('selectedBranch'));
+      if (branch?.city === "Buenos Aires") return [-34.6037, -58.3816];
+    } catch {}
+    return [10.9971, -63.9137];
+  };
   
-  // Calculate center based on vehicles
-  const center = isSingleVehicle 
-    ? getCoordinatesFromLocation(vehicle.location)
-    : [10.9971, -63.9137]; // Center of Isla de Margarita
+  const center = getDefaultCenter();
 
   return (
     <div style={{ height, width: "100%" }} className="rounded-2xl overflow-hidden border shadow-sm">
