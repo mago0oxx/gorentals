@@ -63,6 +63,15 @@ export default function Browse() {
   }, [selectedBranch]);
 
   const initializeBranch = async () => {
+    // First try to use the branch saved in localStorage
+    try {
+      const saved = localStorage.getItem('selectedBranch');
+      if (saved) {
+        setSelectedBranch(JSON.parse(saved));
+        return;
+      }
+    } catch {}
+    // Fallback: load Buenos Aires branch
     const branches = await base44.entities.Branch.list("sort_order");
     const buenosAires = branches.find(b => b.city === "Buenos Aires");
     if (buenosAires) {

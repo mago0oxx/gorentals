@@ -155,8 +155,7 @@ export default function Landing() {
               <Link to={createPageUrl("Profile")} className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors">
                 <User className="w-4 h-4" />
                 <span className="font-medium">
-                  Hola, prueba {user?.full_name?.split(' ')[0] || 'Usuario'}
-                  {t('messages.hello')}, {user?.full_name?.split(' ')[0] || t('messages.user')}
+                  Hola, {user?.full_name?.split(' ')[0] || 'Usuario'}
                 </span>
               </Link>
             )}
