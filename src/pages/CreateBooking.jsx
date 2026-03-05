@@ -225,7 +225,23 @@ export default function CreateBooking() {
         ]);
       }
 
-      await NotificationService.notifyNewBookingRequest(newBooking);
+      if (vehicle.instant_book) {
+        // Block dates immediately for instant book
+        const currentBlocked = vehicle.blocked_dates || [];
+        const newBlockedDates = [];
+        const startD = new Date(selectedDates.startDate);
+        const endD = new Date(selectedDates.endDate);
+        for (let d = new Date(startD); d <= endD; d.setDate(d.getDate() + 1)) {
+          const dateStr = d.toISOString().split("T")[0];
+          if (!currentBlocked.includes(dateStr)) newBlockedDates.push(dateStr);
+        }
+        await base44.entities.Vehicle.update(vehicle.id, {
+          blocked_dates: [...currentBlocked, ...newBlockedDates]
+        });
+        await NotificationService.notifyBookingApproved(newBooking);
+      } else {
+        await NotificationService.notifyNewBookingRequest(newBooking);
+      }
 
       navigate(createPageUrl(`BookingDetails?id=${newBooking.id}&success=true`));
     } catch (err) {
