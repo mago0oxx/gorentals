@@ -180,6 +180,8 @@ export default function AddVehicle() {
         owner_id: user.id,
         owner_name: user.full_name,
         owner_email: user.email,
+        branch_id: selectedBranch?.id || null,
+        branch_name: selectedBranch?.name || null,
         is_available: true,
         is_active: true,
         average_rating: 0,
