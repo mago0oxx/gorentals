@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { 
-  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info, Briefcase, User
+  ChevronLeft, Loader2, Upload, X, Car, DollarSign, MapPin, Info, Briefcase, User, Zap
 } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { motion } from "framer-motion";
@@ -74,7 +74,8 @@ export default function AddVehicle() {
     security_deposit: "",
     location: "",
     features: [],
-    allow_commercial_use: false
+    allow_commercial_use: false,
+    instant_book: false
   });
 
   const params = new URLSearchParams(window.location.search);
@@ -121,7 +122,8 @@ export default function AddVehicle() {
           security_deposit: v.security_deposit || "",
           location: v.location || "",
           features: v.features || [],
-          allow_commercial_use: v.allow_commercial_use || false
+          allow_commercial_use: v.allow_commercial_use || false,
+          instant_book: v.instant_book || false
         });
         setPhotos(v.photos || []);
       }
@@ -523,6 +525,22 @@ export default function AddVehicle() {
                     <Switch
                       checked={formData.allow_commercial_use}
                       onCheckedChange={(checked) => setFormData({ ...formData, allow_commercial_use: checked })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className={`flex items-center justify-between p-4 rounded-xl border-2 transition-colors ${formData.instant_book ? 'bg-teal-50 border-teal-200' : 'bg-gray-50 border-transparent'}`}>
+                    <div className="flex items-center gap-3">
+                      <Zap className={`w-5 h-5 ${formData.instant_book ? 'text-teal-600' : 'text-gray-600'}`} />
+                      <div>
+                        <p className="font-medium">Reserva instantánea</p>
+                        <p className="text-sm text-gray-500">Los arrendatarios pueden reservar sin tu aprobación previa (como en Turo)</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={formData.instant_book}
+                      onCheckedChange={(checked) => setFormData({ ...formData, instant_book: checked })}
                     />
                   </div>
                 </div>
