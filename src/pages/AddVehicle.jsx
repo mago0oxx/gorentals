@@ -79,6 +79,9 @@ export default function AddVehicle() {
 
   const params = new URLSearchParams(window.location.search);
   const editId = params.get("edit");
+  const selectedBranch = (() => {
+    try { return JSON.parse(localStorage.getItem('selectedBranch')); } catch { return null; }
+  })();
 
   useEffect(() => {
     loadData();
