@@ -171,6 +171,9 @@ export default function CreateBooking() {
         return;
       }
 
+      // If instant_book, skip pending and go straight to approved
+      const initialStatus = vehicle.instant_book ? "approved" : "pending";
+
       // Create booking
       const newBooking = await base44.entities.Booking.create({
         vehicle_id: vehicle.id,
@@ -197,7 +200,7 @@ export default function CreateBooking() {
         coupon_code: appliedCoupon?.code || null,
         total_amount: pricing.total,
         owner_payout: pricing.ownerPayout,
-        status: "pending",
+        status: initialStatus,
         payment_status: "pending",
         pickup_location: vehicle.location,
         notes: notes
