@@ -1,0 +1,48 @@
+{
+  "name": "PlatformSettings",
+  "type": "object",
+  "properties": {
+    "setting_key": {
+      "type": "string",
+      "description": "Clave de la configuraci\u00f3n"
+    },
+    "setting_value": {
+      "type": "string",
+      "description": "Valor de la configuraci\u00f3n"
+    },
+    "commission_percentage": {
+      "type": "number",
+      "default": 15,
+      "description": "Porcentaje de comisi\u00f3n de la plataforma"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "setting_key"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "ID de la reserva"
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "ID del veh\u00edculo"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID del propietario"
+    },
+    "renter_id": {
+      "type": "string",
+      "description": "ID del arrendatario"
+    },
+    "renter_name": {
+      "type": "string",
+      "description": "Nombre del arrendatario"
+    },
+    "renter_photo": {
+      "type": "string",
+      "description": "Foto del arrendatario"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Calificaci\u00f3n de 1 a 5"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Comentario de la rese\u00f1a"
+    },
+    "vehicle_condition_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Calificaci\u00f3n del estado del veh\u00edculo"
+    },
+    "owner_communication_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Calificaci\u00f3n de comunicaci\u00f3n del propietario"
+    }
+  },
+  "required": [
+    "booking_id",
+    "vehicle_id",
+    "rating"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.renter_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "data.renter_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.renter_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

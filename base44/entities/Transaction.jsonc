@@ -1,0 +1,78 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "ID de la reserva asociada"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario (propietario o arrendatario)"
+    },
+    "user_role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "renter",
+        "platform"
+      ],
+      "description": "Rol del usuario en la transacci\u00f3n"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "payment",
+        "payout",
+        "commission",
+        "refund",
+        "deposit_hold",
+        "deposit_release"
+      ],
+      "description": "Tipo de transacci\u00f3n"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Monto de la transacci\u00f3n"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Moneda"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Estado de la transacci\u00f3n"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n de la transacci\u00f3n"
+    },
+    "vehicle_title": {
+      "type": "string",
+      "description": "T\u00edtulo del veh\u00edculo"
+    },
+    "stripe_payment_intent_id": {
+      "type": "string",
+      "description": "ID del PaymentIntent de Stripe"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Datos adicionales"
+    }
+  },
+  "required": [
+    "booking_id",
+    "user_email",
+    "type",
+    "amount"
+  ]
+}

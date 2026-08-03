@@ -1,0 +1,88 @@
+{
+  "name": "Coupon",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "C\u00f3digo \u00fanico del cup\u00f3n"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre descriptivo del cup\u00f3n"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n de la promoci\u00f3n"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "percentage",
+        "fixed"
+      ],
+      "description": "Tipo de descuento"
+    },
+    "discount_value": {
+      "type": "number",
+      "description": "Valor del descuento (% o monto fijo)"
+    },
+    "min_booking_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Monto m\u00ednimo de reserva para aplicar"
+    },
+    "max_discount_amount": {
+      "type": "number",
+      "description": "Descuento m\u00e1ximo para cupones de porcentaje"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de inicio de validez"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de expiraci\u00f3n"
+    },
+    "usage_limit": {
+      "type": "number",
+      "description": "L\u00edmite total de usos (null = ilimitado)"
+    },
+    "usage_per_user": {
+      "type": "number",
+      "default": 1,
+      "description": "L\u00edmite de usos por usuario"
+    },
+    "used_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Veces que se ha usado"
+    },
+    "applicable_vehicle_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tipos de veh\u00edculos aplicables (vac\u00edo = todos)"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si se muestra en promociones destacadas"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el cup\u00f3n est\u00e1 activo"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "discount_type",
+    "discount_value",
+    "valid_from",
+    "valid_until"
+  ]
+}

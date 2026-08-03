@@ -1,0 +1,240 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "vehicle_id": {
+      "type": "string",
+      "description": "ID del veh\u00edculo"
+    },
+    "vehicle_title": {
+      "type": "string",
+      "description": "T\u00edtulo del veh\u00edculo"
+    },
+    "vehicle_photo": {
+      "type": "string",
+      "description": "Foto principal del veh\u00edculo"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID del propietario"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Nombre del propietario"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email del propietario"
+    },
+    "renter_id": {
+      "type": "string",
+      "description": "ID del arrendatario"
+    },
+    "renter_name": {
+      "type": "string",
+      "description": "Nombre del arrendatario"
+    },
+    "renter_email": {
+      "type": "string",
+      "description": "Email del arrendatario"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de inicio del alquiler"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de fin del alquiler"
+    },
+    "total_days": {
+      "type": "number",
+      "description": "N\u00famero total de d\u00edas"
+    },
+    "price_per_day": {
+      "type": "number",
+      "description": "Precio por d\u00eda al momento de la reserva"
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Subtotal (d\u00edas x precio)"
+    },
+    "platform_fee": {
+      "type": "number",
+      "description": "Comisi\u00f3n de la plataforma"
+    },
+    "security_deposit": {
+      "type": "number",
+      "description": "Dep\u00f3sito de seguridad"
+    },
+    "selected_extras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "price_type": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Extras/accesorios seleccionados"
+    },
+    "extras_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Costo total de extras"
+    },
+    "insurance_type": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "premium",
+        "none"
+      ],
+      "default": "none",
+      "description": "Tipo de seguro adicional"
+    },
+    "insurance_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Costo del seguro adicional"
+    },
+    "discount_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Monto de descuento aplicado"
+    },
+    "coupon_code": {
+      "type": "string",
+      "description": "C\u00f3digo de cup\u00f3n usado"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Monto total a pagar"
+    },
+    "owner_payout": {
+      "type": "number",
+      "description": "Pago al propietario"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "paid",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Estado de la reserva"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "refunded"
+      ],
+      "default": "pending",
+      "description": "Estado del pago"
+    },
+    "stripe_payment_intent_id": {
+      "type": "string",
+      "description": "ID del PaymentIntent de Stripe"
+    },
+    "pickup_location": {
+      "type": "string",
+      "description": "Lugar de recogida"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    },
+    "cancelled_by": {
+      "type": "string",
+      "description": "Qui\u00e9n cancel\u00f3 la reserva"
+    },
+    "cancellation_reason": {
+      "type": "string",
+      "description": "Raz\u00f3n de cancelaci\u00f3n"
+    }
+  },
+  "required": [
+    "vehicle_id",
+    "owner_id",
+    "renter_id",
+    "start_date",
+    "end_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.renter_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.renter_email": "{{user.email}}"
+        },
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.renter_email": "{{user.email}}"
+        },
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.renter_email": "{{user.email}}"
+        },
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

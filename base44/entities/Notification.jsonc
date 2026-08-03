@@ -1,0 +1,47 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario destinatario"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo de la notificaci\u00f3n"
+    },
+    "message": {
+      "type": "string",
+      "description": "Mensaje de la notificaci\u00f3n"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "booking_request",
+        "booking_approved",
+        "booking_rejected",
+        "booking_paid",
+        "booking_completed",
+        "booking_cancelled",
+        "pickup_reminder",
+        "return_reminder"
+      ],
+      "description": "Tipo de notificaci\u00f3n"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "ID de la reserva relacionada"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si la notificaci\u00f3n fue le\u00edda"
+    }
+  },
+  "required": [
+    "user_email",
+    "title",
+    "message",
+    "type"
+  ]
+}

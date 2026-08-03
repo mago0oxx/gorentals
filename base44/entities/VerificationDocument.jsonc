@@ -1,0 +1,101 @@
+{
+  "name": "VerificationDocument",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario que subi\u00f3 el documento"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Nombre del usuario"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "renter"
+      ],
+      "description": "Tipo de usuario"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "driver_license",
+        "vehicle_registration",
+        "vehicle_insurance",
+        "passport",
+        "dni"
+      ],
+      "description": "Tipo de documento"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "URL del documento subido"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Estado de verificaci\u00f3n del documento"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Email del admin que revis\u00f3"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de revisi\u00f3n"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Raz\u00f3n del rechazo"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    }
+  },
+  "required": [
+    "user_email",
+    "user_type",
+    "document_type",
+    "document_url"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

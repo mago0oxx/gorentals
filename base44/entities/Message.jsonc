@@ -1,0 +1,51 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "ID de la conversaci\u00f3n"
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "ID del remitente"
+    },
+    "sender_email": {
+      "type": "string",
+      "description": "Email del remitente"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Nombre del remitente"
+    },
+    "message": {
+      "type": "string",
+      "description": "Contenido del mensaje"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el mensaje fue le\u00eddo"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de lectura"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "sender_email",
+    "message"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": true,
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

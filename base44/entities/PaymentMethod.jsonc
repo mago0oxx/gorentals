@@ -1,0 +1,80 @@
+{
+  "name": "PaymentMethod",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario propietario"
+    },
+    "payment_provider": {
+      "type": "string",
+      "enum": [
+        "stripe",
+        "mercadopago"
+      ],
+      "description": "Proveedor de pago"
+    },
+    "payment_method_id": {
+      "type": "string",
+      "description": "ID del m\u00e9todo de pago en el proveedor"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "card",
+        "bank_transfer",
+        "digital_wallet"
+      ],
+      "description": "Tipo de m\u00e9todo de pago"
+    },
+    "last_four": {
+      "type": "string",
+      "description": "\u00daltimos 4 d\u00edgitos de la tarjeta"
+    },
+    "brand": {
+      "type": "string",
+      "description": "Marca de la tarjeta (Visa, Mastercard, etc.)"
+    },
+    "expiry_month": {
+      "type": "number",
+      "description": "Mes de expiraci\u00f3n"
+    },
+    "expiry_year": {
+      "type": "number",
+      "description": "A\u00f1o de expiraci\u00f3n"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si es el m\u00e9todo de pago predeterminado"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el m\u00e9todo est\u00e1 activo"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Datos adicionales del proveedor"
+    }
+  },
+  "required": [
+    "user_email",
+    "payment_provider",
+    "payment_method_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "data.user_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}

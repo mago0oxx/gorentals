@@ -1,0 +1,103 @@
+{
+  "name": "Conversation",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "ID de la reserva asociada"
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "ID del veh\u00edculo"
+    },
+    "vehicle_title": {
+      "type": "string",
+      "description": "T\u00edtulo del veh\u00edculo"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID del propietario"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email del propietario"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Nombre del propietario"
+    },
+    "renter_id": {
+      "type": "string",
+      "description": "ID del arrendatario"
+    },
+    "renter_email": {
+      "type": "string",
+      "description": "Email del arrendatario"
+    },
+    "renter_name": {
+      "type": "string",
+      "description": "Nombre del arrendatario"
+    },
+    "last_message": {
+      "type": "string",
+      "description": "\u00daltimo mensaje enviado"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha del \u00faltimo mensaje"
+    },
+    "unread_count_owner": {
+      "type": "number",
+      "default": 0,
+      "description": "Mensajes no le\u00eddos del propietario"
+    },
+    "unread_count_renter": {
+      "type": "number",
+      "default": 0,
+      "description": "Mensajes no le\u00eddos del arrendatario"
+    }
+  },
+  "required": [
+    "vehicle_id",
+    "owner_email",
+    "renter_email"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "data.renter_email": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "data.renter_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "data.renter_email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

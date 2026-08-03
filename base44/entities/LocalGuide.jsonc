@@ -1,0 +1,94 @@
+{
+  "name": "LocalGuide",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del lugar o ruta"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "beach",
+        "restaurant",
+        "route",
+        "attraction"
+      ],
+      "description": "Categor\u00eda de la gu\u00eda"
+    },
+    "location": {
+      "type": "string",
+      "description": "Ubicaci\u00f3n en Isla de Margarita"
+    },
+    "coordinates": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        }
+      },
+      "description": "Coordenadas GPS"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de fotos del lugar"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Calificaci\u00f3n del lugar"
+    },
+    "price_level": {
+      "type": "string",
+      "enum": [
+        "free",
+        "budget",
+        "moderate",
+        "expensive"
+      ],
+      "description": "Nivel de precio"
+    },
+    "tips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Consejos y recomendaciones"
+    },
+    "best_time_to_visit": {
+      "type": "string",
+      "description": "Mejor momento para visitar"
+    },
+    "duration": {
+      "type": "string",
+      "description": "Duraci\u00f3n sugerida de la visita"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si es destacado"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si est\u00e1 activo"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "category",
+    "location"
+  ]
+}

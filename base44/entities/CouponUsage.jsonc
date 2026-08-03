@@ -1,0 +1,45 @@
+{
+  "name": "CouponUsage",
+  "type": "object",
+  "properties": {
+    "coupon_id": {
+      "type": "string",
+      "description": "ID del cup\u00f3n usado"
+    },
+    "coupon_code": {
+      "type": "string",
+      "description": "C\u00f3digo del cup\u00f3n"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "ID de la reserva"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "discount_amount": {
+      "type": "number",
+      "description": "Monto de descuento aplicado"
+    },
+    "original_amount": {
+      "type": "number",
+      "description": "Monto original antes del descuento"
+    },
+    "final_amount": {
+      "type": "number",
+      "description": "Monto final despu\u00e9s del descuento"
+    }
+  },
+  "required": [
+    "coupon_id",
+    "coupon_code",
+    "booking_id",
+    "user_email",
+    "discount_amount"
+  ]
+}

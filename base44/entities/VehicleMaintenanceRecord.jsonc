@@ -1,0 +1,98 @@
+{
+  "name": "VehicleMaintenanceRecord",
+  "type": "object",
+  "properties": {
+    "vehicle_id": {
+      "type": "string",
+      "description": "ID del veh\u00edculo"
+    },
+    "vehicle_title": {
+      "type": "string",
+      "description": "T\u00edtulo del veh\u00edculo"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID del propietario"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email del propietario"
+    },
+    "record_type": {
+      "type": "string",
+      "enum": [
+        "maintenance",
+        "repair",
+        "incident",
+        "inspection"
+      ],
+      "description": "Tipo de registro"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del registro"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha del mantenimiento/incidente"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Costo del servicio/reparaci\u00f3n"
+    },
+    "mileage": {
+      "type": "number",
+      "description": "Kilometraje al momento del registro"
+    },
+    "service_provider": {
+      "type": "string",
+      "description": "Taller o proveedor del servicio"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de documentos (facturas, reportes)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    }
+  },
+  "required": [
+    "vehicle_id",
+    "owner_email",
+    "record_type",
+    "title",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "data.owner_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.owner_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.owner_email": "{{user.email}}"
+    }
+  }
+}

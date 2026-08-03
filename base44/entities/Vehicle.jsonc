@@ -1,0 +1,180 @@
+{
+  "name": "Vehicle",
+  "type": "object",
+  "properties": {
+    "branch_id": {
+      "type": "string",
+      "description": "ID de la sucursal"
+    },
+    "branch_name": {
+      "type": "string",
+      "description": "Nombre de la sucursal"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID del propietario"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Nombre del propietario"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email del propietario"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del listado"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada del veh\u00edculo"
+    },
+    "vehicle_type": {
+      "type": "string",
+      "enum": [
+        "sedan",
+        "suv",
+        "pickup",
+        "van",
+        "motorcycle",
+        "compact"
+      ],
+      "description": "Tipo de veh\u00edculo"
+    },
+    "brand": {
+      "type": "string",
+      "description": "Marca del veh\u00edculo"
+    },
+    "model": {
+      "type": "string",
+      "description": "Modelo del veh\u00edculo"
+    },
+    "year": {
+      "type": "number",
+      "description": "A\u00f1o del veh\u00edculo"
+    },
+    "transmission": {
+      "type": "string",
+      "enum": [
+        "automatic",
+        "manual"
+      ],
+      "description": "Tipo de transmisi\u00f3n"
+    },
+    "fuel_type": {
+      "type": "string",
+      "enum": [
+        "gasoline",
+        "diesel",
+        "electric",
+        "hybrid"
+      ],
+      "description": "Tipo de combustible"
+    },
+    "seats": {
+      "type": "number",
+      "description": "N\u00famero de asientos"
+    },
+    "price_per_day": {
+      "type": "number",
+      "description": "Precio por d\u00eda en USD"
+    },
+    "security_deposit": {
+      "type": "number",
+      "description": "Dep\u00f3sito de seguridad en USD"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de las fotos del veh\u00edculo"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Caracter\u00edsticas del veh\u00edculo (AC, GPS, etc.)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Ubicaci\u00f3n de recogida"
+    },
+    "allow_commercial_use": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si se permite usar el veh\u00edculo para apps como Uber/DiDi"
+    },
+    "instant_book": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el veh\u00edculo permite reserva instant\u00e1nea sin aprobaci\u00f3n del propietario"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el veh\u00edculo est\u00e1 disponible para alquilar"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el listado est\u00e1 activo"
+    },
+    "average_rating": {
+      "type": "number",
+      "default": 0,
+      "description": "Calificaci\u00f3n promedio"
+    },
+    "total_reviews": {
+      "type": "number",
+      "default": 0,
+      "description": "N\u00famero total de rese\u00f1as"
+    },
+    "total_bookings": {
+      "type": "number",
+      "default": 0,
+      "description": "N\u00famero total de reservas completadas"
+    },
+    "blocked_dates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fechas bloqueadas (formato YYYY-MM-DD)"
+    },
+    "extras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "price_type": {
+            "type": "string",
+            "enum": [
+              "per_day",
+              "one_time"
+            ]
+          }
+        }
+      },
+      "description": "Extras/accesorios disponibles"
+    }
+  },
+  "required": [
+    "owner_id",
+    "title",
+    "brand",
+    "model",
+    "price_per_day"
+  ]
+}
